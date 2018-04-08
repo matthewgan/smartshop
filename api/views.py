@@ -7,8 +7,11 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 import requests
+from rest_framework.decorators import authentication_classes, permission_classes
 
 
+@authentication_classes([])
+@permission_classes([])
 def TestView(request):
     return request.data
 
@@ -71,6 +74,8 @@ class WxUserViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
+@authentication_classes([])
+@permission_classes([])
 class ShopViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Shop.objects.all()
     serializer_class = ShopSerializer
