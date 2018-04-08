@@ -53,8 +53,8 @@ class CustomerViewSet(viewsets.ModelViewSet):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
 
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          IsOwnerOrReadOnly,)
+    # permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+    #                       IsOwnerOrReadOnly,)
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -71,7 +71,7 @@ class OwnerViewSet(viewsets.ReadOnlyModelViewSet):
 class WxUserViewSet(viewsets.ModelViewSet):
     queryset = WxUser.objects.all()
     serializer_class = WxUserSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    # permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
 @authentication_classes([])
