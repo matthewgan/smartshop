@@ -10,7 +10,7 @@ import requests
 
 
 def TestView(request):
-    return Response(request)
+    return request.data
 
 
 @api_view(['GET'])
