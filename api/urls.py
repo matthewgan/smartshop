@@ -3,6 +3,7 @@ from django.conf.urls import url, include
 from rest_framework.documentation import include_docs_urls
 from rest_framework.routers import DefaultRouter
 from api import views
+from rest_framework_jwt.views import refresh_jwt_token
 
 router = DefaultRouter()
 router.register(r'customer', views.CustomerViewSet)
@@ -24,12 +25,15 @@ schema_view = get_schema_view(title=API_TITLE)
 
 
 urlpatterns = [
+    url(r'^rest_auth/', include('rest_auth.urls')),
+    url(r'^rest_auth/registration/', include('rest_auth.registration.urls')),
     url(r'^', include(router.urls, namespace='api')),
     url(r'^test/$', views.TestView),
     url(r'^login/$', views.LoginView),
-    url(r'^auth/', include('rest_framework.urls', namespace='rest_framework')),
+    #url(r'^auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^schema/$', schema_view),
     url(r'^docs/', include_docs_urls(title=API_TITLE,
                                      description=API_DESCRIPTION),
         ),
+    url(r'^refresh-token/', refresh_jwt_token),
 ]
