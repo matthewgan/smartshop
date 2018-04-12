@@ -132,7 +132,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
 # Configuration the JWT(JSON Web Tokens) to expire after 1 hour, and allow users to refresh near-expiration token
 JWT_AUTH = {
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(hours=1),
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=10),
     'JWT_ALLOW_REFRESH': True,
 }
 
