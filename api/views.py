@@ -26,7 +26,7 @@ def LoginView(request):
     extUrl3 = '&grant_type=authorization_code'
     if request.method == 'GET':
         code = request.data.get('code')
-        content = baseUrl + appid + extUrl1 + secret + extUrl2 + code + extUrl3
+        content = baseUrl + appid + extUrl1 + secret + extUrl2 + str(code) + extUrl3
         r = requests.get(content).json()
         # validation check
         if r.get('errcode') is not None:
