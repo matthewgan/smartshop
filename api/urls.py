@@ -27,7 +27,7 @@ schema_view = get_schema_view(title=API_TITLE)
 urlpatterns = [
     url(r'^rest_auth/', include('rest_auth.urls')),
     url(r'^rest_auth/registration/', include('rest_auth.registration.urls')),
-    #url(r'^', include(router.urls, namespace='api')),
+    url(r'^', include(router.urls, namespace='api')),
     url(r'^test/$', views.TestView),
     #url(r'^login/$', views.LoginView),
     url(r'^wxlogin/$', views.OnLogin.as_view()),
