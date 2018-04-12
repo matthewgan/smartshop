@@ -15,8 +15,9 @@ from rest_framework.decorators import authentication_classes, permission_classes
 def TestView(request):
     return request.data
 
-
-@api_view(['POST'])
+@authentication_classes([])
+@permission_classes([])
+@api_view(['POST','GET'])
 def LoginView(request):
     secret = '83d851c655e5c4ba714decda83ad5c6b'
     appid = 'wx23c4e200139a74ee'
