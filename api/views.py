@@ -46,6 +46,7 @@ def LoginView(request):
                 userinfo = WxUser.objects.get(openid=openid)
 
 
+
 class CustomerViewSet(viewsets.ModelViewSet):
     """
         This viewset automatically provides `list` and `detail` actions.
