@@ -64,7 +64,7 @@ class OnLogin(APIView):
                      # search again to get userid
                      userinfo = Customer.objects.get(openid=openid)
                      if userinfo is not None:
-                        return Response(userinfo.uuid)
+                        return Response(openid)
 
 
 
