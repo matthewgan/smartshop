@@ -16,7 +16,7 @@ def TestView(request):
     return request.data
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 def LoginView(request):
     secret = '83d851c655e5c4ba714decda83ad5c6b'
     appid = 'wx23c4e200139a74ee'
@@ -24,7 +24,7 @@ def LoginView(request):
     extUrl1 = '&secret='
     extUrl2 = '&js_code='
     extUrl3 = '&grant_type=authorization_code'
-    if request.method == 'GET':
+    if request.method == 'POST':
         return Response(appid)
         # code = request.data.get('code')
         # content = baseUrl + appid + extUrl1 + secret + extUrl2 + str(code) + extUrl3
