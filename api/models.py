@@ -11,8 +11,8 @@ GENDER_DEFINES = (
 # Create your models here.
 class Customer(models.Model):
     id = models.AutoField(primary_key=True)
-    uuid = models.CharField(max_length=30)
-    nickName = models.CharField(max_length=32)
+    uuid = models.CharField(max_length=30, blank=True)
+    nickName = models.CharField(max_length=32, blank=True)
     avatarUrl = models.URLField(max_length=200, blank=True)
     gender = models.CharField(max_length=1, choices=GENDER_DEFINES)
     city = models.CharField(max_length=15, blank=True)
