@@ -11,8 +11,8 @@ import requests
 from rest_framework.decorators import authentication_classes, permission_classes
 
 
-@authentication_classes([])
-@permission_classes([])
+# @authentication_classes([])
+# @permission_classes([])
 def TestView(request):
     return request.data
 
@@ -20,7 +20,10 @@ def TestView(request):
 #@permission_classes([])
 #@api_view(['POST','GET'])
 #def LoginView(request):
-class UserLogin(APIView):
+class OnLogin(APIView):
+
+    def get(self, request, format=None):
+        return Response(status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
         """
@@ -33,7 +36,7 @@ class UserLogin(APIView):
         extUrl2 = '&js_code='
         extUrl3 = '&grant_type=authorization_code'
         #if request.method == 'POST':
-        return Response(appid)
+        return Response(status=status.HTTP_202_ACCEPTED)
             # code = request.data.get('code')
             # content = baseUrl + appid + extUrl1 + secret + extUrl2 + str(code) + extUrl3
             # r = requests.get(content).json()
