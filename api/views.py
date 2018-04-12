@@ -32,8 +32,8 @@ class UserLogin(APIView):
         extUrl1 = '&secret='
         extUrl2 = '&js_code='
         extUrl3 = '&grant_type=authorization_code'
-        if request.method == 'POST':
-            return Response(appid)
+        #if request.method == 'POST':
+        return Response(appid)
             # code = request.data.get('code')
             # content = baseUrl + appid + extUrl1 + secret + extUrl2 + str(code) + extUrl3
             # r = requests.get(content).json()
