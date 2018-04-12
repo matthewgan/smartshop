@@ -21,7 +21,7 @@ class Customer(models.Model):
     language = models.CharField(max_length=15, blank=True)
     level = models.CharField(max_length=15, blank=True)
     point = models.CharField(max_length=15, blank=True)
-    face = models.CharField(max_length=30, blank=True)
+    faceId = models.CharField(max_length=30, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey('auth.User', related_name='customers', on_delete=models.CASCADE)
 
