@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from django.contrib.auth.models import User
 import requests
 from rest_framework.decorators import authentication_classes, permission_classes
+import uuid
 
 
 # @authentication_classes([])
@@ -35,27 +36,35 @@ class OnLogin(APIView):
         extUrl1 = '&secret='
         extUrl2 = '&js_code='
         extUrl3 = '&grant_type=authorization_code'
-        #if request.method == 'POST':
-        return Response(status=status.HTTP_202_ACCEPTED)
-            # code = request.data.get('code')
-            # content = baseUrl + appid + extUrl1 + secret + extUrl2 + str(code) + extUrl3
-            # r = requests.get(content).json()
-            # # validation check
-            # if r.get('errcode') is not None:
-            #     return Response(r, status=status.HTTP_400_BAD_REQUEST)
-            # else:
-            #     openid = r.get('openid')
-            #     session_key = r.get('session_key')
-            #     unionid = r.get('unionid')
-            #     # do search in the database
-            #     userinfo = WxUser.objects.filter(openid=openid)
-            #     if userinfo is None:
-            #         # add new user
-            #         newuser = WxUser.objects.create(code=code, openid=openid, session_key=session_key, unionid=unionid)
-            #         newuser.save()
-            #         isNew = True
-            #         # search again to get userid
-            #         userinfo = WxUser.objects.get(openid=openid)
+        if request.method == 'POST':
+             code = request.data.get('code')
+             nickName = request.data.get('userNickname')
+             avataUrl = request.data.get('userAvatarUrl')
+             gender = request.data.get('userGender')
+             city = request.data.get('userCity')
+             province = request.data.get('userProvince')
+             country = request.data.get('userCountry')
+             language = request.data.get('userLanguage')
+             content = baseUrl + appid + extUrl1 + secret + extUrl2 + str(code) + extUrl3
+             r = requests.get(content).json()
+             # validation check
+             if r.get('errcode') is not None:
+                 return Response(r, status=status.HTTP_400_BAD_REQUEST)
+             else:
+                 openid = r.get('openid')
+                 session_key = r.get('session_key')
+                 # do search in the database
+                 userinfo = Customer.objects.filter(openid=openid)
+                 if userinfo is None:
+                     # add new user
+                     userUuid = uuid.uuid1()
+                     newuser = Customer.objects.create(openid=openid,nickName=nickName,avataUrl=avataUrl,gender=gender,city=city,province=province,country=country,language=language,uuid=userUuid)
+                     newuser.save()
+
+                     # search again to get userid
+                     userinfo = Customer.objects.get(openid=openid)
+                     if userinfo is not None:
+                        return Response(userinfo.uuid)
 
 
 

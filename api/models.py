@@ -10,7 +10,8 @@ GENDER_DEFINES = (
 
 # Create your models here.
 class Customer(models.Model):
-    userid = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True)
+    uuid = models.CharField(max_length=30)
     nickName = models.CharField(max_length=32)
     avatarUrl = models.URLField(max_length=200, blank=True)
     gender = models.CharField(max_length=1, choices=GENDER_DEFINES)
@@ -18,6 +19,9 @@ class Customer(models.Model):
     province = models.CharField(max_length=15, blank=True)
     country = models.CharField(max_length=15, blank=True)
     language = models.CharField(max_length=15, blank=True)
+    level = models.CharField(max_length=15, blank=True)
+    point = models.CharField(max_length=15, blank=True)
+    face = models.CharField(max_length=30, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey('auth.User', related_name='customers', on_delete=models.CASCADE)
 
