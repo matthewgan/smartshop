@@ -30,7 +30,7 @@ urlpatterns = [
     url(r'^', include(router.urls, namespace='api')),
     url(r'^test/$', views.TestView),
     #url(r'^login/$', views.LoginView),
-    url(r'^login/$', views.UserLogin.as_view()),
+    url(r'^login/$', views.OnLogin.as_view()),
     #url(r'^auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^schema/$', schema_view),
     url(r'^docs/', include_docs_urls(title=API_TITLE,
