@@ -134,6 +134,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(days=10),
     'JWT_ALLOW_REFRESH': True,
+    'JWT_VERIFY_EXPIRATION' : False,
 }
 
 # Make JWT Auth the default authenication mechanism for Django
