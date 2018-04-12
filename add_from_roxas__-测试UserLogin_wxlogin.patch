@@ -1,0 +1,16 @@
+Index: api/urls.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- api/urls.py	(revision a9a62a378dd9755fb98b90cd0f5aba6aafdc402b)
++++ api/urls.py	(date 1523552636323)
+@@ -30,7 +30,7 @@
+     url(r'^', include(router.urls, namespace='api')),
+     url(r'^test/$', views.TestView),
+     #url(r'^login/$', views.LoginView),
+-    url(r'^login/$', views.OnLogin.as_view()),
++    url(r'^wxlogin/$', views.OnLogin.as_view()),
+     #url(r'^auth/', include('rest_framework.urls', namespace='rest_framework')),
+     url(r'^schema/$', schema_view),
+     url(r'^docs/', include_docs_urls(title=API_TITLE,
