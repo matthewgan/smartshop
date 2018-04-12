@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from rest_framework import viewsets, permissions, status
+from rest_framework.views import APIView
 from api.models import *
 from api.serializers import *
 from api.permissions import IsOwnerOrReadOnly
@@ -15,37 +16,43 @@ from rest_framework.decorators import authentication_classes, permission_classes
 def TestView(request):
     return request.data
 
-@authentication_classes([])
-@permission_classes([])
-@api_view(['POST','GET'])
-def LoginView(request):
-    secret = '83d851c655e5c4ba714decda83ad5c6b'
-    appid = 'wx23c4e200139a74ee'
-    baseUrl = 'https://api.weixin.qq.com/sns/jscode2session?appid='
-    extUrl1 = '&secret='
-    extUrl2 = '&js_code='
-    extUrl3 = '&grant_type=authorization_code'
-    if request.method == 'POST':
-        return Response(appid)
-        # code = request.data.get('code')
-        # content = baseUrl + appid + extUrl1 + secret + extUrl2 + str(code) + extUrl3
-        # r = requests.get(content).json()
-        # # validation check
-        # if r.get('errcode') is not None:
-        #     return Response(r, status=status.HTTP_400_BAD_REQUEST)
-        # else:
-        #     openid = r.get('openid')
-        #     session_key = r.get('session_key')
-        #     unionid = r.get('unionid')
-        #     # do search in the database
-        #     userinfo = WxUser.objects.filter(openid=openid)
-        #     if userinfo is None:
-        #         # add new user
-        #         newuser = WxUser.objects.create(code=code, openid=openid, session_key=session_key, unionid=unionid)
-        #         newuser.save()
-        #         isNew = True
-        #         # search again to get userid
-        #         userinfo = WxUser.objects.get(openid=openid)
+#@authentication_classes([])
+#@permission_classes([])
+#@api_view(['POST','GET'])
+#def LoginView(request):
+class UserLogin(APIView):
+
+    def post(self, request, format=None):
+        """
+        Return a list of all users.
+        """
+        secret = '83d851c655e5c4ba714decda83ad5c6b'
+        appid = 'wx23c4e200139a74ee'
+        baseUrl = 'https://api.weixin.qq.com/sns/jscode2session?appid='
+        extUrl1 = '&secret='
+        extUrl2 = '&js_code='
+        extUrl3 = '&grant_type=authorization_code'
+        if request.method == 'POST':
+            return Response(appid)
+            # code = request.data.get('code')
+            # content = baseUrl + appid + extUrl1 + secret + extUrl2 + str(code) + extUrl3
+            # r = requests.get(content).json()
+            # # validation check
+            # if r.get('errcode') is not None:
+            #     return Response(r, status=status.HTTP_400_BAD_REQUEST)
+            # else:
+            #     openid = r.get('openid')
+            #     session_key = r.get('session_key')
+            #     unionid = r.get('unionid')
+            #     # do search in the database
+            #     userinfo = WxUser.objects.filter(openid=openid)
+            #     if userinfo is None:
+            #         # add new user
+            #         newuser = WxUser.objects.create(code=code, openid=openid, session_key=session_key, unionid=unionid)
+            #         newuser.save()
+            #         isNew = True
+            #         # search again to get userid
+            #         userinfo = WxUser.objects.get(openid=openid)
 
 
 
