@@ -45,7 +45,10 @@ class OnLogin(APIView):
              # province = request.data.get('userProvince')
              # country = request.data.get('userCountry')
              # language = request.data.get('userLanguage')
-             content = baseUrl + appid + extUrl1 + secret + extUrl2 + code + extUrl3
+             if code is not None:
+                 content = baseUrl + appid + extUrl1 + secret + extUrl2 + code + extUrl3
+             else:
+                 return Response(request.data, status=status.HTTP_406_NOT_ACCEPTABLE)
              r = requests.get(content).json()
              # validation check
              if r.get('errcode') is not None:
