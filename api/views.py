@@ -32,8 +32,8 @@ class OnLogin(APIView):
         """
         Return a list of all users.
         """
-        secret = '83d851c655e5c4ba714decda83ad5c6b'
-        appid = 'wx23c4e200139a74ee'
+        secret = '718e7129d896293311243ae4124de58e'
+        appid = 'wx77d45362c6c2763e'
         baseUrl = 'https://api.weixin.qq.com/sns/jscode2session?appid='
         extUrl1 = '&secret='
         extUrl2 = '&js_code='
