@@ -12,8 +12,6 @@ from rest_framework.decorators import authentication_classes, permission_classes
 import uuid
 
 
-# @authentication_classes([])
-# @permission_classes([])
 def TestView(request):
     return request.data
 
@@ -32,7 +30,7 @@ class OnLogin(APIView):
         """
         Return a list of all users.
         """
-        secret = '718e7129d896293311243ae4124de58e'
+        secret = 'e90efc114a06215f1c9ddac8dcf70d4e'
         appid = 'wx77d45362c6c2763e'
         baseUrl = 'https://api.weixin.qq.com/sns/jscode2session?appid='
         extUrl1 = '&secret='
@@ -40,14 +38,14 @@ class OnLogin(APIView):
         extUrl3 = '&grant_type=authorization_code'
         if request.method == 'POST':
              code = request.data.get('code')
-             nickName = request.data.get('userNickname')
-             avataUrl = request.data.get('userAvatarUrl')
-             gender = request.data.get('userGender')
-             city = request.data.get('userCity')
-             province = request.data.get('userProvince')
-             country = request.data.get('userCountry')
-             language = request.data.get('userLanguage')
-             content = baseUrl + appid + extUrl1 + secret + extUrl2 + str(code) + extUrl3
+             # nickName = request.data.get('userNickname')
+             # avataUrl = request.data.get('userAvatarUrl')
+             # gender = request.data.get('userGender')
+             # city = request.data.get('userCity')
+             # province = request.data.get('userProvince')
+             # country = request.data.get('userCountry')
+             # language = request.data.get('userLanguage')
+             content = baseUrl + appid + extUrl1 + secret + extUrl2 + code + extUrl3
              r = requests.get(content).json()
              # validation check
              if r.get('errcode') is not None:
