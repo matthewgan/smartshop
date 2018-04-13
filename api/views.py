@@ -51,20 +51,21 @@ class OnLogin(APIView):
              if r.get('errcode') is not None:
                  return Response(r, status=status.HTTP_400_BAD_REQUEST)
              else:
-                 openid = r.get('openid')
+                 #openid = r.get('openid')
+                 return Response(r, status=status.HTTP_200_OK)
                  session_key = r.get('session_key')
                  # do search in the database
-                 userinfo = Customer.objects.filter(openid=openid)
-                 if userinfo is None:
-                     # add new user
-                     userUuid = uuid.uuid1()
-                     newuser = Customer.objects.create(openid=openid,nickName=nickName,avataUrl=avataUrl,gender=gender,city=city,province=province,country=country,language=language,uuid=userUuid)
-                     newuser.save()
-
-                     # search again to get userid
-                     userinfo = Customer.objects.get(openid=openid)
-                     if userinfo is not None:
-                        return Response(openid)
+                 # userinfo = Customer.objects.filter(openid=openid)
+                 # if userinfo is None:
+                 #     # add new user
+                 #     userUuid = uuid.uuid1()
+                 #     newuser = Customer.objects.create(openid=openid,nickName=nickName,avataUrl=avataUrl,gender=gender,city=city,province=province,country=country,language=language,uuid=userUuid)
+                 #     newuser.save()
+                 #
+                 #     # search again to get userid
+                 #     userinfo = Customer.objects.get(openid=openid)
+                 #     if userinfo is not None:
+                 #        return Response(openid)
 
 
 
