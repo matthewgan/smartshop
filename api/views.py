@@ -21,6 +21,8 @@ def TestView(request):
 #@permission_classes([])
 #@api_view(['POST','GET'])
 #def LoginView(request):
+
+
 class OnLogin(APIView):
 
     def get(self, request, format=None):
