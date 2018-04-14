@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 import requests
 from rest_framework.decorators import authentication_classes, permission_classes
 import uuid
+from django.http import JsonResponse
 
 
 
@@ -75,7 +76,7 @@ class OnLogin(APIView):
                 ret = {
                     'uuid': userinfo.uuid,
                 }
-                return Response(ret, status=status.HTTP_200_OK)
+                return JsonResponse(ret, status=status.HTTP_200_OK)
 
 
 class CustomerViewSet(viewsets.ModelViewSet):
