@@ -31,13 +31,13 @@ class OnLogin(APIView):
         extUrl3 = '&grant_type=authorization_code'
         if request.method == 'POST':
             code = request.data.get('code')
-            # nickName = request.data.get('userNickname')
-            # avataUrl = request.data.get('userAvatarUrl')
-            # gender = request.data.get('userGender')
-            # city = request.data.get('userCity')
-            # province = request.data.get('userProvince')
-            # country = request.data.get('userCountry')
-            # language = request.data.get('userLanguage')
+            nickName = request.data.get('userNickname')
+            avataUrl = request.data.get('userAvatarUrl')
+            gender = request.data.get('userGender')
+            city = request.data.get('userCity')
+            province = request.data.get('userProvince')
+            country = request.data.get('userCountry')
+            language = request.data.get('userLanguage')
             # input value check
             try:
                 content = baseUrl + appid + extUrl1 + secret + extUrl2 + code + extUrl3
@@ -52,26 +52,30 @@ class OnLogin(APIView):
             else:
                 openid = res.get('openid')
                 session_key = res.get('session_key')
+                # do search in the database
+                userinfo = Customer.objects.get(openid=openid)
+                # new user save to database
+                if userinfo is None:
+                    # add new user
+                    useruuid = uuid.uuid1()
+                    newuser = Customer.objects.create(openid=openid,
+                                                      nickName=nickName,
+                                                      avataUrl=avataUrl,
+                                                      gender=gender,
+                                                      city=city,
+                                                      province=province,
+                                                      country=country,
+                                                      language=language,
+                                                      uuid=useruuid)
+                    newuser.save()
+                    # do search again
+                    userinfo = Customer.objects.get(openid=openid)
+
+                # get uuid from database
                 ret = {
-                    'openid': openid,
-                    'uuid': 1,
-                    'session_key': session_key,
+                    'uuid': userinfo.uuid,
                 }
                 return Response(ret, status=status.HTTP_200_OK)
-
-                # do search in the database
-                # userinfo = Customer.objects.filter(openid=openid)
-                # if userinfo is None:
-                #     # add new user
-                #     userUuid = uuid.uuid1()
-                #     newuser = Customer.objects.create(openid=openid,nickName=nickName,avataUrl=avataUrl,gender=gender,city=city,province=province,country=country,language=language,uuid=userUuid)
-                #     newuser.save()
-                #
-                #     # search again to get userid
-                #     userinfo = Customer.objects.get(openid=openid)
-                #     if userinfo is not None:
-                #        return Response(openid)
-
 
 
 class CustomerViewSet(viewsets.ModelViewSet):
