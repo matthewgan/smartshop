@@ -12,63 +12,65 @@ from rest_framework.decorators import authentication_classes, permission_classes
 import uuid
 
 
-def TestView(request):
-    return request.data
-
-#@authentication_classes([])
-#@permission_classes([])
-#@api_view(['POST','GET'])
-#def LoginView(request):
-
 
 class OnLogin(APIView):
-
-    def get(self, request, format=None):
-        return Response(status=status.HTTP_200_OK)
-
+    # def get(self, request, format=None):
+    #     return Response(status=status.HTTP_200_OK)
     def post(self, request, format=None):
         """
-        Return a list of all users.
+        Receive code from miniapp,
+        Request wxid and sessionkey from wechat API
         """
+        # appid and secret from wechat miniapp website
         secret = 'e90efc114a06215f1c9ddac8dcf70d4e'
         appid = 'wx77d45362c6c2763e'
+        # fixed wechat API address for wx.login
         baseUrl = 'https://api.weixin.qq.com/sns/jscode2session?appid='
         extUrl1 = '&secret='
         extUrl2 = '&js_code='
         extUrl3 = '&grant_type=authorization_code'
         if request.method == 'POST':
-             code = request.data.get('code')
-             # nickName = request.data.get('userNickname')
-             # avataUrl = request.data.get('userAvatarUrl')
-             # gender = request.data.get('userGender')
-             # city = request.data.get('userCity')
-             # province = request.data.get('userProvince')
-             # country = request.data.get('userCountry')
-             # language = request.data.get('userLanguage')
-             if code is not None:
-                 content = baseUrl + appid + extUrl1 + secret + extUrl2 + code + extUrl3
-             else:
-                 return Response(request.data, status=status.HTTP_406_NOT_ACCEPTABLE)
-             r = requests.get(content).json()
-             # validation check
-             if r.get('errcode') is not None:
-                 return Response(r, status=status.HTTP_400_BAD_REQUEST)
-             else:
-                 #openid = r.get('openid')
-                 return Response(r, status=status.HTTP_200_OK)
-                 session_key = r.get('session_key')
-                 # do search in the database
-                 # userinfo = Customer.objects.filter(openid=openid)
-                 # if userinfo is None:
-                 #     # add new user
-                 #     userUuid = uuid.uuid1()
-                 #     newuser = Customer.objects.create(openid=openid,nickName=nickName,avataUrl=avataUrl,gender=gender,city=city,province=province,country=country,language=language,uuid=userUuid)
-                 #     newuser.save()
-                 #
-                 #     # search again to get userid
-                 #     userinfo = Customer.objects.get(openid=openid)
-                 #     if userinfo is not None:
-                 #        return Response(openid)
+            code = request.data.get('code')
+            # nickName = request.data.get('userNickname')
+            # avataUrl = request.data.get('userAvatarUrl')
+            # gender = request.data.get('userGender')
+            # city = request.data.get('userCity')
+            # province = request.data.get('userProvince')
+            # country = request.data.get('userCountry')
+            # language = request.data.get('userLanguage')
+            # input value check
+            try:
+                content = baseUrl + appid + extUrl1 + secret + extUrl2 + code + extUrl3
+            except ValueError:
+                return Response(request.data, status=status.HTTP_400_BAD_REQUEST)
+
+            # request wechat API and get json response
+            res = requests.get(content).json()
+            # validation check
+            if res.get('errcode') is not None:
+                return Response(res, status=status.HTTP_204_NO_CONTENT)
+            else:
+                openid = res.get('openid')
+                session_key = res.get('session_key')
+                ret = {
+                    openid: openid,
+                    uuid : 1,
+                    session_key: session_key,
+                }
+                return Response(ret, status=status.HTTP_200_OK)
+
+                # do search in the database
+                # userinfo = Customer.objects.filter(openid=openid)
+                # if userinfo is None:
+                #     # add new user
+                #     userUuid = uuid.uuid1()
+                #     newuser = Customer.objects.create(openid=openid,nickName=nickName,avataUrl=avataUrl,gender=gender,city=city,province=province,country=country,language=language,uuid=userUuid)
+                #     newuser.save()
+                #
+                #     # search again to get userid
+                #     userinfo = Customer.objects.get(openid=openid)
+                #     if userinfo is not None:
+                #        return Response(openid)
 
 
 
