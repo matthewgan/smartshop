@@ -13,7 +13,6 @@ import uuid
 from django.http import JsonResponse
 
 
-
 class OnLogin(APIView):
     # def get(self, request, format=None):
     #     return Response(status=status.HTTP_200_OK)
@@ -25,22 +24,22 @@ class OnLogin(APIView):
         # appid and secret from wechat miniapp website
         secret = 'e90efc114a06215f1c9ddac8dcf70d4e'
         appid = 'wx77d45362c6c2763e'
-        # fixed wechat API address for wx.login
-        baseUrl = 'https://api.weixin.qq.com/sns/jscode2session?appid='
-        extUrl1 = '&secret='
-        extUrl2 = '&js_code='
-        extUrl3 = '&grant_type=authorization_code'
         if request.method == 'POST':
             code = request.data.get('code')
-            nickName = request.data.get('userNickname')
-            avataUrl = request.data.get('userAvatarUrl')
-            gender = request.data.get('userGender')
-            city = request.data.get('userCity')
-            province = request.data.get('userProvince')
-            country = request.data.get('userCountry')
-            language = request.data.get('userLanguage')
+            # nickName = request.data.get('userNickname')
+            # avataUrl = request.data.get('userAvatarUrl')
+            # gender = request.data.get('userGender')
+            # city = request.data.get('userCity')
+            # province = request.data.get('userProvince')
+            # country = request.data.get('userCountry')
+            # language = request.data.get('userLanguage')
             # input value check
             try:
+                # fixed wechat API address for wx.login
+                baseUrl = 'https://api.weixin.qq.com/sns/jscode2session?appid='
+                extUrl1 = '&secret='
+                extUrl2 = '&js_code='
+                extUrl3 = '&grant_type=authorization_code'
                 content = baseUrl + appid + extUrl1 + secret + extUrl2 + code + extUrl3
             except ValueError:
                 return Response(request.data, status=status.HTTP_400_BAD_REQUEST)
@@ -54,29 +53,29 @@ class OnLogin(APIView):
                 openid = res.get('openid')
                 session_key = res.get('session_key')
                 # do search in the database
-                userinfo = Customer.objects.get(openid=openid)
+                userinfo = Customer.objects.filter(openid=openid)
                 # new user save to database
                 if userinfo is None:
                     # add new user
                     useruuid = uuid.uuid1()
-                    newuser = Customer.objects.create(openid=openid,
-                                                      nickName=nickName,
-                                                      avataUrl=avataUrl,
-                                                      gender=gender,
-                                                      city=city,
-                                                      province=province,
-                                                      country=country,
-                                                      language=language,
-                                                      uuid=useruuid)
-                    newuser.save()
+                    # newuser = Customer.objects.create(openid=openid,
+                    #                                   nickName=nickName,
+                    #                                   avataUrl=avataUrl,
+                    #                                   gender=gender,
+                    #                                   city=city,
+                    #                                   province=province,
+                    #                                   country=country,
+                    #                                   language=language,
+                    #                                   uuid=useruuid)
+                    # newuser.save()
                     # do search again
-                    userinfo = Customer.objects.get(openid=openid)
+                    userinfo = Customer.objects.filter(openid=openid)
 
                 # get uuid from database
                 ret = {
                     'uuid': userinfo.uuid,
                 }
-                return JsonResponse(ret, status=status.HTTP_200_OK)
+                return Response(userinfo, status=status.HTTP_200_OK)
 
 
 class CustomerViewSet(viewsets.ModelViewSet):
