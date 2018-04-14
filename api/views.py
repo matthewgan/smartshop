@@ -52,12 +52,13 @@ class OnLogin(APIView):
             else:
                 openid = res.get('openid')
                 session_key = res.get('session_key')
+                return Response(res, status=status.HTTP_200_OK)
                 # do search in the database
                 userinfo = Customer.objects.filter(openid=openid)
                 # new user save to database
-                if userinfo is None:
-                    # add new user
-                    useruuid = uuid.uuid1()
+                # if userinfo is None:
+                #     # add new user
+                #     useruuid = uuid.uuid1()
                     # newuser = Customer.objects.create(openid=openid,
                     #                                   nickName=nickName,
                     #                                   avataUrl=avataUrl,
@@ -69,13 +70,13 @@ class OnLogin(APIView):
                     #                                   uuid=useruuid)
                     # newuser.save()
                     # do search again
-                    userinfo = Customer.objects.filter(openid=openid)
-
-                # get uuid from database
-                ret = {
-                    'uuid': userinfo.uuid,
-                }
-                return Response(userinfo, status=status.HTTP_200_OK)
+                #     userinfo = Customer.objects.filter(openid=openid)
+                #
+                # # get uuid from database
+                # ret = {
+                #     'uuid': userinfo.uuid,
+                # }
+                # return Response(userinfo, status=status.HTTP_200_OK)
 
 
 class CustomerViewSet(viewsets.ModelViewSet):
