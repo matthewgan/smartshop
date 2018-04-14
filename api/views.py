@@ -53,9 +53,9 @@ class OnLogin(APIView):
                 openid = res.get('openid')
                 session_key = res.get('session_key')
                 ret = {
-                    openid: openid,
-                    uuid : 1,
-                    session_key: session_key,
+                    'openid': openid,
+                    'uuid': 1,
+                    'session_key': session_key,
                 }
                 return Response(ret, status=status.HTTP_200_OK)
 
