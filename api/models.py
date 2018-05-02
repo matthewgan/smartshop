@@ -6,8 +6,12 @@ from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
+import requests
+from django_mysql.models import ListCharField
+import uuid
 
 
+# create extra token when create new user
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     """
@@ -18,150 +22,250 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
         Token.objects.create(user=instance)
 
 
-GENDER_DEFINES = (
-            ('1', 'Male'),
-            ('2', 'Female'),
-            ('0', 'Unknown'),
-        )
-
-
-# Create your models here.
-class Customer(models.Model):
-    id = models.AutoField(primary_key=True)
-    uuid = models.CharField(max_length=30, blank=True)
-    openid = models.CharField(max_length=32, blank=True)
-    session_key = models.CharField(max_length=32, blank=True)
-    nickName = models.CharField(max_length=32, blank=True)
+# Model design for wuzhanggui.shop
+# Wuzhanggui User Model
+class WUser(models.Model):
+    uuid = models.UUIDField(primary_key=True, auto_created=True, default=uuid.uuid4, editable=False)
+    # user identify from Wechat
+    openid = models.CharField(max_length=30, blank=True)
+    session_key = models.CharField(max_length=30, blank=True)
+    code = models.CharField(max_length=32, default=None)
+    # Get UserInfo from wechat login
+    nickName = models.CharField(max_length=32)
     avatarUrl = models.URLField(max_length=200, blank=True)
-    gender = models.CharField(max_length=1, choices=GENDER_DEFINES)
+    gender = models.IntegerField(default=2)
     city = models.CharField(max_length=15, blank=True)
     province = models.CharField(max_length=15, blank=True)
     country = models.CharField(max_length=15, blank=True)
     language = models.CharField(max_length=15, blank=True)
-    level = models.CharField(max_length=15, blank=True)
-    point = models.CharField(max_length=15, blank=True)
-    faceId = models.CharField(max_length=30, blank=True)
-    created = models.DateTimeField(auto_now_add=True)
-    owner = models.ForeignKey('auth.User', related_name='customers', on_delete=models.CASCADE)
+    # Self defined user info
+    level = models.IntegerField(default=1)
+    point = models.IntegerField(default=0)
+    balance = models.IntegerField(default=0)
+    faceExisted = models.BooleanField(default=False)
+    createTime = models.DateTimeField(auto_now_add=True)
+    updateTime = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.nickName
+        return str(self.uuid)
 
     def save(self, *args, **kwargs):
-        super(Customer, self).save(*args, **kwargs)
+        super(WUser, self).save(*args, **kwargs)
 
     class Meta:
-        ordering = ('created',)
+        ordering = ('createTime',)
 
 
-class WxUser(models.Model):
-    userid = AutoOneToOneField(Customer, primary_key=True)
-    code = models.CharField(max_length=32)
-    openid = models.CharField(max_length=32)
-    session_key = models.CharField(max_length=32)
-    unionid = models.CharField(max_length=32, blank=True)
-    third_session = models.CharField(max_length=128)
-    created = models.DateTimeField(auto_now_add=True)
+# Customer Face Model
+class Face(models.Model):
+    who = models.ForeignKey(WUser, on_delete=models.CASCADE)
+    # identify ids from baidu
+    baidu_appid = models.CharField(max_length=128)
+    baidu_group_id = models.CharField(max_length=128)
+    baidu_uid = models.CharField(max_length=128)
+    baidu_faceid = models.CharField(max_length=128)
 
     def __str__(self):
-        return self.openid
-
-    class Meta:
-        ordering = ('created',)
+        return self.who
 
 
-class Face(models.Model):
-    userid = AutoOneToOneField(Customer, primary_key=True)
-    image = models.ImageField(upload_to='face_images')
+# Customer Delivery Address Model
+class Address(models.Model):
+    who = models.ForeignKey(WUser, on_delete=models.CASCADE)
+    name = models.CharField(max_length=20)
+    telephone = models.DecimalField(max_digits=11, decimal_places=0)
+    province = models.CharField(max_length=20)
+    city = models.CharField(max_length=20)
+    detail = models.CharField(max_length=50)
+    isDefault = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.detail[:10]
 
 
-class Shop(models.Model):
+# Merchandise Category Model
+class Category(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=20)
-    location = models.CharField(max_length=200)
-    size = models.DecimalField(max_digits=6, decimal_places=2)
-    owner = models.ForeignKey('auth.User', related_name='shops', on_delete=models.CASCADE)
-    rack_capacity = models.IntegerField(blank=True)
-    created = models.DateTimeField(auto_now_add=True)
-    opening = models.DateTimeField(blank=True)
+
+    def __str__(self):
+        return self.name
+
+
+# Merchandise Information Model
+class Merchandise(models.Model):
+    id = models.AutoField(primary_key=True)
+    code = models.CharField(max_length=10)
+    barcode = models.CharField(max_length=20, blank=True)
+    name = models.CharField(max_length=30, blank=True)
+    brand = models.CharField(max_length=10, blank=True)
+    originPrice = models.DecimalField(max_digits=8, decimal_places=2)
+    scale = models.CharField(max_length=10, blank=True)
+    factory = models.CharField(max_length=30, blank=True)
+    priceChecker = models.CharField(max_length=10, blank=True)
+    supervisionCode = models.CharField(max_length=30, blank=True)
+    supervisor = models.CharField(max_length=20, blank=True)
+    unit = models.CharField(max_length=10, blank=True)
+    supervisorTel = models.DecimalField(max_digits=11, decimal_places=0, blank=True)
+    promotionPrice = models.DecimalField(max_digits=8, decimal_places=2, default=originPrice)
+    clubPrice = models.DecimalField(max_digits=8, decimal_places=2, default=originPrice)
+    producePlace = models.CharField(max_length=10, blank=True)
+    createTime = models.DateTimeField(auto_now_add=True)
+    updateTime = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
 
     class Meta:
-        ordering = ('created',)
+        ordering = ('createTime',)
 
 
+# Shop Model
+class Shop(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=20)
+    longitude = models.CharField(max_length=10, blank=True)
+    latitude = models.CharField(max_length=10, blank=True)
+    city = models.CharField(max_length=15)
+    locationDetail = models.CharField(max_length=200, blank=True)
+    size = models.DecimalField(max_digits=6, decimal_places=2)
+    capacity = models.IntegerField(blank=True)
+    createTime = models.DateTimeField(auto_now_add=True)
+    openingTime = models.DateTimeField(blank=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ('createTime',)
+
+
+# Sale Event Model
+class SaleEvent(models.Model):
+    id = models.AutoField(primary_key=True)
+    shopID = models.ForeignKey('Shop', on_delete=models.DO_NOTHING)
+    merchandiseID = models.OneToOneField(Merchandise, on_delete=models.DO_NOTHING)
+    clubPriceLevel1 = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
+    clubPriceLevel2 = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
+    clubPriceLevel3 = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
+    clubPriceLevel4 = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
+    start_time = models.DateField()
+    end_time = models.DateField()
+    createTime = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        ordering = ('createTime',)
+
+
+# Rack Model
 class Rack(models.Model):
-    rackID = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     length = models.IntegerField(default=900)
     width = models.IntegerField(default=320)
     height = models.IntegerField(default=1600)
     level = models.IntegerField(default=4)
-    product_capacity = models.IntegerField(blank=True)
-
-
-class Category(models.Model):
-    catID = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=20)
+    capacity = models.IntegerField(blank=True)
+    shopID = models.ForeignKey(Shop, on_delete=models.DO_NOTHING)
 
     def __str__(self):
-        return self.name
+        return "Shop%s:%s" % (self.shopID, self.id)
 
 
+# Merchandise Supplier Model
 class Supplier(models.Model):
-    supplierID = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     companyName = models.CharField(max_length=30)
     contactName = models.CharField(max_length=20)
-    contactPhone = models.DecimalField(max_digits=20, decimal_places=0)
+    contactPhone = models.DecimalField(max_digits=11, decimal_places=0)
     address = models.CharField(max_length=100, blank=True)
     city = models.CharField(max_length=20, blank=True)
     province = models.CharField(max_length=20, blank=True)
     country = models.CharField(max_length=20, blank=True)
+    ability = models.ForeignKey(Category, on_delete=models.DO_NOTHING)
+    area = models.CharField(max_length=15, blank=True)
 
     def __str__(self):
         return self.companyName
 
-
-class Product(models.Model):
-    productID = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=30)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    unitPrice = models.DecimalField(max_digits=5, decimal_places=2)
-    unitInStock = models.IntegerField()
-    unitOnOrder = models.IntegerField()
-    QuantityPerUnit = models.IntegerField()
-    supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.name
+    class Meta:
+        ordering = ('companyName',)
 
 
-class Order(models.Model):
-    orderID = models.AutoField(primary_key=True)
+# Stock Model for shops
+class Stock(models.Model):
+    id = models.AutoField(primary_key=True)
     shopID = models.ForeignKey(Shop, on_delete=models.DO_NOTHING)
-    userID = models.ForeignKey(Customer, on_delete=models.DO_NOTHING)
-    productID = models.ForeignKey(Product, on_delete=models.DO_NOTHING)
-    quantity = models.IntegerField(default=1)
-    payMethod = models.CharField(max_length=20)
-    timeStamp = models.DateTimeField(auto_now_add=True)
+    merchandiseID = models.ForeignKey(Merchandise, on_delete=models.DO_NOTHING)
+    price = models.DecimalField(max_digits=8, decimal_places=2)
+    number = models.IntegerField(default=1)
+    arriveDate = models.DateField()
+    supplierID = models.ForeignKey(Supplier, on_delete=models.DO_NOTHING)
+    createTime = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        ordering = ('createTime',)
 
 
+# Order Model for customers
+class Order(models.Model):
+    id = models.AutoField(primary_key=True)
+    shopID = models.ForeignKey(Shop, on_delete=models.DO_NOTHING)
+    userID = models.ForeignKey(WUser, on_delete=models.DO_NOTHING)
+    status = models.IntegerField(default=3)
+    paymentMethod = models.CharField(max_length=10)
+    paymentSN = models.CharField(max_length=30)
+    discount = models.DecimalField(max_digits=8, decimal_places=2)
+    delivery = models.DecimalField(max_digits=8, decimal_places=2)
+    bill = models.DecimalField(max_digits=8, decimal_places=2)
+    comment = models.CharField(max_length=200, blank=True)
+    createTime = models.DateTimeField(auto_now_add=True)
+    payTime = models.DateTimeField(blank=True)
+    dispatchTime = models.DateTimeField(blank=True)
+    receivedTime = models.DateTimeField(blank=True)
+    cancelTime = models.DateTimeField(blank=True)
+    addressID = models.ForeignKey(Address, on_delete=models.DO_NOTHING, blank=True)
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        ordering = ('createTime',)
+
+
+# Order details for customer order
+class OrderDetail(models.Model):
+    id = models.AutoField(primary_key=True)
+    orderID = models.ForeignKey(Order, on_delete=models.CASCADE)
+    merchandiseID = models.ForeignKey(Merchandise, on_delete=models.DO_NOTHING)
+    merchandiseNum = models.IntegerField(default=1)
+
+    def __str__(self):
+        return self.id
+
+
+# ESL electronic shelves label Model
 class ESL(models.Model):
-    etagID = models.AutoField(primary_key=True)
-    modulePin = models.CharField(max_length=20, unique=True)
-    rackID = models.ForeignKey(Rack, on_delete=models.CASCADE)
-    productID = models.ForeignKey(Product, on_delete=models.CASCADE)
+    id = models.AutoField(primary_key=True)
+    labelID = models.CharField(max_length=8)
+    merchandiseID = models.OneToOneField(Merchandise, on_delete=models.DO_NOTHING)
+    rackID = models.ForeignKey(Rack, on_delete=models.DO_NOTHING)
 
     def __str__(self):
-        return self.modulePin
+        return self.labelID
 
 
-class RFID(models.Model):
-    rtagID = models.AutoField(primary_key=True)
-    PIN = models.CharField(max_length=30, unique=True)
-    productID = models.ForeignKey(Product, on_delete=models.CASCADE)
-    status = models.CharField(max_length=1, choices=None)
+class RFIDtag(models.Model):
+    id = models.AutoField(primary_key=True)
+    EPC = models.CharField(max_length=20)
+    TID = models.CharField(max_length=20, blank=True)
+    status = models.IntegerField(default=0)
+    merchandiseID = models.ForeignKey(Merchandise, on_delete=models.DO_NOTHING)
 
     def __str__(self):
-        return self.PIN
+        return self.EPC
