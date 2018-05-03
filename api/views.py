@@ -13,6 +13,7 @@ import uuid
 from django.http import JsonResponse
 from django.http import Http404
 
+
 class WUserCreateOrListView(APIView):
     """
     List all the wechat users, or create a new user
@@ -64,72 +65,42 @@ class WUserCreateOrListView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-#
-# class OnLogin(APIView):
-#     # def get(self, request, format=None):
-#     #     return Response(status=status.HTTP_200_OK)
-#     def post(self, request, format=None):
-#         """
-#         Receive code from miniapp,
-#         Request wxid and sessionkey from wechat API
-#         """
-#         # appid and secret from wechat miniapp website
-#         secret = 'e90efc114a06215f1c9ddac8dcf70d4e'
-#         appid = 'wx77d45362c6c2763e'
-#         if request.method == 'POST':
-#             code = request.data.get('code')
-#             # nickName = request.data.get('userNickname')
-#             # avataUrl = request.data.get('userAvatarUrl')
-#             # gender = request.data.get('userGender')
-#             # city = request.data.get('userCity')
-#             # province = request.data.get('userProvince')
-#             # country = request.data.get('userCountry')
-#             # language = request.data.get('userLanguage')
-#             # input value check
-#             try:
-#                 # fixed wechat API address for wx.login
-#                 baseUrl = 'https://api.weixin.qq.com/sns/jscode2session?appid='
-#                 extUrl1 = '&secret='
-#                 extUrl2 = '&js_code='
-#                 extUrl3 = '&grant_type=authorization_code'
-#                 content = baseUrl + appid + extUrl1 + secret + extUrl2 + code + extUrl3
-#             except ValueError:
-#                 return Response(request.data, status=status.HTTP_400_BAD_REQUEST)
-#
-#             # request wechat API and get json response
-#             res = requests.get(content).json()
-#             # validation check
-#             if res.get('errcode') is not None:
-#                 return Response(res, status=status.HTTP_204_NO_CONTENT)
-#             else:
-#                 openid = res.get('openid')
-#                 session_key = res.get('session_key')
-#                 return Response(res, status=status.HTTP_200_OK)
-#                 # do search in the database
-#                 userinfo = Customer.objects.filter(openid=openid)
-#                 # new user save to database
-#                 # if userinfo is None:
-#                 #     # add new user
-#                 #     useruuid = uuid.uuid1()
-#                     # newuser = Customer.objects.create(openid=openid,
-#                     #                                   nickName=nickName,
-#                     #                                   avataUrl=avataUrl,
-#                     #                                   gender=gender,
-#                     #                                   city=city,
-#                     #                                   province=province,
-#                     #                                   country=country,
-#                     #                                   language=language,
-#                     #                                   uuid=useruuid)
-#                     # newuser.save()
-#                     # do search again
-#                 #     userinfo = Customer.objects.filter(openid=openid)
-#                 #
-#                 # # get uuid from database
-#                 # ret = {
-#                 #     'uuid': userinfo.uuid,
-#                 # }
-#                 # return Response(userinfo, status=status.HTTP_200_OK)
-#
+class CategoryListView(APIView):
+    """
+    List all the categories in the database: ids & names
+    for wechat mini app
+    """
+    def get(self, request):
+        categories = Category.objects.all()
+        serializer = CategoryListSerializer(categories, many=True)
+        return Response(serializer.data)
+
+
+class MerchandisesShowByCategoryView(APIView):
+    """
+    List all the merchandises under specified category
+    for wechat mini app show information on Eshop
+    """
+    def get_object(self, pk):
+        try:
+            return Merchandise.objects.filter(categoryID=pk)
+        except Merchandise.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        merchandises = self.get_object(pk)
+        serializer = MerchandiseListShowInfoSerializer(merchandises, many=True)
+        return Response(serializer.data)
+
+
+class ShopListView(APIView):
+    """
+    List all the shop informations
+    """
+    def get(self, request):
+        shops = Shop.objects.all()
+        serializer = ShopListShowInfoSerializer(shops, many=True)
+        return Response(serializer.data)
 #
 # class CustomerViewSet(viewsets.ModelViewSet):
 #     """

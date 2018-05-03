@@ -18,27 +18,38 @@ class WUserLoginResponseSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class WUserListSerializer(serializers.HyperlinkedModelSerializer):
-    owner = serializers.ReadOnlyField(source='owner.username')
 
     class Meta:
         model = WUser
         fields = '__all__'
 
 
-class OwnerSerializer(serializers.HyperlinkedModelSerializer):
-    wusers = serializers.PrimaryKeyRelatedField(many=True, queryset=WUser.objects.all())
+class CategoryListSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
-        model = User
-        fields = ('id', 'username', 'customers',)
+        model = Category
+        fields = '__all__'
 
 
-# class WxUserSerializer(serializers.HyperlinkedModelSerializer):
-#     userid = serializers.HyperlinkedIdentityField(view_name="api:wxuser-detail")
-#
-#     class Meta:
-#         model = WxUser
-#         fields = ('userid', 'code', 'openid', 'created',)
+class MerchandiseListAllInfoSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = Merchandise
+        fields = '__all__'
+
+
+class MerchandiseListShowInfoSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = Merchandise
+        fields = ('name', 'brand', 'scale', 'unit', 'producePlace', 'originPrice', 'promotionPrice', 'clubPrice')
+
+
+class ShopListShowInfoSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = Shop
+        fields = ('name', 'city', 'openingTime')
 #
 #
 # class ShopSerializer(serializers.HyperlinkedModelSerializer):

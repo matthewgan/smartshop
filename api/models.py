@@ -112,6 +112,7 @@ class Merchandise(models.Model):
     producePlace = models.CharField(max_length=10, blank=True)
     createTime = models.DateTimeField(auto_now_add=True)
     updateTime = models.DateTimeField(auto_now=True)
+    categoryID = models.ForeignKey(Category, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
