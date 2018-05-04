@@ -7,7 +7,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 import requests
-from django_mysql.models import ListCharField
+#from django_mysql.models import ListCharField
 import uuid
 
 
@@ -25,7 +25,7 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 # Model design for wuzhanggui.shop
 # Wuzhanggui User Model
 class WUser(models.Model):
-    uuid = models.UUIDField(primary_key=True, auto_created=True, default=uuid.uuid4, editable=False)
+    uuid = models.UUIDField(primary_key=True, auto_created=True, default=uuid.uuid4(), editable=False)
     # user identify from Wechat
     openid = models.CharField(max_length=30, blank=True)
     session_key = models.CharField(max_length=30, blank=True)

@@ -64,6 +64,22 @@ class WUserCreateOrListView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class WXUserSetCodeView(APIView):
+    """
+    3.1.3 每次打开小程序上传code（uuid=ture）
+    """
+    def post(self, request):
+        serializer = WUserSetCodeRequestSerializer(data=request.data)
+        # print(serializer.initial_data)
+        if serializer.is_valid():
+            print(serializer.validated_data)
+            wuser = WUser.objects.get(pk=serializer.validated_data.get['uuid'])
+            wuser.code = serializer.validated_data['code']
+            #wuser.save()
+            output_serializer = WUserSetCodeResponseSerializer(wuser)
+            return Response(output_serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CategoryListView(APIView):
     """
