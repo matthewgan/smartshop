@@ -14,19 +14,19 @@ class WUserLoginResponseSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = WUser
-        fields = ('uuid', 'point', 'level', 'balance', 'faceExisted')
+        fields = ('id', 'point', 'level', 'balance', 'faceExisted')
 
 class WUserSetCodeRequestSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = WUser
-        fields = ('uuid', 'code')
+        fields = ('id', 'code')
 
 class WUserSetCodeResponseSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = WUser
-        fields = ('uuid', 'point', 'level', 'balance')
+        fields = ('id', 'point', 'level', 'balance')
 
 class WUserListSerializer(serializers.HyperlinkedModelSerializer):
 

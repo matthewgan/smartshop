@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from django.contrib.auth.models import User
 import requests
 from rest_framework.decorators import authentication_classes, permission_classes
-import uuid
+#import uuid
 from django.http import JsonResponse
 from django.http import Http404
 
@@ -32,7 +32,7 @@ class WUserCreateOrListView(APIView):
         """
         Receive post message from wechat mini app,
         check if user is new to create a new user,
-        else search the database and reply user's uuid and infos
+        else search the database and reply user's and infos
         """
         serializer = WUserLoginRequestSerializer(data=request.data)
         if serializer.is_valid():
@@ -73,7 +73,7 @@ class WXUserSetCodeView(APIView):
         # print(serializer.initial_data)
         if serializer.is_valid():
             print(serializer.validated_data)
-            wuser = WUser.objects.get(pk=serializer.validated_data.get['uuid'])
+            wuser = WUser.objects.get(pk=serializer.validated_data.get['id'])
             wuser.code = serializer.validated_data['code']
             #wuser.save()
             output_serializer = WUserSetCodeResponseSerializer(wuser)
