@@ -39,8 +39,8 @@ class WUserCreateOrListView(APIView):
             code = serializer.validated_data['code']
             # Use code to Request wxid and sessionkey from wechat API
             # appid and secret from wechat miniapp website
-            wxapp_secret = 'e90efc114a06215f1c9ddac8dcf70d4e'
-            wxapp_appid = 'wx77d45362c6c2763e'
+            wxapp_secret = 'a1573bde5e2d7768081d724aa44682e2'
+            wxapp_appid = 'wx23c4e200139a74ee'
             # fixed wechat API address for wx.login
             baseurl = 'https://api.weixin.qq.com/sns/jscode2session?appid='
             content = baseurl + wxapp_appid + '&secret=' + wxapp_secret + '&js_code=' + code + '&grant_type=authorization_code'
@@ -68,14 +68,12 @@ class WXUserSetCodeView(APIView):
     """
     3.1.3 每次打开小程序上传code（uuid=ture）
     """
-    def post(self, request):
-        serializer = WUserSetCodeRequestSerializer(data=request.data)
-        # print(serializer.initial_data)
+    def put(self, request, format=None):
+        pk = request.data['id']
+        wuser = WUser.objects.get(pk=pk)
+        serializer = WUserSetCodeRequestSerializer(wuser, data=request.data)
         if serializer.is_valid():
-            print(serializer.validated_data)
-            wuser = WUser.objects.get(pk=serializer.validated_data.get['id'])
-            wuser.code = serializer.validated_data['code']
-            #wuser.save()
+            wuser = serializer.save()
             output_serializer = WUserSetCodeResponseSerializer(wuser)
             return Response(output_serializer.data, status=status.HTTP_200_OK)
         else:

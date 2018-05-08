@@ -26,7 +26,7 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 # Wuzhanggui User Model
 class WUser(models.Model):
     #uuid = models.UUIDField(primary_key=True, auto_created=True, default=uuid.uuid4(), editable=False)
-    id= models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     # user identify from Wechat
     openid = models.CharField(max_length=30, blank=True)
     session_key = models.CharField(max_length=30, blank=True)
