@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from django.contrib.auth.models import User
 import requests
 from rest_framework.decorators import authentication_classes, permission_classes
-import uuid
+#import uuid
 from django.http import JsonResponse
 from django.http import Http404
 
@@ -32,15 +32,15 @@ class WUserCreateOrListView(APIView):
         """
         Receive post message from wechat mini app,
         check if user is new to create a new user,
-        else search the database and reply user's uuid and infos
+        else search the database and reply user's and infos
         """
         serializer = WUserLoginRequestSerializer(data=request.data)
         if serializer.is_valid():
             code = serializer.validated_data['code']
             # Use code to Request wxid and sessionkey from wechat API
             # appid and secret from wechat miniapp website
-            wxapp_secret = 'a1573bde5e2d7768081d724aa44682e2'
-            wxapp_appid = 'wx23c4e200139a74ee'
+            wxapp_secret = 'e90efc114a06215f1c9ddac8dcf70d4e'
+            wxapp_appid = 'wx77d45362c6c2763e'
             # fixed wechat API address for wx.login
             baseurl = 'https://api.weixin.qq.com/sns/jscode2session?appid='
             content = baseurl + wxapp_appid + '&secret=' + wxapp_secret + '&js_code=' + code + '&grant_type=authorization_code'
@@ -70,11 +70,12 @@ class WXUserSetCodeView(APIView):
     """
     def post(self, request):
         serializer = WUserSetCodeRequestSerializer(data=request.data)
+        # print(serializer.initial_data)
         if serializer.is_valid():
             print(serializer.validated_data)
-            wuser = WUser.objects.get(pk=serializer.initial_data['uuid'])
+            wuser = WUser.objects.get(pk=serializer.validated_data.get['id'])
             wuser.code = serializer.validated_data['code']
-            wuser.save()
+            #wuser.save()
             output_serializer = WUserSetCodeResponseSerializer(wuser)
             return Response(output_serializer.data, status=status.HTTP_200_OK)
         else:
