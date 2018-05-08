@@ -64,6 +64,7 @@ class WUserCreateOrListView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class WXUserSetCodeView(APIView):
     """
     3.1.3 每次打开小程序上传code（uuid=ture）
@@ -80,6 +81,7 @@ class WXUserSetCodeView(APIView):
             return Response(output_serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class CategoryListView(APIView):
     """
@@ -117,6 +119,18 @@ class ShopListView(APIView):
         shops = Shop.objects.all()
         serializer = ShopListShowInfoSerializer(shops, many=True)
         return Response(serializer.data)
+
+
+class RegisterFaceView(APIView):
+
+    def post(self, request):
+        serializer = UploadedFaceSerializer(data=request.data)
+        if serializer.is_valid():
+            uploadface = serializer.save()
+            
+        return Response("OK", status=status.HTTP_200_OK)
+
+
 #
 # class CustomerViewSet(viewsets.ModelViewSet):
 #     """

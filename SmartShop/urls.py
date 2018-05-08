@@ -17,7 +17,8 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from datetime import datetime
 import django.contrib.auth.views
-
+from django.conf.urls.static import static
+from django.conf import settings
 
 import homepage.forms
 import homepage.views
@@ -49,4 +50,4 @@ urlpatterns = [
         name='logout'),
 
     url(r'^api/', include('api.urls')),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
