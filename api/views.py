@@ -8,10 +8,14 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 import requests
+import base64
+from SmartShop.settings import *
+import json
 from rest_framework.decorators import authentication_classes, permission_classes
 #import uuid
 from django.http import JsonResponse
 from django.http import Http404
+from api.extendapi import *
 
 
 class WUserCreateOrListView(APIView):
@@ -64,9 +68,10 @@ class WUserCreateOrListView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class WXUserSetCodeView(APIView):
     """
-    3.1.3 每次打开小程序上传code（uuid=ture）
+    3.1.3 upload code
     """
     def put(self, request, format=None):
         pk = request.data['id']
@@ -78,6 +83,7 @@ class WXUserSetCodeView(APIView):
             return Response(output_serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class CategoryListView(APIView):
     """
@@ -115,6 +121,48 @@ class ShopListView(APIView):
         shops = Shop.objects.all()
         serializer = ShopListShowInfoSerializer(shops, many=True)
         return Response(serializer.data)
+
+
+class RegisterFaceView(APIView):
+
+    def post(self, request):
+        serializer = UploadedFaceSerializer(data=request.data)
+        print(serializer.initial_data)
+        if serializer.is_valid():
+            uploadface = serializer.save()
+        output_serializer = BaiduUploadSerializer(uploadface)
+        imgUrl = output_serializer.data.get('image')
+        imgRoot = MEDIA_ROOT + imgUrl[6:]
+
+        # encode img to base64
+        print(imgRoot)
+        file = open(imgRoot, 'rb')
+        img64 = base64.b64encode(file.read())
+
+        # connect to baidu face api
+        client = createapiface()
+        detectRes = detectface(img64, 'BASE64', client)
+        print(detectRes)
+
+        # detect success -> rigister face
+        if detectRes == 200:
+           groupid = 'customer'
+           userid = output_serializer.data.get('uuid')
+           registerres = registerface(img64, 'BASE64', userid, groupid, client)
+           print('------------------------------')
+           print(registerres)
+
+
+        # if detectRes == 200:
+        #     searchres = searchface(img64, 'BASE64', client)
+        #     print('------------------------')
+        #     print(searchres)
+
+        print(detectRes)
+
+        return Response(detectRes, status=status.HTTP_200_OK)
+
+
 #
 # class CustomerViewSet(viewsets.ModelViewSet):
 #     """

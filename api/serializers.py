@@ -120,3 +120,10 @@ class UploadedFaceSerializer(serializers.ModelSerializer):
         model = UploadedFace
         fields = ('uuid', 'image')
 
+
+class BaiduUploadSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UploadedFace
+        fields = ('uuid', 'image')
+
