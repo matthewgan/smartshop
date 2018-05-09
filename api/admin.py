@@ -4,6 +4,7 @@ from api.models import *
 # Register your models here.
 admin.site.register(WUser)
 admin.site.register(Shop)
+admin.site.register(UploadedFace)
 # admin.site.register(Customer)
 # admin.site.register(WxUser)
 # admin.site.register(Shop)

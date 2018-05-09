@@ -112,3 +112,11 @@ class ShopListShowInfoSerializer(serializers.HyperlinkedModelSerializer):
 #     class Meta:
 #         model = RFID
 #         fields = '__all__'
+
+
+class UploadedFaceSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UploadedFace
+        fields = ('uuid', 'image')
+

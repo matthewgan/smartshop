@@ -13,7 +13,7 @@ schema_view = get_schema_view(title=API_TITLE)
 
 urlpatterns = [
     url(r'^get_auth_token/$', rest_framework_views.obtain_auth_token, name="get_auth_token"),
-    url(r'^wxlogin/$', views.WUserCreateOrListView.as_view()),
+    url(r'^wxApp/login/$', views.WUserCreateOrListView.as_view()),
     url(r'^wxApp/setCode/$', views.WXUserSetCodeView.as_view()),
     url(r'^category/$', views.CategoryListView.as_view()),
     url(r'^category/(?P<pk>[0-9]+)/$', views.MerchandisesShowByCategoryView.as_view()),
@@ -22,5 +22,5 @@ urlpatterns = [
     url(r'^docs/', include_docs_urls(title=API_TITLE,
                                      description=API_DESCRIPTION),
         ),
-
+    url(r'^wxApp/registerFace/$', views.RegisterFaceView.as_view()),
 ]
