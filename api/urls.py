@@ -22,5 +22,5 @@ urlpatterns = [
     url(r'^docs/', include_docs_urls(title=API_TITLE,
                                      description=API_DESCRIPTION),
         ),
-    url(r'^wxApp/registerFace/$', views.RegisterFaceView.as_view()),
+    #url(r'^wxApp/registerFace/$', views.RegisterFaceView.as_view()),
 ]
