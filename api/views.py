@@ -91,9 +91,9 @@ class CategoryListView(APIView):
     for wechat mini app
     """
     def get(self, request):
-        categories = Category.objects.all()
-        serializer = CategoryListSerializer(categories, many=True)
-        return Response(serializer.data)
+        catgory = Category.objects.all()
+        output_serializer = CategoryResponseSerializer(catgory, many=True)
+        return Response(output_serializer.data, status=status.HTTP_200_OK)
 
 
 class MerchandisesShowByCategoryView(APIView):
@@ -130,7 +130,7 @@ class RegisterFaceView(APIView):
         print(serializer.initial_data)
         if serializer.is_valid():
             uploadface = serializer.save()
-        output_serializer = BaiduUploadSerializer(uploadface)
+        output_serializer = UploadedFaceSerializer(uploadface)
         imgUrl = output_serializer.data.get('image')
         imgRoot = MEDIA_ROOT + imgUrl[6:]
 
@@ -150,19 +150,59 @@ class RegisterFaceView(APIView):
            userid = output_serializer.data.get('uuid')
            registerres = registerface(img64, 'BASE64', userid, groupid, client)
            print('------------------------------')
-           print(registerres)
-
-
-        # if detectRes == 200:
-        #     searchres = searchface(img64, 'BASE64', client)
-        #     print('------------------------')
-        #     print(searchres)
-
-        print(detectRes)
 
         return Response(detectRes, status=status.HTTP_200_OK)
 
 
+class SearchUserFaceView(APIView):
+
+    def post(self, request):
+        serializer = SearchFaceUploadSerializer(data=request.data)
+        if serializer.is_valid():
+            uploadface = serializer.save()
+            output_serializer = SearchFaceUploadSerializer(uploadface)
+            imgUrl = output_serializer.data.get('image')
+            imgRoot = MEDIA_ROOT + imgUrl[6:]
+
+            # encode img to base64
+            print(imgRoot)
+            file = open(imgRoot, 'rb')
+            img64 = base64.b64encode(file.read())
+
+            # connect to baidu face api
+            client = createapiface()
+            detectRes = detectface(img64, 'BASE64', client)
+
+            if detectRes == 200:
+                searchres = searchface(img64, 'BASE64', client)
+                if searchres.get('status') == 200:
+                    wuser = WUser.objects.get(id=searchres.get('userid'))
+                    output_serializer = EntranceGetInfoResponseSerializer(wuser)
+                    return Response(output_serializer.data, status=status.HTTP_200_OK)
+
+            return Response(searchres, status=status.HTTP_200_OK)
+
+
+class EntranceGetUserInfoView(APIView):
+
+    def post(self, request):
+        serializer = EntranceGetInfoRequestSerializer(data=request.data)
+        if serializer.is_valid():
+            wuser = WUser.objects.get(code=serializer.data.get('code'))
+            output_serializer = EntranceGetInfoResponseSerializer(wuser)
+            return Response(output_serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class GetOrderListView(APIView):
+
+    def post(self, request):
+
+        orderList = Order.objects.filter(userID=request.data['userID'])
+        typeList = orderList.filter(status=request.data['status'])
+        serializer = OrderListShowSeralizer(typeList, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 #
 # class CustomerViewSet(viewsets.ModelViewSet):
 #     """

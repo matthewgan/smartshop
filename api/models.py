@@ -232,9 +232,11 @@ class Order(models.Model):
     receivedTime = models.DateTimeField(blank=True)
     cancelTime = models.DateTimeField(blank=True)
     addressID = models.ForeignKey(Address, on_delete=models.DO_NOTHING, blank=True)
+    # firstName = models.CharField(max_length=30)
+    # totlaNum = models.IntegerField(default=1)
 
     def __str__(self):
-        return self.id
+        return self.paymentSN
 
     class Meta:
         ordering = ('createTime',)
@@ -248,7 +250,7 @@ class OrderDetail(models.Model):
     merchandiseNum = models.IntegerField(default=1)
 
     def __str__(self):
-        return self.id
+        return str(self.id)
 
 
 # ESL electronic shelves label Model

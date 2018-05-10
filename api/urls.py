@@ -15,12 +15,16 @@ urlpatterns = [
     url(r'^get_auth_token/$', rest_framework_views.obtain_auth_token, name="get_auth_token"),
     url(r'^wxApp/login/$', views.WUserCreateOrListView.as_view()),
     url(r'^wxApp/setCode/$', views.WXUserSetCodeView.as_view()),
-    url(r'^category/$', views.CategoryListView.as_view()),
-    url(r'^category/(?P<pk>[0-9]+)/$', views.MerchandisesShowByCategoryView.as_view()),
+    url(r'^wxApp/category/$', views.CategoryListView.as_view()),
+    url(r'^wxApp/category/(?P<pk>[0-9]+)/$', views.MerchandisesShowByCategoryView.as_view()),
     url(r'^shop/$', views.ShopListView.as_view()),
     url(r'^schema/$', schema_view),
     url(r'^docs/', include_docs_urls(title=API_TITLE,
                                      description=API_DESCRIPTION),
         ),
     url(r'^wxApp/registerFace/$', views.RegisterFaceView.as_view()),
+    url(r'^entry_by_code/$', views.EntranceGetUserInfoView.as_view()),
+    url(r'^entry_by_face/$', views.SearchUserFaceView.as_view()),
+    url(r'^wxApp/getOrder/$', views.GetOrderListView.as_view()),
+
 ]

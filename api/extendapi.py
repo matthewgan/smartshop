@@ -68,8 +68,24 @@ def searchface(image, imagetype, client):
     options= {}
     options["group_id_list"] = "customer"
     res = client.search(image,imagetype,options)
-
+    errorcode = res.get('error_code')
+    if errorcode == 0:
+        userlist = res.get('result').get('user_list')
+        userid = userlist.get('user_id')
+        score = userlist.get('score')
+        res = {}
+        if float(score) > 80:
+            res['status'] = 200
+            res['userid'] = userid
+        else:
+            res['status'] = 100
+            res['userid'] = userid
+            res['score'] =score
+    else:
+        res['status'] = 101
+        res['errorcode'] = errorcode
     return res
+
 
 def verifyface(image, imagetype, client):
 

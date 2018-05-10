@@ -52,19 +52,34 @@ class MerchandiseListAllInfoSerializer(serializers.HyperlinkedModelSerializer):
         fields = '__all__'
 
 
-class MerchandiseListShowInfoSerializer(serializers.HyperlinkedModelSerializer):
-
-    class Meta:
-        model = Merchandise
-        fields = ('name', 'brand', 'scale', 'unit', 'producePlace', 'originPrice', 'promotionPrice', 'clubPrice')
-
-
 class ShopListShowInfoSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Shop
         fields = ('name', 'city', 'openingTime')
-#
+
+
+class CategoryResponseSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Category
+        fields = '__all__'
+
+
+class MerchandiseListShowInfoSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = Merchandise
+        fields = ('id', 'name', 'brand', 'scale', 'unit', 'producePlace', 'originPrice', 'promotionPrice', 'clubPrice')
+
+
+class OrderListShowSeralizer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Order
+        fields = ('id', 'paymentSN', 'bill', 'createTime', 'shopID', 'createTime', 'paymentMethod')
+
+
 #
 # class ShopSerializer(serializers.HyperlinkedModelSerializer):
 #     class Meta:
@@ -96,10 +111,6 @@ class ShopListShowInfoSerializer(serializers.HyperlinkedModelSerializer):
 #         fields = '__all__'
 #
 #
-# class CategorySerializer(serializers.HyperlinkedModelSerializer):
-#     class Meta:
-#         model = Category
-#         fields = '__all__'
 #
 #
 # class ESLSerializer(serializers.HyperlinkedModelSerializer):
@@ -121,9 +132,23 @@ class UploadedFaceSerializer(serializers.ModelSerializer):
         fields = ('uuid', 'image')
 
 
-class BaiduUploadSerializer(serializers.ModelSerializer):
+class EntranceGetInfoRequestSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = WUser
+        fields = 'code'
+
+
+class EntranceGetInfoResponseSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = WUser
+        fields = ('avatarUrl', 'nikeName', 'level')
+
+
+class SearchFaceUploadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UploadedFace
-        fields = ('uuid', 'image')
+        fields = 'image'
 
