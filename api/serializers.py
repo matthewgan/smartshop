@@ -74,6 +74,13 @@ class MerchandiseListShowInfoSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class OrderListShowSeralizer(serializers.ModelSerializer):
+    #showFirstMerName = serializers.CharField(max_length=30, allow_blank=True)
+
+    def update(self, instance, validated_data):
+        orderID = validated_data.get['OrderID']
+        details = OrderDetail.objects.filter(pk=1)
+        instance.save()
+        return instance
 
     class Meta:
         model = Order

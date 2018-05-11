@@ -201,6 +201,7 @@ class GetOrderListView(APIView):
 
         orderList = Order.objects.filter(userID=request.data['userID'])
         typeList = orderList.filter(status=request.data['status'])
+
         serializer = OrderListShowSeralizer(typeList, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 #
