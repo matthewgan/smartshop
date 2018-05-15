@@ -74,18 +74,47 @@ class MerchandiseListShowInfoSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class OrderListShowSeralizer(serializers.ModelSerializer):
-    #showFirstMerName = serializers.CharField(max_length=30, allow_blank=True)
-
-    def update(self, instance, validated_data):
-        orderID = validated_data.get['OrderID']
-        details = OrderDetail.objects.filter(pk=1)
-        instance.save()
-        return instance
 
     class Meta:
         model = Order
         fields = ('id', 'paymentSN', 'bill', 'createTime', 'shopID', 'createTime', 'paymentMethod')
 
+
+class OrderDetailListSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = OrderDetail
+        fields = ('merchandiseID', 'merchandiseNum')
+
+
+class OrderListProductInfoSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Merchandise
+        fields = ('name', 'promotionPrice', )
+
+
+class CreateOrderSerializer(serializers.ModelSerializer):
+
+    details = OrderDetailListSerializer(many=True)
+
+    class Meta:
+        model = Order
+        fields = ('id', 'userID', 'shopID', 'status', 'paymentMethod', 'paymentSN', 'discount', 'delivery', 'bill', 'comment', 'addressID', 'details', )
+
+
+class OrderDetailSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = OrderDetail
+        exclude = ('id',)
+
+
+class WeChatPayOrderSeralizer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Order
+        fields = '__all__'
 
 #
 # class ShopSerializer(serializers.HyperlinkedModelSerializer):

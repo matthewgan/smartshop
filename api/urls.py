@@ -26,5 +26,7 @@ urlpatterns = [
     url(r'^entry_by_code/$', views.EntranceGetUserInfoView.as_view()),
     url(r'^entry_by_face/$', views.SearchUserFaceView.as_view()),
     url(r'^wxApp/getOrder/$', views.GetOrderListView.as_view()),
+    url(r'^wxApp/pay/$', views.PayOrderByWechatView.as_view()),
+    url(r'^wxApp/submitOrder/$', views.SubmitOrderView.as_view()),
 
 ]

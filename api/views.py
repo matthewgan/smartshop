@@ -16,6 +16,7 @@ from rest_framework.decorators import authentication_classes, permission_classes
 from django.http import JsonResponse
 from django.http import Http404
 from api.extendapi import *
+import random
 
 
 class WUserCreateOrListView(APIView):
@@ -201,9 +202,77 @@ class GetOrderListView(APIView):
 
         orderList = Order.objects.filter(userID=request.data['userID'])
         typeList = orderList.filter(status=request.data['status'])
-
         serializer = OrderListShowSeralizer(typeList, many=True)
+        #print(serializer.data[0].get('id'))
+        #print(serializer.data.__len__())
+        #len = serializer.data.__len__()
+        #ii = 0
+        #while len > ii:
+        #    orderDetail = OrderDetail.objects.filter(id=serializer.data[ii].ger('id'))
+        #    detailSerializer = OrderDetailListSerializer(orderDetail, many=True)
+        #    ij = 0
+        #    detailLen = detailSerializer.data.__len__()
+        #    while detailLen > ij:
+        #        productList = Merchandise.objects.filter(merchandiseID=detailSerializer.data[ij].get('merchandiseID'))
+        #        productListSerializer = OrderListProductInfoSerializer(productList, many=True)
+        #        productListSerializer[0]
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class SubmitOrderView(APIView):
+
+    def post(self, request):
+
+        userID = request.data.get('userID')
+        shopID = request.data.get('shopID')
+        shop = Shop.objects.get(id=shopID)
+        wuser = WUser.objects.get(id=userID)
+        adress = Address.objects.get(id=1)
+        orderList = request.data.get('orderList')
+        print(orderList[0].get('num'))
+
+        order = Order.objects.create(userID=wuser, shopID=shop, status=0, paymentMethod='weChatPay', paymentSN='', discount=0, delivery=5, bill=100, comment='', addressID=adress)
+        i = 0
+        while len(orderList) > i:
+            merchandise = Merchandise.objects.get(id=orderList[i].get('id'))
+            OrderDetail.objects.create(order=order, merchandiseID=merchandise, merchandiseNum=orderList[i].get('num'))
+            i = i+1
+        serializer = CreateOrderSerializer(instance=order)
+        print(serializer.data)
+
+        serializer = CreateOrderSerializer(data=orderList)
+        print(serializer.initial_data)
+        if serializer.is_valid():
+            newOrder = serializer.save()
+
+        return Response('ok', status=status.HTTP_200_OK)
+
+
+class PayOrderByWechatView(APIView):
+
+    def post(self, request):
+
+        order = Order.objects.get(paymentSN=request.data.get('paymentSN'))
+        serializer = WeChatPayOrderSeralizer(order)
+        res = serializer.data
+        PayOrderByWechat('1', res['paymentSN'], 'oh5IA5UJYYJWtBStjEp53N-7aom0')
+        return Response('ok', status=status.HTTP_200_OK)
+
+
+def isoformat(time):
+    '''
+    将datetime或者timedelta对象转换成ISO 8601时间标准格式字符串
+    :param time: 给定datetime或者timedelta
+    :return: 根据ISO 8601时间标准格式进行输出
+    '''
+    if isinstance(time, datetime.datetime): # 如果输入是datetime
+        return time.isoformat();
+    elif isinstance(time, datetime.timedelta): # 如果输入时timedelta，计算其代表的时分秒
+        hours = time.seconds // 3600
+        minutes = time.seconds % 3600 // 60
+        seconds = time.seconds % 3600 % 60
+        return 'P%sDT%sH%sM%sS' % (time.days, hours, minutes, seconds) # 将字符串进行连接
+
 #
 # class CustomerViewSet(viewsets.ModelViewSet):
 #     """

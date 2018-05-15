@@ -1,13 +1,10 @@
 from django.db import models
-from annoying.fields import AutoOneToOneField
 
 # imports for the auth token
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
-import requests
-#from django_mysql.models import ListCharField
 import uuid
 
 
@@ -48,7 +45,7 @@ class WUser(models.Model):
     updateTime = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return str(self.id)
+        return self.nickName
 
     def save(self, *args, **kwargs):
         super(WUser, self).save(*args, **kwargs)
@@ -107,13 +104,14 @@ class Merchandise(models.Model):
     supervisionCode = models.CharField(max_length=30, blank=True)
     supervisor = models.CharField(max_length=20, blank=True)
     unit = models.CharField(max_length=10, blank=True)
-    supervisorTel = models.DecimalField(max_digits=11, decimal_places=0, blank=True)
+    supervisorTel = models.CharField(max_length=13, blank=True)
     promotionPrice = models.DecimalField(max_digits=8, decimal_places=2, default=originPrice)
     clubPrice = models.DecimalField(max_digits=8, decimal_places=2, default=originPrice)
     producePlace = models.CharField(max_length=10, blank=True)
     createTime = models.DateTimeField(auto_now_add=True)
     updateTime = models.DateTimeField(auto_now=True)
     categoryID = models.ForeignKey(Category, on_delete=models.CASCADE)
+    #picture = models.ImageField("Uploaded image/MerchandiseImg", upload_to=scramble_uploaded_filename)
 
     def __str__(self):
         return self.name
@@ -222,19 +220,20 @@ class Order(models.Model):
     status = models.IntegerField(default=3)
     paymentMethod = models.CharField(max_length=10)
     paymentSN = models.CharField(max_length=30)
-    discount = models.DecimalField(max_digits=8, decimal_places=2)
-    delivery = models.DecimalField(max_digits=8, decimal_places=2)
-    bill = models.DecimalField(max_digits=8, decimal_places=2)
+    discount = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
+    delivery = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
+    bill = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
     comment = models.CharField(max_length=200, blank=True)
     createTime = models.DateTimeField(auto_now_add=True)
-    payTime = models.DateTimeField(blank=True)
-    dispatchTime = models.DateTimeField(blank=True)
-    receivedTime = models.DateTimeField(blank=True)
-    cancelTime = models.DateTimeField(blank=True)
+    payTime = models.DateTimeField(auto_now_add=True)
+    dispatchTime = models.DateTimeField(auto_now_add=True)
+    receivedTime = models.DateTimeField(auto_now_add=True)
+    cancelTime = models.DateTimeField(auto_now_add=True)
     addressID = models.ForeignKey(Address, on_delete=models.DO_NOTHING, blank=True)
 
+
     def __str__(self):
-        return self.paymentSN
+        return str(self.cancelTime)
 
     class Meta:
         ordering = ('createTime',)
@@ -243,7 +242,7 @@ class Order(models.Model):
 # Order details for customer order
 class OrderDetail(models.Model):
     id = models.AutoField(primary_key=True)
-    orderID = models.ForeignKey(Order, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, related_name='details', on_delete=models.CASCADE)
     merchandiseID = models.ForeignKey(Merchandise, on_delete=models.DO_NOTHING)
     merchandiseNum = models.IntegerField(default=1)
 

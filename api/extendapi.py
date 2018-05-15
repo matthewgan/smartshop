@@ -1,4 +1,7 @@
 from aip import AipFace
+import requests
+import hashlib
+import datetime
 
 
 def createapiface():
@@ -123,3 +126,49 @@ def verifyface(image, imagetype, client):
     #     return 104
 
     return 200
+
+
+def PayOrderByWechat(amount, paymentSN, openId):
+
+    # 请求签名 data为数据字典
+    def make_req_sign(data, key):
+        keys = data.keys()
+        keys = sorted(keys)
+        p = []
+        for k in keys:
+            kk = k
+            kv = data[k]
+            p.append('%s=%s' % (kk, kv))
+        unsign_str = ('&'.join(p) + key).encode("utf-8")
+        print(unsign_str)
+        s = hashlib.md5(unsign_str).hexdigest()
+        print(s.upper())
+        return s.upper()
+
+
+    txamt = amount
+    txcurrcd = 'CNY'
+    pay_type = '800213'
+    out_trade_no = '123458'
+    txdtm = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    sub_openid = openId
+    goods_name = 'test'
+    udid = '15951205871'
+    mchid = '8w5pdhDJkm'
+    key = '12EBB96FE0C24B4DA987424812685922'
+
+    data = {'txamt': txamt, 'txcurrcd': txcurrcd, 'pay_type': pay_type, 'out_trade_no': out_trade_no, 'txdtm': txdtm,
+            'sub_openid': sub_openid, 'goods_name': goods_name, 'mchid':mchid}
+    headers = {'X-QF-APPCODE': '2DAB13A0AF4D4031820149BCD58188D0', 'X-QF-SIGN': make_req_sign(data, key)}
+    req = requests.post('https://openapi-test.qfpay.com/trade/v1/payment', data=data, headers=headers)
+    print(req.json())
+
+
+
+    # 应答签名 data为返回的整个内容数据字符串
+    def make_resp_sign(data, key):
+        unsign_str = data.encode("utf-8") + key.encode("utf-8")
+        s = hashlib.md5(unsign_str).hexdigest()
+        return s.upper()
+    reqs = make_resp_sign(req.text, key)
+    print(reqs)
