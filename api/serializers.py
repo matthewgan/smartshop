@@ -110,6 +110,13 @@ class OrderDetailSerializer(serializers.ModelSerializer):
         exclude = ('id',)
 
 
+class OrderListResponseSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Merchandise
+        fields = ('name', )
+
+
 class WeChatPayOrderSeralizer(serializers.ModelSerializer):
 
     class Meta:

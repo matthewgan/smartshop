@@ -245,6 +245,7 @@ class OrderDetail(models.Model):
     order = models.ForeignKey(Order, related_name='details', on_delete=models.CASCADE)
     merchandiseID = models.ForeignKey(Merchandise, on_delete=models.DO_NOTHING)
     merchandiseNum = models.IntegerField(default=1)
+    priceOnbill = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
 
     def __str__(self):
         return str(self.id)

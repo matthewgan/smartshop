@@ -17,6 +17,7 @@ from django.http import JsonResponse
 from django.http import Http404
 from api.extendapi import *
 import random
+from collections import Counter
 
 
 class WUserCreateOrListView(APIView):
@@ -227,24 +228,36 @@ class SubmitOrderView(APIView):
         shopID = request.data.get('shopID')
         shop = Shop.objects.get(id=shopID)
         wuser = WUser.objects.get(id=userID)
+        userLevel = wuser.level
+        userBalance = wuser.balance
+        userPoint = wuser.point
         adress = Address.objects.get(id=1)
         orderList = request.data.get('orderList')
-        print(orderList[0].get('num'))
-
+        totalPrice = 0
         order = Order.objects.create(userID=wuser, shopID=shop, status=0, paymentMethod='weChatPay', paymentSN='', discount=0, delivery=5, bill=100, comment='', addressID=adress)
+        # for i in orderList:
+        #
+        #
+        # merchandises = Merchandise.objects.filter(id__in=orderList.key_list())
+        # merchandises.values('originPrice')
+
         i = 0
         while len(orderList) > i:
             merchandise = Merchandise.objects.get(id=orderList[i].get('id'))
-            OrderDetail.objects.create(order=order, merchandiseID=merchandise, merchandiseNum=orderList[i].get('num'))
+            priceOnBill = merchandise.originPrice
+            if userLevel == 1:
+                priceOnBill = merchandise.clubPrice
+            OrderDetail.objects.create(order=order, merchandiseID=merchandise, merchandiseNum=orderList[i].get('num'), priceOnbill=priceOnBill)
+            totalPrice = totalPrice + priceOnBill*orderList[i].get('num') - userBalance
             i = i+1
         serializer = CreateOrderSerializer(instance=order)
         print(serializer.data)
+        print(totalPrice)
 
         serializer = CreateOrderSerializer(data=orderList)
-        print(serializer.initial_data)
         if serializer.is_valid():
             newOrder = serializer.save()
-
+            print(newOrder)
         return Response('ok', status=status.HTTP_200_OK)
 
 
