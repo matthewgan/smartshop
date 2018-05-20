@@ -2,7 +2,13 @@ from aip import AipFace
 import requests
 import hashlib
 import datetime
-
+import random
+import socket
+import urllib
+from xml.etree import ElementTree as et
+import ssl
+from bs4 import BeautifulSoup
+import time
 
 def createapiface():
 
@@ -128,47 +134,81 @@ def verifyface(image, imagetype, client):
     return 200
 
 
-def PayOrderByWechat(amount, paymentSN, openId):
+def PayOrderByWechat(fee, out_trade_no, openid):
+    appid = 'wx0c5669e2d0dca700'
+    body = '物掌柜智慧便利'
+    mch_id = '1484492962'
+    nonce_str = str(random.random()*10)
+    notify_url = 'https://roxaswang.mynatapp.cc/api/tencent/payNotify/'
+    ip = str(get_host_ip())
+    fee = str(int(fee*100))
+    stringA = "appid=" + appid + "&body=" + body + "&mch_id=" + mch_id + "&nonce_str=" + nonce_str + "&notify_url=" + notify_url + "&openid=" + openid + "&out_trade_no=" + out_trade_no + "&spbill_create_ip=" + ip + "&total_fee=" + fee + "&trade_type=JSAPI"
+    stringSignTemp = stringA + "&key=1E5EC81A165B729FB4DC68C6E9E286ED"
+    paysign = hashlib.md5(stringSignTemp.encode('utf-8')).hexdigest().upper()
+    pay_xml = "<xml><appid>" + appid + "</appid><body>" + body + "</body><mch_id>" + mch_id + "</mch_id><nonce_str>" + nonce_str + "</nonce_str><notify_url>" + notify_url + "</notify_url><openid>" + openid + "</openid><out_trade_no>" + out_trade_no + "</out_trade_no><spbill_create_ip>" + ip + "</spbill_create_ip><total_fee>" + fee + "</total_fee><trade_type>JSAPI</trade_type><sign>" + paysign + "</sign></xml> "
 
-    # 请求签名 data为数据字典
-    def make_req_sign(data, key):
-        keys = data.keys()
-        keys = sorted(keys)
-        p = []
-        for k in keys:
-            kk = k
-            kv = data[k]
-            p.append('%s=%s' % (kk, kv))
-        unsign_str = ('&'.join(p) + key).encode("utf-8")
-        print(unsign_str)
-        s = hashlib.md5(unsign_str).hexdigest()
-        print(s.upper())
-        return s.upper()
+    req = urllib.request.Request("https://api.mch.weixin.qq.com/pay/unifiedorder")
+    req.add_header('User-Agent',
+                   'Mozilla/6.0 (iPhone; CPU iPhone OS 8_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/8.0 Mobile/10A5376e Safari/8536.25')
+    ssl._create_default_https_context = ssl._create_unverified_context
+    unifiedorderXML = urllib.request.urlopen(req, data=pay_xml.encode('utf-8'))
+
+    res = trans_xml_to_dict(unifiedorderXML)
+
+    timestamp = str(time.time())
+    timestamp = timestamp[0:10]
+    psign = res.get('sign')
+    prepay_id = res.get('prepay_id')
+    package = "prepay_id=" + prepay_id
+    stringB = "appId=wx0c5669e2d0dca700&nonceStr="+nonce_str+"&package=" + package + "&signType=MD5&timeStamp=" + timestamp
+    stringBSignTemp = stringB + "&key=1E5EC81A165B729FB4DC68C6E9E286ED"
+    paysign = hashlib.md5(stringBSignTemp.encode('utf-8')).hexdigest().upper()
+
+    toWxApp = {'timeStamp': timestamp, 'nonceStr': nonce_str, 'package': package, 'signType': 'MD5', 'paySign': paysign}
+
+    return toWxApp
+
+def get_host_ip():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(('8.8.8.8', 80))
+        ip = s.getsockname()[0]
+    finally:
+        s.close()
+
+    return ip
 
 
-    txamt = amount
-    txcurrcd = 'CNY'
-    pay_type = '800213'
-    out_trade_no = '123458'
-    txdtm = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    sub_openid = openId
-    goods_name = 'test'
-    udid = '15951205871'
-    mchid = '8w5pdhDJkm'
-    key = '12EBB96FE0C24B4DA987424812685922'
+def trans_xml_to_dict(xml):
+    """
+    将微信支付交互返回的 XML 格式数据转化为 Python Dict 对象
 
-    data = {'txamt': txamt, 'txcurrcd': txcurrcd, 'pay_type': pay_type, 'out_trade_no': out_trade_no, 'txdtm': txdtm,
-            'sub_openid': sub_openid, 'goods_name': goods_name, 'mchid':mchid}
-    headers = {'X-QF-APPCODE': '2DAB13A0AF4D4031820149BCD58188D0', 'X-QF-SIGN': make_req_sign(data, key)}
-    req = requests.post('https://openapi-test.qfpay.com/trade/v1/payment', data=data, headers=headers)
-    print(req.json())
+    :param xml: 原始 XML 格式数据
+    :return: dict 对象
+    """
+
+    soup = BeautifulSoup(xml, features='xml')
+    xml = soup.find('xml')
+    if not xml:
+        return {}
+
+    # 将 XML 数据转化为 Dict
+    data = dict([(item.name, item.text) for item in xml.find_all()])
+    return data
 
 
+def trans_dict_to_xml(data):
+    """
+    将 dict 对象转换成微信支付交互所需的 XML 格式数据
 
-    # 应答签名 data为返回的整个内容数据字符串
-    def make_resp_sign(data, key):
-        unsign_str = data.encode("utf-8") + key.encode("utf-8")
-        s = hashlib.md5(unsign_str).hexdigest()
-        return s.upper()
-    reqs = make_resp_sign(req.text, key)
-    print(reqs)
+    :param data: dict 对象
+    :return: xml 格式数据
+    """
+
+    xml = []
+    for k in sorted(data.keys()):
+        v = data.get(k)
+        if k == 'detail' and not v.startswith('<![CDATA['):
+            v = '<![CDATA[{}]]>'.format(v)
+        xml.append('<{key}>{value}</{key}>'.format(key=k, value=v))
+    return '<xml>{}</xml>'.format(''.join(xml))

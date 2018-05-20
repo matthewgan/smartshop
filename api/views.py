@@ -18,6 +18,8 @@ from django.http import Http404
 from api.extendapi import *
 import random
 from collections import Counter
+from django.utils import timezone
+import time
 
 
 class WUserCreateOrListView(APIView):
@@ -45,8 +47,8 @@ class WUserCreateOrListView(APIView):
             code = serializer.validated_data['code']
             # Use code to Request wxid and sessionkey from wechat API
             # appid and secret from wechat miniapp website
-            wxapp_secret = 'a1573bde5e2d7768081d724aa44682e2'
-            wxapp_appid = 'wx23c4e200139a74ee'
+            wxapp_secret = 'e054618417e09aa9b96b3dc472f12079'
+            wxapp_appid = 'wx0c5669e2d0dca700'
             # fixed wechat API address for wx.login
             baseurl = 'https://api.weixin.qq.com/sns/jscode2session?appid='
             content = baseurl + wxapp_appid + '&secret=' + wxapp_secret + '&js_code=' + code + '&grant_type=authorization_code'
@@ -197,6 +199,20 @@ class EntranceGetUserInfoView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class GetOrderNumView(APIView):
+
+    def post(self, request):
+
+        orderList = Order.objects.filter(userID=request.data['id'])
+        waitNUm = len(orderList.filter(status=0))
+        processNum = len(orderList.filter(status=1))
+        res = []
+        res.append(waitNUm)
+        res.append(processNum)
+
+        return Response(res, status=status.HTTP_200_OK)
+
+
 class GetOrderListView(APIView):
 
     def post(self, request):
@@ -204,72 +220,143 @@ class GetOrderListView(APIView):
         orderList = Order.objects.filter(userID=request.data['userID'])
         typeList = orderList.filter(status=request.data['status'])
         serializer = OrderListShowSeralizer(typeList, many=True)
-        #print(serializer.data[0].get('id'))
-        #print(serializer.data.__len__())
-        #len = serializer.data.__len__()
-        #ii = 0
-        #while len > ii:
-        #    orderDetail = OrderDetail.objects.filter(id=serializer.data[ii].ger('id'))
-        #    detailSerializer = OrderDetailListSerializer(orderDetail, many=True)
-        #    ij = 0
-        #    detailLen = detailSerializer.data.__len__()
-        #    while detailLen > ij:
-        #        productList = Merchandise.objects.filter(merchandiseID=detailSerializer.data[ij].get('merchandiseID'))
-        #        productListSerializer = OrderListProductInfoSerializer(productList, many=True)
-        #        productListSerializer[0]
+
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class GetOderDetailView(APIView):
+
+    def post(self, request):
+
+        order = Order.objects.get(id=request.data['id'])
+        orderDetailList = OrderDetail.objects.filter(order=request.data['id'])
+        serializer = GetOrderDetailSerializer(order)
+        print(serializer.data)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+class CancelOrderView(APIView):
+
+    def post(self, request):
+
+        order = Order.objects.get(id=request.data['id'])
+        order.status = 4
+        order.cancelTime = timezone.now();
+        order.save()
+        return Response('ok', status=status.HTTP_200_OK)
 
 
 class SubmitOrderView(APIView):
 
     def post(self, request):
 
+        # get data from request
         userID = request.data.get('userID')
         shopID = request.data.get('shopID')
-        shop = Shop.objects.get(id=shopID)
+        addressID = request.data.get('addressID')
+        orderList = request.data.get('orderList')
+
+        # get userInfo from database
         wuser = WUser.objects.get(id=userID)
         userLevel = wuser.level
         userBalance = wuser.balance
-        userPoint = wuser.point
-        adress = Address.objects.get(id=1)
-        orderList = request.data.get('orderList')
-        totalPrice = 0
-        order = Order.objects.create(userID=wuser, shopID=shop, status=0, paymentMethod='weChatPay', paymentSN='', discount=0, delivery=5, bill=100, comment='', addressID=adress)
-        # for i in orderList:
-        #
-        #
-        # merchandises = Merchandise.objects.filter(id__in=orderList.key_list())
-        # merchandises.values('originPrice')
+        openID = wuser.openid
 
-        i = 0
-        while len(orderList) > i:
-            merchandise = Merchandise.objects.get(id=orderList[i].get('id'))
+        # set orderDetail list & calculate total price
+        details = []
+        totalNum = 0
+        totalPrice = 0
+        for order in orderList:
+            merchandise = Merchandise.objects.get(id=order.get('id'))
+            name = merchandise.name
             priceOnBill = merchandise.originPrice
             if userLevel == 1:
                 priceOnBill = merchandise.clubPrice
-            OrderDetail.objects.create(order=order, merchandiseID=merchandise, merchandiseNum=orderList[i].get('num'), priceOnbill=priceOnBill)
-            totalPrice = totalPrice + priceOnBill*orderList[i].get('num') - userBalance
-            i = i+1
-        serializer = CreateOrderSerializer(instance=order)
-        print(serializer.data)
-        print(totalPrice)
+            details.append({'merchandiseID': order.get('id'), 'merchandiseNum': order.get('num'), 'priceOnbill': float('%.2f' % priceOnBill)})
+            totalPrice = totalPrice + order.get('num')*float('%.2f' % priceOnBill)
+            totalNum = totalNum + order.get('num')
+        timestamp = str(time.time())
+        tradeNo = timestamp.replace('.','0')
+        payPrice = totalPrice-userBalance
+        # prepare data for serializer
+        orderdata = {'userID': userID, 'shopID': shopID, 'status': 0, 'paymentMethod': 'weChatPay', 'tradeNo': tradeNo, 'discount': 0, 'delivery': 5, 'totalPrice': totalPrice, 'balanceUse': userBalance, 'payPrice': payPrice, 'name': name, 'totalNum': totalNum, 'comment': '', 'addressID': addressID, 'details': details}
 
-        serializer = CreateOrderSerializer(data=orderList)
+        # save to database
+        serializer = CreateOrderSerializer(data=orderdata)
         if serializer.is_valid():
-            newOrder = serializer.save()
-            print(newOrder)
-        return Response('ok', status=status.HTTP_200_OK)
+            serializer.save()
+
+            payData = PayOrderByWechat(payPrice, tradeNo, openID)
+
+        else:
+            print(serializer.errors)
+            return Response('Data Error', status=status.HTTP_200_OK)
+
+
+        return Response(payData, status=status.HTTP_200_OK)
 
 
 class PayOrderByWechatView(APIView):
 
     def post(self, request):
 
-        order = Order.objects.get(paymentSN=request.data.get('paymentSN'))
+        order = Order.objects.get(id=request.data.get('id'))
         serializer = WeChatPayOrderSeralizer(order)
         res = serializer.data
         PayOrderByWechat('1', res['paymentSN'], 'oh5IA5UJYYJWtBStjEp53N-7aom0')
         return Response('ok', status=status.HTTP_200_OK)
+
+
+class GetAddressListView(APIView):
+
+    def post(self, request):
+
+        addressList = Address.objects.filter(who=request.data.get('id'))
+        serializer = AddressListSeralizer(addressList, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class SetDefaultAddressView(APIView):
+
+    def post(self, request):
+
+        addList = Address.objects.filter(who=request.data.get('id'))
+        for add in addList:
+            if add.isDefault:
+                add.isDefault = False
+                add.save()
+
+        address = Address.objects.get(id=request.data.get('addId'))
+        address.isDefault = True
+        address.save()
+
+        return Response("ok", status=status.HTTP_200_OK)
+
+
+class DeleteAdressView(APIView):
+
+    def post(self, request):
+
+        address = Address.objects.get(id=request.data.get('addId'))
+        address.delete()
+
+        return Response("ok", status=status.HTTP_200_OK)
+
+
+class AddAddressView(APIView):
+
+    def post(self, request):
+
+        serializers = AddAddressSeralizer(data=request.data)
+        if serializers.is_valid():
+            serializers.save()
+
+            return Response("ok", status=status.HTTP_200_OK)
+        print(serializers.errors)
+        return Response("dataerror", status=status.HTTP_200_OK)
 
 
 def isoformat(time):
@@ -285,6 +372,35 @@ def isoformat(time):
         minutes = time.seconds % 3600 // 60
         seconds = time.seconds % 3600 % 60
         return 'P%sDT%sH%sM%sS' % (time.days, hours, minutes, seconds) # 将字符串进行连接
+
+
+class GetTencentNotifyView(APIView):
+
+    def post(self, request):
+
+        if request.data.get('return_code') == 'SUCCESS':
+            res = {'return_code':'SUCCESS','return_msg':''}
+
+            return Response(res, status=status.HTTP_200_OK)
+
+
+class TopUpView(APIView):
+
+    def post(self, request):
+
+        wuser = WUser.objects.get(id=request.data.get['id'])
+        openid = wuser.openid
+        balance = wuser.balance
+        timestamp = str(time.time())
+        tradeNo = timestamp.replace('.', '0')
+
+        data = {'userID':request.data.get['id'], 'tradeNo': tradeNo, 'amount': request.data.get['amount']}
+        serializer = CreateTopUpSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            payData = PayOrderByWechat(request.data.get['amount'], tradeNo, openid)
+
+        return Response(payData, status=status.HTTP_200_OK)
 
 #
 # class CustomerViewSet(viewsets.ModelViewSet):

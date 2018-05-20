@@ -77,14 +77,8 @@ class OrderListShowSeralizer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ('id', 'paymentSN', 'bill', 'createTime', 'shopID', 'createTime', 'paymentMethod')
-
-
-class OrderDetailListSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = OrderDetail
-        fields = ('merchandiseID', 'merchandiseNum')
+        fields = fields = ('id', 'userID', 'shopID', 'status', 'paymentMethod', 'paymentSN', 'discount', 'delivery',
+                           'totalPrice', 'balanceUse', 'payPrice', 'name', 'totalNum', 'comment', 'addressID', 'createTime', 'cancelTime', )
 
 
 class OrderListProductInfoSerializer(serializers.ModelSerializer):
@@ -94,28 +88,78 @@ class OrderListProductInfoSerializer(serializers.ModelSerializer):
         fields = ('name', 'promotionPrice', )
 
 
-class CreateOrderSerializer(serializers.ModelSerializer):
-
-    details = OrderDetailListSerializer(many=True)
-
-    class Meta:
-        model = Order
-        fields = ('id', 'userID', 'shopID', 'status', 'paymentMethod', 'paymentSN', 'discount', 'delivery', 'bill', 'comment', 'addressID', 'details', )
-
-
 class OrderDetailSerializer(serializers.ModelSerializer):
+
+    name = serializers.CharField(source='merchandiseID.name', read_only=True)
 
     class Meta:
         model = OrderDetail
-        exclude = ('id',)
+        fields = ('merchandiseID', 'merchandiseNum', 'priceOnbill', 'name')
 
 
-class OrderListResponseSerializer(serializers.ModelSerializer):
+class CreateOrderSerializer(serializers.ModelSerializer):
+
+    details = OrderDetailSerializer(many=True)
 
     class Meta:
-        model = Merchandise
-        fields = ('name', )
+        model = Order
+        fields = ('id', 'userID', 'shopID', 'status', 'paymentMethod', 'discount', 'delivery', 'totalPrice',
+                  'balanceUse', 'payPrice', 'name', 'totalNum', 'comment', 'addressID', 'details', 'createTime','tradeNo', )
 
+    def create(self, validated_data):
+        details_data = validated_data.pop('details')
+        order = Order.objects.create(**validated_data)
+        for details_data in details_data:
+            OrderDetail.objects.create(order=order, **details_data)
+        return order
+
+
+class GetOrderDetailSerializer(serializers.ModelSerializer):
+
+    addName = serializers.CharField(source='addressID.name')
+    addTel = serializers.CharField(source='addressID.telephone')
+    addDetail = serializers.CharField(source='addressID.detail')
+    details = OrderDetailSerializer(many=True)
+
+    class Meta:
+        model = Order
+        fields = ('id', 'userID', 'shopID', 'status', 'paymentMethod', 'paymentSN', 'discount', 'delivery', 'totalPrice',
+                  'balanceUse', 'payPrice', 'name', 'totalNum', 'comment', 'addressID', 'details', 'createTime', 'addName', 'addTel', 'addDetail')
+
+    def create(self, validated_data):
+        details_data = validated_data.pop('details')
+        order = Order.objects.create(**validated_data)
+        for details_data in details_data:
+            OrderDetail.objects.create(order=order, **details_data)
+        return order
+
+
+class CreateTopUpSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Order
+        fields = ('userID', 'tradeNo', 'amount')
+
+
+# class OrderListResponseSerializer(serializers.ModelSerializer):
+#
+#     class Meta:
+#         model = Order
+#         fields = ('shopID', 'paymentSN', 'delivery', 'totalPrice', 'balanceUse', 'payPrice', 'addressID', 'details', )
+
+
+class AddressListSeralizer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Address
+        exclude = ('who',)
+
+
+class AddAddressSeralizer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Address
+        fields = '__all__'
 
 class WeChatPayOrderSeralizer(serializers.ModelSerializer):
 

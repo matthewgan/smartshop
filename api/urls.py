@@ -26,7 +26,15 @@ urlpatterns = [
     url(r'^entry_by_code/$', views.EntranceGetUserInfoView.as_view()),
     url(r'^entry_by_face/$', views.SearchUserFaceView.as_view()),
     url(r'^wxApp/getOrder/$', views.GetOrderListView.as_view()),
+    url(r'^wxApp/getOrderDetail/$', views.GetOderDetailView.as_view()),
     url(r'^wxApp/pay/$', views.PayOrderByWechatView.as_view()),
     url(r'^wxApp/submitOrder/$', views.SubmitOrderView.as_view()),
-
+    url(r'^wxApp/getAddressList/$', views.GetAddressListView.as_view()),
+    url(r'^wxApp/setDefaultAdd/$', views.SetDefaultAddressView.as_view()),
+    url(r'^wxApp/deleteAddress/$', views.DeleteAdressView.as_view()),
+    url(r'^wxApp/addAddress/$', views.AddAddressView.as_view()),
+    url(r'^wxApp/getOrderNum/$', views.GetOrderNumView.as_view()),
+    url(r'^wxApp/cancelOrder/$', views.CancelOrderView.as_view()),
+    url(r'^tencent/payNotify/$', views.GetTencentNotifyView.as_view()),
+    url(r'^wxApp/topUp/$', views.GetTencentNotifyView.as_view()),
 ]

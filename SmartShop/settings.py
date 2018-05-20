@@ -25,7 +25,7 @@ SECRET_KEY = 'f-4&q)q$z)n-vidl2@-wd%6&hu9-f@43pawiq1_$g$@l@7%=p%'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "101.132.174.202", "www.wuzhanggui.shop", "wuzhanggui.shop"]
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "101.132.174.202", "www.wuzhanggui.shop", "wuzhanggui.shop", "roxaswang.mynatapp.cc",]
 
 
 # Application definition

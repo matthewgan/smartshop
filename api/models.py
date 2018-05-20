@@ -6,6 +6,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 import uuid
+from django.utils import timezone
 
 
 # create extra token when create new user
@@ -217,18 +218,23 @@ class Order(models.Model):
     id = models.AutoField(primary_key=True)
     shopID = models.ForeignKey(Shop, on_delete=models.DO_NOTHING)
     userID = models.ForeignKey(WUser, on_delete=models.DO_NOTHING)
-    status = models.IntegerField(default=3)
+    status = models.IntegerField(default=0)  # 0:waitForPay 1:waitForRecive 2:Complete 4:Cancel 3:Offline 5:OfflineCancel
     paymentMethod = models.CharField(max_length=10)
-    paymentSN = models.CharField(max_length=30)
+    paymentSN = models.CharField(max_length=128, blank=True)
+    tradeNo = models.CharField(max_length=128, blank=True)
     discount = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
     delivery = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
-    bill = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
+    totalPrice = models.DecimalField(max_digits=8, decimal_places=2, blank=True)  # price before balance
+    balanceUse = models.DecimalField(max_digits=8, decimal_places=2, blank=True)  # balance use by user
+    payPrice = models.DecimalField(max_digits=8, decimal_places=2, blank=True)  # final pay price
+    name = models.CharField(max_length=30)  # first product name
+    totalNum = models.IntegerField(default=1)
     comment = models.CharField(max_length=200, blank=True)
     createTime = models.DateTimeField(auto_now_add=True)
-    payTime = models.DateTimeField(auto_now_add=True)
-    dispatchTime = models.DateTimeField(auto_now_add=True)
-    receivedTime = models.DateTimeField(auto_now_add=True)
-    cancelTime = models.DateTimeField(auto_now_add=True)
+    payTime = models.DateTimeField(default=timezone.now)
+    dispatchTime = models.DateTimeField(default=timezone.now)
+    receivedTime = models.DateTimeField(default=timezone.now)
+    cancelTime = models.DateTimeField(default=timezone.now)
     addressID = models.ForeignKey(Address, on_delete=models.DO_NOTHING, blank=True)
 
 
@@ -271,6 +277,18 @@ class RFIDtag(models.Model):
 
     def __str__(self):
         return self.EPC
+
+
+class TopUp(models.Model):
+    id = models.AutoField(primary_key=True)
+    userID = models.ForeignKey(WUser, on_delete=models.DO_NOTHING)
+    paymentSN = models.CharField(max_length=128, blank=True)
+    tradeNo = models.CharField(max_length=128, blank=True)
+    createTime = models.DateTimeField(auto_now_add=True)
+    amount = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
+
+    def __str__(self):
+        return self.tradeNo
 
 
 def scramble_uploaded_filename(instance, filename):
