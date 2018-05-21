@@ -232,6 +232,9 @@ class CancelOrderView(APIView):
     def post(self, request):
 
         order = Order.objects.get(id=request.data['id'])
+        wuser = WUser.objects.get(id=request.data['userId'])
+        wuser.balance = order.balanceUse
+        wuser.save()
         order.status = 4
         order.cancelTime = timezone.now();
         order.save()
@@ -278,7 +281,8 @@ class SubmitOrderView(APIView):
         else:
             payPrice = 0
             balanceUse = totalPrice
-
+        payPrice = float('%.2f' % payPrice)
+        balanceUse = float('%.2f' % balanceUse)
 
         # prepare data for serializer to create order
         orderdata = {'userID': userID, 'shopID': shopID, 'status': 0, 'paymentMethod': 'weChatPay', 'tradeNo': tradeNo, 'discount': 0, 'delivery': 5, 'totalPrice': totalPrice, 'balanceUse': balanceUse, 'payPrice': payPrice, 'name': name, 'totalNum': totalNum, 'comment': '', 'addressID': addressID, 'details': details}
@@ -291,6 +295,8 @@ class SubmitOrderView(APIView):
             # get data for wechatPay if need to pay
             if totalPrice > userBalance:
                 payData = PayOrderByWechat(payPrice, tradeNo, openID)
+                wuser.balance = 0
+                wuser.save()
                 payData['status'] = 1
             else:
                 payData = {'status': 2}
@@ -373,21 +379,6 @@ class AddAddressView(APIView):
         return Response("dataerror", status=status.HTTP_200_OK)
 
 
-def isoformat(time):
-    '''
-    将datetime或者timedelta对象转换成ISO 8601时间标准格式字符串
-    :param time: 给定datetime或者timedelta
-    :return: 根据ISO 8601时间标准格式进行输出
-    '''
-    if isinstance(time, datetime.datetime): # 如果输入是datetime
-        return time.isoformat();
-    elif isinstance(time, datetime.timedelta): # 如果输入时timedelta，计算其代表的时分秒
-        hours = time.seconds // 3600
-        minutes = time.seconds % 3600 // 60
-        seconds = time.seconds % 3600 % 60
-        return 'P%sDT%sH%sM%sS' % (time.days, hours, minutes, seconds) # 将字符串进行连接
-
-
 class GetTencentNotifyView(APIView):
 
     authentication_classes = (TokenAuthentication)
@@ -429,7 +420,6 @@ class PaySuccessView(APIView):
 
         if querydata.get('status') == 200:
             order.status = 1
-            wuser.balance = wuser.balance - order.balanceUse
             wuser.point = wuser.point + order.payPrice*100
             order.paymentSN = querydata.get('transaction_id')
             order.payTime = timezone.now()
@@ -471,6 +461,48 @@ class PointToBalanceView(APIView):
         serializer = WUserSetCodeResponseSerializer(wuser)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+class PayOrderView(APIView):
+
+    def post(self, request):
+
+        # get data from request
+        print(request.data.get('id'))
+        order = Order.objects.get(id=request.data.get('id'))
+        wuser = WUser.objects.get(id=request.data.get('userId'))
+        if order.payPrice == 0:
+            order.status = 1
+            order.payTime = timezone.now()
+            order.save()
+            serializer = WUserSetCodeResponseSerializer(wuser)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            payData = PayOrderByWechat(order.payPrice, order.tradeNo, wuser.openid)
+            return Response(payData, status=status.HTTP_200_OK)
+
+
+class GetUserInfoView(APIView):
+
+    def post(self, request):
+
+        wuser = WUser.objects.get(id=request.data.get('id'))
+        serializer = WUserSetCodeResponseSerializer(wuser)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+def isoformat(time):
+        '''
+        将datetime或者timedelta对象转换成ISO 8601时间标准格式字符串
+        :param time: 给定datetime或者timedelta
+        :return: 根据ISO 8601时间标准格式进行输出
+        '''
+        if isinstance(time, datetime.datetime):  # 如果输入是datetime
+            return time.isoformat();
+        elif isinstance(time, datetime.timedelta):  # 如果输入时timedelta，计算其代表的时分秒
+            hours = time.seconds // 3600
+            minutes = time.seconds % 3600 // 60
+            seconds = time.seconds % 3600 % 60
+            return 'P%sDT%sH%sM%sS' % (time.days, hours, minutes, seconds)  # 将字符串进行连接
 #
 # class CustomerViewSet(viewsets.ModelViewSet):
 #     """

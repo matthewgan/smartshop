@@ -40,4 +40,6 @@ urlpatterns = [
     url(r'^wxApp/paySuccess/$', views.PaySuccessView.as_view()),
     url(r'^wxApp/topUpSuccess/$', views.TopUpSuccessView.as_view()),
     url(r'^wxApp/pointToBalance/$', views.PointToBalanceView.as_view()),
+    url(r'^wxApp/payOrder/$', views.PayOrderView.as_view()),
+    url(r'^wxApp/getuserInfo/$', views.GetUserInfoView.as_view()),
 ]

@@ -78,7 +78,7 @@ class OrderListShowSeralizer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = fields = ('id', 'userID', 'shopID', 'status', 'paymentMethod', 'paymentSN', 'discount', 'delivery',
-                           'totalPrice', 'balanceUse', 'payPrice', 'name', 'totalNum', 'comment', 'addressID', 'createTime', 'cancelTime', )
+                           'totalPrice', 'balanceUse', 'payPrice', 'name', 'totalNum', 'comment', 'addressID', 'createTime', 'cancelTime', 'tradeNo')
 
 
 class OrderListProductInfoSerializer(serializers.ModelSerializer):
