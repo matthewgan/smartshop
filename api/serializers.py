@@ -137,8 +137,8 @@ class GetOrderDetailSerializer(serializers.ModelSerializer):
 class CreateTopUpSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Order
-        fields = ('userID', 'tradeNo', 'amount')
+        model = TopUp
+        fields = ('userID', 'tradeNo', 'amountPay', 'amountAdd')
 
 
 # class OrderListResponseSerializer(serializers.ModelSerializer):

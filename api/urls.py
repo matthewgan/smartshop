@@ -38,4 +38,6 @@ urlpatterns = [
     url(r'^tencent/payNotify/$', views.GetTencentNotifyView.as_view()),
     url(r'^wxApp/topUp/$', views.TopUpView.as_view()),
     url(r'^wxApp/paySuccess/$', views.PaySuccessView.as_view()),
+    url(r'^wxApp/topUpSuccess/$', views.TopUpSuccessView.as_view()),
+    url(r'^wxApp/pointToBalance/$', views.PointToBalanceView.as_view()),
 ]

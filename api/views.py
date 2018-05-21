@@ -1,25 +1,15 @@
-from django.shortcuts import render
-from rest_framework import viewsets, permissions, status
+from rest_framework import  status
 from rest_framework.views import APIView
-from api.models import *
 from api.serializers import *
-from api.permissions import IsOwnerOrReadOnly
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.contrib.auth.models import User
-import requests
 import base64
 from SmartShop.settings import *
-import json
-from rest_framework.decorators import authentication_classes, permission_classes
-#import uuid
-from django.http import JsonResponse
 from django.http import Http404
 from api.extendapi import *
-import random
-from collections import Counter
 from django.utils import timezone
 import time
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
 
 
 class WUserCreateOrListView(APIView):
@@ -261,7 +251,7 @@ class SubmitOrderView(APIView):
         # get userInfo from database
         wuser = WUser.objects.get(id=userID)
         userLevel = wuser.level
-        userBalance = wuser.balance
+        userBalance = float('%.2f' % wuser.balance)
         openID = wuser.openid
 
         # set orderDetail list & calculate total price
@@ -273,8 +263,8 @@ class SubmitOrderView(APIView):
             name = merchandise.name
             priceOnBill = merchandise.originPrice
             # set price for VIP customer
-            if userLevel == 1:
-                priceOnBill = merchandise.clubPrice
+            # if userLevel == 1:
+            #     priceOnBill = merchandise.clubPrice
             details.append({'merchandiseID': order.get('id'), 'merchandiseNum': order.get('num'), 'priceOnbill': float('%.2f' % priceOnBill)})
             totalPrice = totalPrice + order.get('num')*float('%.2f' % priceOnBill)
             totalNum = totalNum + order.get('num')
@@ -289,6 +279,7 @@ class SubmitOrderView(APIView):
             payPrice = 0
             balanceUse = totalPrice
 
+
         # prepare data for serializer to create order
         orderdata = {'userID': userID, 'shopID': shopID, 'status': 0, 'paymentMethod': 'weChatPay', 'tradeNo': tradeNo, 'discount': 0, 'delivery': 5, 'totalPrice': totalPrice, 'balanceUse': balanceUse, 'payPrice': payPrice, 'name': name, 'totalNum': totalNum, 'comment': '', 'addressID': addressID, 'details': details}
 
@@ -297,8 +288,21 @@ class SubmitOrderView(APIView):
         if serializer.is_valid():
             serializer.save()
 
-            # get data for wechatPay
-            payData = PayOrderByWechat(payPrice, tradeNo, openID)
+            # get data for wechatPay if need to pay
+            if totalPrice > userBalance:
+                payData = PayOrderByWechat(payPrice, tradeNo, openID)
+                payData['status'] = 1
+            else:
+                payData = {'status': 2}
+                order = Order.objects.get(tradeNo=tradeNo)
+                order.status = 1
+                order.payTime = timezone.now()
+                wuser.balance = float('%.2f' %wuser.balance) - totalPrice
+                print(wuser.balance)
+                order.save()
+                wuser.save()
+                serializer = WUserSetCodeResponseSerializer(wuser)
+                payData['balance'] = serializer.data.get('balance')
 
         else:
             print(serializer.errors)
@@ -386,6 +390,8 @@ def isoformat(time):
 
 class GetTencentNotifyView(APIView):
 
+    authentication_classes = (TokenAuthentication)
+    permission_classes = (IsAuthenticated,)
     def post(self, request):
 
         if request.data.get('return_code') == 'SUCCESS':
@@ -404,11 +410,11 @@ class TopUpView(APIView):
         timestamp = str(time.time())
         tradeNo = timestamp.replace('.', '0')
 
-        data = {'userID':request.data.get('id'), 'tradeNo': tradeNo, 'amount': request.data.get('amount')}
+        data = {'userID': request.data.get('id'), 'tradeNo': tradeNo, 'amountPay': request.data.get('amountPay'), 'amountAdd': request.data.get('amountAdd')}
         serializer = CreateTopUpSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            payData = PayOrderByWechat(request.data.get('amount'), tradeNo, openid)
+            payData = PayOrderByWechat(request.data.get('amountPay'), tradeNo, openid)
 
         return Response(payData, status=status.HTTP_200_OK)
 
@@ -424,6 +430,7 @@ class PaySuccessView(APIView):
         if querydata.get('status') == 200:
             order.status = 1
             wuser.balance = wuser.balance - order.balanceUse
+            wuser.point = wuser.point + order.payPrice*100
             order.paymentSN = querydata.get('transaction_id')
             order.payTime = timezone.now()
             order.save()
@@ -432,6 +439,38 @@ class PaySuccessView(APIView):
         serializer = WUserSetCodeResponseSerializer(wuser)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class TopUpSuccessView(APIView):
+
+    def post(self, request):
+        topuporder = TopUp.objects.get(tradeNo=request.data.get('tradeNo'))
+        wuser = WUser.objects.get(id=request.data.get('id'))
+        querydata = OrderQuery(request.data.get('tradeNo'))
+
+        if querydata.get('status') == 200:
+            topuporder.status = 1
+            wuser.balance = wuser.balance + topuporder.amountPay +topuporder.amountAdd
+            wuser.level = 1
+            topuporder.paymentSN = querydata.get('transaction_id')
+            topuporder.save()
+
+        wuser.save()
+        serializer = WUserSetCodeResponseSerializer(wuser)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class PointToBalanceView(APIView):
+
+    def post(self, request):
+        wuser = WUser.objects.get(id=request.data.get('id'))
+        wuser.balance = wuser.balance +request.data.get('balanceAdd')
+        wuser.point = wuser.point - request.data.get('pointUse')
+        wuser.save()
+        serializer = WUserSetCodeResponseSerializer(wuser)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 #
 # class CustomerViewSet(viewsets.ModelViewSet):
 #     """

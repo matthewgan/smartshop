@@ -38,9 +38,9 @@ class WUser(models.Model):
     country = models.CharField(max_length=15, blank=True)
     language = models.CharField(max_length=15, blank=True)
     # Self defined user info
-    level = models.IntegerField(default=1)
+    level = models.IntegerField(default=0)
     point = models.IntegerField(default=0)
-    balance = models.IntegerField(default=0)
+    balance = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
     faceExisted = models.BooleanField(default=False)
     createTime = models.DateTimeField(auto_now_add=True)
     updateTime = models.DateTimeField(auto_now=True)
@@ -281,11 +281,13 @@ class RFIDtag(models.Model):
 
 class TopUp(models.Model):
     id = models.AutoField(primary_key=True)
+    status = models.IntegerField(default=0)# 0fail 1success
     userID = models.ForeignKey(WUser, on_delete=models.DO_NOTHING)
     paymentSN = models.CharField(max_length=128, blank=True)
     tradeNo = models.CharField(max_length=128, blank=True)
     createTime = models.DateTimeField(auto_now_add=True)
-    amount = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
+    amountPay = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
+    amountAdd = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
 
     def __str__(self):
         return self.tradeNo

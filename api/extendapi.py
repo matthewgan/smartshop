@@ -164,7 +164,7 @@ def PayOrderByWechat(fee, out_trade_no, openid):
     stringBSignTemp = stringB + "&key=1E5EC81A165B729FB4DC68C6E9E286ED"
     paysign = hashlib.md5(stringBSignTemp.encode('utf-8')).hexdigest().upper()
 
-    toWxApp = {'timeStamp': timestamp, 'nonceStr': nonce_str, 'package': package, 'signType': 'MD5', 'paySign': paysign, 'tradeNo':out_trade_no}
+    toWxApp = {'timeStamp': timestamp, 'nonceStr': nonce_str, 'package': package, 'signType': 'MD5', 'paySign': paysign, 'tradeNo':out_trade_no, 'status': 1}
 
     return toWxApp
 
