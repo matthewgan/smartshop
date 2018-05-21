@@ -164,9 +164,63 @@ def PayOrderByWechat(fee, out_trade_no, openid):
     stringBSignTemp = stringB + "&key=1E5EC81A165B729FB4DC68C6E9E286ED"
     paysign = hashlib.md5(stringBSignTemp.encode('utf-8')).hexdigest().upper()
 
-    toWxApp = {'timeStamp': timestamp, 'nonceStr': nonce_str, 'package': package, 'signType': 'MD5', 'paySign': paysign}
+    toWxApp = {'timeStamp': timestamp, 'nonceStr': nonce_str, 'package': package, 'signType': 'MD5', 'paySign': paysign, 'tradeNo':out_trade_no}
 
     return toWxApp
+
+
+def OrderQuery(out_trade_no):
+    appid = 'wx0c5669e2d0dca700'
+    mch_id = '1484492962'
+    nonce_str = str(random.random()*10)
+    stringA = "appid=" + appid +"&mch_id=" + mch_id + "&nonce_str=" + nonce_str + "&out_trade_no=" + out_trade_no
+    stringSignTemp = stringA + "&key=1E5EC81A165B729FB4DC68C6E9E286ED"
+    paysign = hashlib.md5(stringSignTemp.encode('utf-8')).hexdigest().upper()
+
+
+    orderquery = {
+        'appid': appid,
+        'mch_id': mch_id,
+        'nonce_str': nonce_str,
+        'out_trade_no': out_trade_no,
+        'sign': paysign,
+
+    }
+    xml = trans_dict_to_xml(orderquery)
+    print(xml)
+
+    resp = requests.post("https://api.mch.weixin.qq.com/pay/orderquery", data=xml.encode('utf-8'),
+                         headers={'Content-Type': 'text/xml'})
+    msg = resp.text.encode('ISO-8859-1').decode('utf-8')
+    xmlresp = trans_xml_to_dict(msg)
+
+    if xmlresp.get('return_code') == 'SUCCESS':
+        if xmlresp.get('result_code') == 'SUCCESS':
+            resdata = {
+                'status': 200,
+                'trade_state': xmlresp.get('trade_state'),
+                'transaction_id': xmlresp.get('transaction_id'),
+                'out_trade_no': xmlresp.get('out_trade_no'),
+                'cash_fee': xmlresp.get('cash_fee'),
+            }
+
+        else:
+            resdata = {
+                'status': 100,
+                'err_code': xmlresp.get('err_code'),
+                'err_code_des': xmlresp.get('err_code_des'),
+            }
+    else:
+        resdata = {
+            'status': 101,
+            'return_code': xmlresp.get('return_code'),
+            'return_msg': xmlresp.get('return_msg'),
+        }
+
+    print(resdata)
+
+    return resdata
+
 
 def get_host_ip():
     try:

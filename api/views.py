@@ -272,22 +272,32 @@ class SubmitOrderView(APIView):
             merchandise = Merchandise.objects.get(id=order.get('id'))
             name = merchandise.name
             priceOnBill = merchandise.originPrice
+            # set price for VIP customer
             if userLevel == 1:
                 priceOnBill = merchandise.clubPrice
             details.append({'merchandiseID': order.get('id'), 'merchandiseNum': order.get('num'), 'priceOnbill': float('%.2f' % priceOnBill)})
             totalPrice = totalPrice + order.get('num')*float('%.2f' % priceOnBill)
             totalNum = totalNum + order.get('num')
+
+        # prepare data for wechatPay
         timestamp = str(time.time())
         tradeNo = timestamp.replace('.','0')
-        payPrice = totalPrice-userBalance
-        # prepare data for serializer
-        orderdata = {'userID': userID, 'shopID': shopID, 'status': 0, 'paymentMethod': 'weChatPay', 'tradeNo': tradeNo, 'discount': 0, 'delivery': 5, 'totalPrice': totalPrice, 'balanceUse': userBalance, 'payPrice': payPrice, 'name': name, 'totalNum': totalNum, 'comment': '', 'addressID': addressID, 'details': details}
+        if totalPrice > userBalance:
+            payPrice = totalPrice-userBalance
+            balanceUse = userBalance
+        else:
+            payPrice = 0
+            balanceUse = totalPrice
+
+        # prepare data for serializer to create order
+        orderdata = {'userID': userID, 'shopID': shopID, 'status': 0, 'paymentMethod': 'weChatPay', 'tradeNo': tradeNo, 'discount': 0, 'delivery': 5, 'totalPrice': totalPrice, 'balanceUse': balanceUse, 'payPrice': payPrice, 'name': name, 'totalNum': totalNum, 'comment': '', 'addressID': addressID, 'details': details}
 
         # save to database
         serializer = CreateOrderSerializer(data=orderdata)
         if serializer.is_valid():
             serializer.save()
 
+            # get data for wechatPay
             payData = PayOrderByWechat(payPrice, tradeNo, openID)
 
         else:
@@ -388,20 +398,40 @@ class TopUpView(APIView):
 
     def post(self, request):
 
-        wuser = WUser.objects.get(id=request.data.get['id'])
+        wuser = WUser.objects.get(id=request.data.get('id'))
         openid = wuser.openid
         balance = wuser.balance
         timestamp = str(time.time())
         tradeNo = timestamp.replace('.', '0')
 
-        data = {'userID':request.data.get['id'], 'tradeNo': tradeNo, 'amount': request.data.get['amount']}
+        data = {'userID':request.data.get('id'), 'tradeNo': tradeNo, 'amount': request.data.get('amount')}
         serializer = CreateTopUpSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            payData = PayOrderByWechat(request.data.get['amount'], tradeNo, openid)
+            payData = PayOrderByWechat(request.data.get('amount'), tradeNo, openid)
 
         return Response(payData, status=status.HTTP_200_OK)
 
+
+class PaySuccessView(APIView):
+
+    def post(self, request):
+        print(request.data)
+        order = Order.objects.get(tradeNo=request.data.get('tradeNo'))
+        wuser = WUser.objects.get(id=request.data.get('id'))
+        querydata = OrderQuery(request.data.get('tradeNo'))
+
+        if querydata.get('status') == 200:
+            order.status = 1
+            wuser.balance = wuser.balance - order.balanceUse
+            order.paymentSN = querydata.get('transaction_id')
+            order.payTime = timezone.now()
+            order.save()
+
+        wuser.save()
+        serializer = WUserSetCodeResponseSerializer(wuser)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 #
 # class CustomerViewSet(viewsets.ModelViewSet):
 #     """
