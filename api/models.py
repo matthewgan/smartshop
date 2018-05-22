@@ -20,6 +20,16 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
         Token.objects.create(user=instance)
 
 
+def scramble_uploaded_filename(instance, filename):
+    """
+    Scramble / uglify the filename of the uploaded file, but keep the files extension (e.g., .jpg or .png)
+    :param instance:
+    :param filename:
+    :return:
+    """
+    extension = filename.split(".")[-1]
+    return "{}.{}".format(uuid.uuid4(), extension)
+
 # Model design for wuzhanggui.shop
 # Wuzhanggui User Model
 class WUser(models.Model):
@@ -292,16 +302,6 @@ class TopUp(models.Model):
     def __str__(self):
         return self.tradeNo
 
-
-def scramble_uploaded_filename(instance, filename):
-    """
-    Scramble / uglify the filename of the uploaded file, but keep the files extension (e.g., .jpg or .png)
-    :param instance:
-    :param filename:
-    :return:
-    """
-    extension = filename.split(".")[-1]
-    return "{}.{}".format(uuid.uuid4(), extension)
 
 
 class UploadedFace(models.Model):

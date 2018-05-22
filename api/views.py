@@ -15,7 +15,28 @@ from rest_framework.authentication import TokenAuthentication
 class WUserCreateOrListView(APIView):
     """
     List all the wechat users, or create a new user
+    miniApp-start.js
+
+    Parameters:
+      code - miniApp loginCode, save for barCode entering
+      nickName -
+      avatarUrl -
+      gender -
+      city -
+      province -
+      country -
+      language -
+
+    Returns:
+      id - user uuid
+      point -
+      level -
+      balance -
+
+    Raises:
+      KeyError - raises an exception
     """
+
     def get(self, request, *args, **kwargs):
         """
         List all the wechat user in the database
@@ -65,7 +86,21 @@ class WUserCreateOrListView(APIView):
 
 class WXUserSetCodeView(APIView):
     """
-    3.1.3 upload code
+    Set code every time user login the miniapp
+    miniApp-start.js
+
+    Parameters:
+      code - miniApp loginCode, save for barCode entering
+      id - user uuid
+
+    Returns:
+      id - user uuid
+      point -
+      level -
+      balance -
+
+    Raises:
+      KeyError - raises an exception
     """
     def put(self, request, format=None):
         pk = request.data['id']
@@ -82,7 +117,14 @@ class WXUserSetCodeView(APIView):
 class CategoryListView(APIView):
     """
     List all the categories in the database: ids & names
-    for wechat mini app
+    miniApp-shop.js
+
+    Parameters:
+
+    Returns:
+      all Category Info
+
+    Raises:
     """
     def get(self, request):
         catgory = Category.objects.all()
@@ -93,7 +135,14 @@ class CategoryListView(APIView):
 class MerchandisesShowByCategoryView(APIView):
     """
     List all the merchandises under specified category
-    for wechat mini app show information on Eshop
+    miniApp-shop.js
+
+    Parameters:
+
+    Returns:
+      all Merchandises in specified category
+
+    Raises:
     """
     def get_object(self, pk):
         try:
@@ -107,18 +156,22 @@ class MerchandisesShowByCategoryView(APIView):
         return Response(serializer.data)
 
 
-class ShopListView(APIView):
-    """
-    List all the shop informations
-    """
-    def get(self, request):
-        shops = Shop.objects.all()
-        serializer = ShopListShowInfoSerializer(shops, many=True)
-        return Response(serializer.data)
-
-
 class RegisterFaceView(APIView):
+    """
+    Register user face info for the first time login the miniApp
+    miniApp-face.js
 
+    Parameters:
+        uuid = user uuid
+        imgFile = user face file
+
+    Returns:
+      detectRes-
+      if failed, tell miniApp the reason
+      if success, the register success
+
+    Raises:
+    """
     def post(self, request):
         serializer = UploadedFaceSerializer(data=request.data)
         print(serializer.initial_data)
@@ -129,68 +182,37 @@ class RegisterFaceView(APIView):
         imgRoot = MEDIA_ROOT + imgUrl[6:]
 
         # encode img to base64
-        print(imgRoot)
         file = open(imgRoot, 'rb')
         img64 = base64.b64encode(file.read())
 
         # connect to baidu face api
         client = createapiface()
         detectRes = detectface(img64, 'BASE64', client)
-        print(detectRes)
+
 
         # detect success -> rigister face
         if detectRes == 200:
            groupid = 'customer'
            userid = output_serializer.data.get('uuid')
-           registerres = registerface(img64, 'BASE64', userid, groupid, client)
-           print('------------------------------')
+           registerface(img64, 'BASE64', userid, groupid, client)
 
         return Response(detectRes, status=status.HTTP_200_OK)
 
 
-class SearchUserFaceView(APIView):
-
-    def post(self, request):
-        serializer = SearchFaceUploadSerializer(data=request.data)
-        if serializer.is_valid():
-            uploadface = serializer.save()
-            output_serializer = SearchFaceUploadSerializer(uploadface)
-            imgUrl = output_serializer.data.get('image')
-            imgRoot = MEDIA_ROOT + imgUrl[6:]
-
-            # encode img to base64
-            print(imgRoot)
-            file = open(imgRoot, 'rb')
-            img64 = base64.b64encode(file.read())
-
-            # connect to baidu face api
-            client = createapiface()
-            detectRes = detectface(img64, 'BASE64', client)
-
-            if detectRes == 200:
-                searchres = searchface(img64, 'BASE64', client)
-                if searchres.get('status') == 200:
-                    wuser = WUser.objects.get(id=searchres.get('userid'))
-                    output_serializer = EntranceGetInfoResponseSerializer(wuser)
-                    return Response(output_serializer.data, status=status.HTTP_200_OK)
-
-            return Response(searchres, status=status.HTTP_200_OK)
-
-
-class EntranceGetUserInfoView(APIView):
-
-    def post(self, request):
-        serializer = EntranceGetInfoRequestSerializer(data=request.data)
-        if serializer.is_valid():
-            wuser = WUser.objects.get(code=serializer.data.get('code'))
-            output_serializer = EntranceGetInfoResponseSerializer(wuser)
-            return Response(output_serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 class GetOrderNumView(APIView):
+    """
+    Get order number for different type(waitForPay and Inprocess)
+    miniApp-user.js
 
+    Parameters:
+        id = user uuid
+
+    Returns:
+      waitNum - order status0
+      processNum - order status1
+
+    Raises:
+    """
     def post(self, request):
 
         orderList = Order.objects.filter(userID=request.data['id'])
@@ -204,7 +226,22 @@ class GetOrderNumView(APIView):
 
 
 class GetOrderListView(APIView):
+    """
+    Get order list for different type of order status
+    miniApp-order.js
 
+    Parameters:
+        userID = user uuid
+        status = type of order
+
+    Returns:
+      'id', 'userID', 'shopID', 'status', 'paymentMethod', 'paymentSN', 'discount', 'delivery',
+      'totalPrice', 'balanceUse', 'payPrice', 'name', 'totalNum', 'comment', 'addressID', 'createTime',
+      'cancelTime', 'tradeNo'
+      Of select status of order
+
+    Raises:
+    """
     def post(self, request):
 
         orderList = Order.objects.filter(userID=request.data['userID'])
@@ -215,20 +252,44 @@ class GetOrderListView(APIView):
 
 
 class GetOderDetailView(APIView):
+    """
+    Show the detail info of a selected order
+    miniApp-detail.js
+
+    Parameters:
+        uuid = user uuid
+        imgFile = user face file
+
+    Returns:
+      'id', 'userID', 'shopID', 'status', 'paymentMethod', 'paymentSN', 'discount', 'delivery', 'totalPrice',
+      'balanceUse', 'payPrice', 'name', 'totalNum', 'comment', 'addressID', 'details', 'createTime', 'addName',
+      'addTel', 'addDetail'
+
+    Raises:
+    """
 
     def post(self, request):
 
         order = Order.objects.get(id=request.data['id'])
-        orderDetailList = OrderDetail.objects.filter(order=request.data['id'])
         serializer = GetOrderDetailSerializer(order)
-        print(serializer.data)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-
 class CancelOrderView(APIView):
+    """
+    Cancel order to change the status from 0 to 4
+    miniApp-detail.js & order.js
 
+    Parameters:
+        id = order id
+        userId = user id, to returen the balance bace to user_balance
+
+    Returns:
+      'ok' - cancel success
+
+    Raises:
+    """
     def post(self, request):
 
         order = Order.objects.get(id=request.data['id'])
@@ -242,7 +303,23 @@ class CancelOrderView(APIView):
 
 
 class SubmitOrderView(APIView):
+    """
+    Create order in model and get data from Tencent server send to miniApp for WechatPay
+    miniApp-.cart/index.js
 
+    Parameters:
+        userID - user id
+        shopID -
+        addressID -
+        orderList -
+
+    Returns:
+      payData
+      -WeChatPay package(when need wechatpay)
+      -success payInfo & new balance
+
+    Raises:
+    """
     def post(self, request):
 
         # get data from request
@@ -299,6 +376,7 @@ class SubmitOrderView(APIView):
                 wuser.save()
                 payData['status'] = 1
             else:
+                # complete pay if balance is enough to pay
                 payData = {'status': 2}
                 order = Order.objects.get(tradeNo=tradeNo)
                 order.status = 1
@@ -314,23 +392,22 @@ class SubmitOrderView(APIView):
             print(serializer.errors)
             return Response('Data Error', status=status.HTTP_200_OK)
 
-
         return Response(payData, status=status.HTTP_200_OK)
 
 
-class PayOrderByWechatView(APIView):
-
-    def post(self, request):
-
-        order = Order.objects.get(id=request.data.get('id'))
-        serializer = WeChatPayOrderSeralizer(order)
-        res = serializer.data
-        PayOrderByWechat('1', res['paymentSN'], 'oh5IA5UJYYJWtBStjEp53N-7aom0')
-        return Response('ok', status=status.HTTP_200_OK)
-
-
 class GetAddressListView(APIView):
+    """
+    Get addresslist
+    miniApp-address.js
 
+    Parameters:
+        id - user id
+
+    Returns:
+      All addressInfo in list
+
+    Raises:
+    """
     def post(self, request):
 
         addressList = Address.objects.filter(who=request.data.get('id'))
@@ -340,7 +417,19 @@ class GetAddressListView(APIView):
 
 
 class SetDefaultAddressView(APIView):
+    """
+    Set selected address to default
+    miniApp-address.js
 
+    Parameters:
+        id - user id
+        addId - address id
+
+    Returns:
+      'ok' - set success
+
+    Raises:
+    """
     def post(self, request):
 
         addList = Address.objects.filter(who=request.data.get('id'))
@@ -357,7 +446,18 @@ class SetDefaultAddressView(APIView):
 
 
 class DeleteAdressView(APIView):
+    """
+    Delete selected address
+    miniApp-address.js
 
+    Parameters:
+        addId - address id
+
+    Returns:
+      'ok' - delete success
+
+    Raises:
+    """
     def post(self, request):
 
         address = Address.objects.get(id=request.data.get('addId'))
@@ -367,32 +467,49 @@ class DeleteAdressView(APIView):
 
 
 class AddAddressView(APIView):
+    """
+    Add new address
+    miniApp-add-address.js
 
+    Parameters:
+        who - user uuid
+        name - add'name
+        telephone -
+        province -
+        city -
+        detail -
+
+    Returns:
+      'ok' - add success
+      'dataerror' - request data error
+
+    Raises:
+    """
     def post(self, request):
 
         serializers = AddAddressSeralizer(data=request.data)
         if serializers.is_valid():
             serializers.save()
-
             return Response("ok", status=status.HTTP_200_OK)
-        print(serializers.errors)
+
         return Response("dataerror", status=status.HTTP_200_OK)
 
 
-class GetTencentNotifyView(APIView):
-
-    authentication_classes = (TokenAuthentication)
-    permission_classes = (IsAuthenticated,)
-    def post(self, request):
-
-        if request.data.get('return_code') == 'SUCCESS':
-            res = {'return_code':'SUCCESS','return_msg':''}
-
-            return Response(res, status=status.HTTP_200_OK)
-
-
 class TopUpView(APIView):
+    """
+    Topup to add user balance
+    miniApp-balance.js
 
+    Parameters:
+        id - user uuid
+        amountPay - need to user wechatPay to real pay
+        amountAdd - extra free balance added
+
+    Returns:
+      payData - for miniApp to request a wechatPay
+
+    Raises:
+    """
     def post(self, request):
 
         wuser = WUser.objects.get(id=request.data.get('id'))
@@ -411,9 +528,21 @@ class TopUpView(APIView):
 
 
 class PaySuccessView(APIView):
+    """
+    When wechatPay success, request for this Api,it will renew the order and user info, also query the tencent server to ensure the payment
+    miniApp-cart/index.js & balance.js & order.js & detail.js
 
+    Parameters:
+        id - user uuid
+        amountPay - need to user wechatPay to real pay
+        amountAdd - extra free balance added
+
+    Returns:
+      payData - for miniApp to request a wechatPay
+
+    Raises:
+    """
     def post(self, request):
-        print(request.data)
         order = Order.objects.get(tradeNo=request.data.get('tradeNo'))
         wuser = WUser.objects.get(id=request.data.get('id'))
         querydata = OrderQuery(request.data.get('tradeNo'))
@@ -463,7 +592,22 @@ class PointToBalanceView(APIView):
 
 
 class PayOrderView(APIView):
+    """
+    To finish payment on order page (for order that status is 0)
+    miniApp-order.js & detail.js
 
+    Parameters:
+        id - order id
+        userId - user id
+
+    Returns:
+            id - user uuid
+      point -
+      level -
+      balance -
+
+    Raises:
+    """
     def post(self, request):
 
         # get data from request
@@ -482,13 +626,76 @@ class PayOrderView(APIView):
 
 
 class GetUserInfoView(APIView):
+    """
+    To renew user info when user into the user page
+    miniApp-user.js
 
+    Parameters:
+        id - order id
+
+    Returns:
+      id - user uuid
+      point -
+      level -
+      balance -
+
+    Raises:
+    """
     def post(self, request):
 
         wuser = WUser.objects.get(id=request.data.get('id'))
         serializer = WUserSetCodeResponseSerializer(wuser)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class SearchUserFaceView(APIView):
+    """
+    search face api
+    for entrance use
+    """
+    def post(self, request):
+        serializer = SearchFaceUploadSerializer(data=request.data)
+        if serializer.is_valid():
+            uploadface = serializer.save()
+            output_serializer = SearchFaceUploadSerializer(uploadface)
+            imgUrl = output_serializer.data.get('image')
+            imgRoot = MEDIA_ROOT + imgUrl[6:]
+
+            # encode img to base64
+            print(imgRoot)
+            file = open(imgRoot, 'rb')
+            img64 = base64.b64encode(file.read())
+
+            # connect to baidu face api
+            client = createapiface()
+            detectRes = detectface(img64, 'BASE64', client)
+
+            if detectRes == 200:
+                searchres = searchface(img64, 'BASE64', client)
+                if searchres.get('status') == 200:
+                    wuser = WUser.objects.get(id=searchres.get('userid'))
+                    output_serializer = EntranceGetInfoResponseSerializer(wuser)
+                    return Response(output_serializer.data, status=status.HTTP_200_OK)
+
+            return Response(searchres, status=status.HTTP_200_OK)
+
+
+class EntranceGetUserInfoView(APIView):
+    """
+    get user info from server
+    for entrance use
+    """
+    def post(self, request):
+        serializer = EntranceGetInfoRequestSerializer(data=request.data)
+        if serializer.is_valid():
+            wuser = WUser.objects.get(code=serializer.data.get('code'))
+            output_serializer = EntranceGetInfoResponseSerializer(wuser)
+            return Response(output_serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 def isoformat(time):
         '''
@@ -503,6 +710,26 @@ def isoformat(time):
             minutes = time.seconds % 3600 // 60
             seconds = time.seconds % 3600 % 60
             return 'P%sDT%sH%sM%sS' % (time.days, hours, minutes, seconds)  # 将字符串进行连接
+
+# class ShopListView(APIView):
+#     """
+#     List all the shop informations
+#     """
+#     def get(self, request):
+#         shops = Shop.objects.all()
+#         serializer = ShopListShowInfoSerializer(shops, many=True)
+#         return Response(serializer.data)
+#
+# class GetTencentNotifyView(APIView):
+#
+#     authentication_classes = (TokenAuthentication)
+#     permission_classes = (IsAuthenticated,)
+#     def post(self, request):
+#
+#         if request.data.get('return_code') == 'SUCCESS':
+#             res = {'return_code':'SUCCESS','return_msg':''}
+#
+#             return Response(res, status=status.HTTP_200_OK)
 #
 # class CustomerViewSet(viewsets.ModelViewSet):
 #     """
