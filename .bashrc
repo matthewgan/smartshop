@@ -1,0 +1,5 @@
+export SECRET_KEY='ck#9960wa10!&12(0k=!xbxwv686=$=l*j6oadyfp^=$1h8zjc'
+export DATABASE_USER = ''
+export DATABASE_PASSWORD = ''
+export WECHAT_SECRET = ''
+export WECHAT_APP_ID = ''
