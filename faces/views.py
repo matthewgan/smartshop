@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 # Imports from your apps
-from SmartShop.settings.base import BASE_DIR
+from SmartShop.settings import BASE_DIR
 from .serializers import UploadedFaceSerializer, SearchFaceUploadSerializer
 from baidu.methods import registerface, createapiface, detectface, searchface
 from customers.models import Customer
