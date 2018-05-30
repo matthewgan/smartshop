@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 # Imports from your apps
-from SmartShop.settings import BASE_DIR
+from SmartShop.settings import MEDIA_ROOT
 from .serializers import UploadedFaceSerializer, SearchFaceUploadSerializer
 from baidu.methods import registerface, createapiface, detectface, searchface
 from customers.models import Customer
@@ -43,8 +43,9 @@ class RegisterFaceView(APIView):
 
             # encode img to base64
             # file = open(imageRoot, 'rb')
-            pwd = os.path.dirname(imageUrl)
-            filepath = os.path.join(pwd, imageUrl)
+            name = os.path.basename(imageUrl)
+            filepath = os.path.join(MEDIA_ROOT, name)
+            print(filepath)
             file = open(filepath, 'rb')
             img64 = base64.b64encode(file.read()).decode('UTF-8')
 
