@@ -11,6 +11,7 @@ class Tag(models.Model):
     EPC = models.CharField(max_length=20)
     TID = models.CharField(max_length=20, blank=True)
     status = models.IntegerField(default=0)
+    # status 0:stock  1:lock for pay  2:sold
     merchandiseID = models.ForeignKey(Merchandise, on_delete=models.DO_NOTHING)
 
     def __str__(self):

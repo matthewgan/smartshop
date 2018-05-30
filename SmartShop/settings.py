@@ -12,6 +12,13 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 
+
+# This is defined here as a do-nothing function because we can't import
+# django.utils.translation -- that module depends on the settings.
+def gettext_noop(s):
+    return s
+
+
 # Normally you should not import ANYTHING from Django directly
 #  into your settings, but ImproperlyConfigured is an exception.
 from django.core.exceptions import ImproperlyConfigured
@@ -28,6 +35,15 @@ SECRET_KEY = 'ck#9960wa10!&12(0k=!xbxwv686=$=l*j6oadyfp^=$1h8zjc'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
+# Whether the framework should propagate raw exceptions rather than catching
+# them. This is useful under some testing situations and should never be used
+# on a live site.
+DEBUG_PROPAGATE_EXCEPTIONS = False
+
+# People who get code error notifications.
+# In the format [('Full Name', 'email@example.com'), ('Full Name', 'anotheremail@example.com')]
+ADMINS = [('Matthew Gan', 'matthewgan@126.com'), ]
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '101.132.174.202', 'www.wuzhanggui.shop', 'wuzhanggui.shop', ]
 # ALLOWED_HOSTS = ["127.0.0.1", "localhost", ]
@@ -136,14 +152,51 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+LANGUAGES = (
+    ('en', gettext_noop('English')),
+    ('zh-hans', gettext_noop('Simplified Chinese')),
+    ('zh-hant', gettext_noop('Traditional Chinese')),
+)
+
+LANGUAGES_BIDI = ["en", "zh-hant", "zh-hans"]
+
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
+LOCALE_PATHS = []
 
-USE_L10N = True
+USE_L10N = False
 
-USE_TZ = True
+USE_TZ = False
 
+# Settings for language cookie
+LANGUAGE_COOKIE_NAME = 'django_language'
+LANGUAGE_COOKIE_AGE = None
+LANGUAGE_COOKIE_DOMAIN = None
+LANGUAGE_COOKIE_PATH = '/'
+
+# Default content type and charset to use for all HttpResponse objects, if a
+# MIME type isn't manually specified. These are used to construct the
+# Content-Type header.
+DEFAULT_CONTENT_TYPE = 'text/html'
+DEFAULT_CHARSET = 'utf-8'
+
+# Encoding of files read from disk (template and initial SQL files).
+FILE_CHARSET = 'utf-8'
+
+# Email address that error messages come from.
+SERVER_EMAIL = 'matthewgan@126.com'
+
+# List of compiled regular expression objects representing User-Agent strings
+# that are not allowed to visit any page, systemwide. Use this for bad
+# robots/crawlers. Here are a few examples:
+import re
+DISALLOWED_USER_AGENTS = [
+    re.compile(r'^NaverBot.*'),
+    re.compile(r'^EmailSiphon.*'),
+    re.compile(r'^SiteSucker.*'),
+    re.compile(r'^sohu-search'),
+]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/

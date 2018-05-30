@@ -36,7 +36,7 @@ class QueryMerchandiseDetailByBarcodeRequestSerializer(serializers.ModelSerializ
 class QueryMerchandiseDetailByBarcodeResponseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Merchandise
-        fields = ('barcode', 'name', 'brand', 'scale', 'factory', 'unit',)
+        fields = ('id', 'code', 'barcode', 'name', 'brand', 'scale', 'factory', 'unit',)
 
 
 class AddMerchandiseDetailByBarcodeSerializer(serializers.ModelSerializer):
