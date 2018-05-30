@@ -38,10 +38,11 @@ class RegisterFaceView(APIView):
             uploadedface = serializer.save()
             output_serializer = UploadedFaceSerializer(uploadedface)
             imageUrl = output_serializer.data.get('image')
-            imageRoot = Path(BASE_DIR+imageUrl)
+            # imageRoot = Path(BASE_DIR+imageUrl)
 
             # encode img to base64
-            file = open(imageRoot, 'rb')
+            # file = open(imageRoot, 'rb')
+            file = open(imageUrl, 'rb')
             img64 = base64.b64encode(file.read()).decode('UTF-8')
 
             # connect to baidu face api
