@@ -1,6 +1,7 @@
 # Stdlib imports
 import base64
-from pathlib import Path
+import os
+# from pathlib import Path
 # Core Django imports
 # Third-party app imports
 from rest_framework.views import APIView
@@ -42,7 +43,9 @@ class RegisterFaceView(APIView):
 
             # encode img to base64
             # file = open(imageRoot, 'rb')
-            file = open(imageUrl, 'rb')
+            pwd = os.path.dirname(imageUrl)
+            filepath = os.path.join(pwd, imageUrl)
+            file = open(filepath, 'rb')
             img64 = base64.b64encode(file.read()).decode('UTF-8')
 
             # connect to baidu face api
