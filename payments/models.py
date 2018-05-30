@@ -88,7 +88,11 @@ def PayOrderByWechat(fee, out_trade_no, openid):
     req.add_header('User-Agent',
                    'Mozilla/6.0 (iPhone; CPU iPhone OS 8_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/8.0 Mobile/10A5376e Safari/8536.25')
     ssl._create_default_https_context = ssl._create_unverified_context
-    unifiedorderXML = urllib.request.urlopen(req, data=pay_xml.encode('utf-8'))
+    try:
+        unifiedorderXML = urllib.request.urlopen(req, data=pay_xml.encode('utf-8'), timeout=3)
+    except:
+        print('Tencent Server Error')
+        return 400
 
     res = trans_xml_to_dict(unifiedorderXML)
 
@@ -125,9 +129,19 @@ def OrderQuery(out_trade_no):
     }
     xml = trans_dict_to_xml(orderquery)
     print(xml)
+    error = 0
+    while error<3:
+        try:
+            resp = requests.post("https://api.mch.weixin.qq.com/pay/orderquery", data=xml.encode('utf-8'),
+                             headers={'Content-Type': 'text/xml'})
+            break
+        except:
+            error += 1
+    if error==3:
+        resdata = {'status': 400}
+        return resdata
 
-    resp = requests.post("https://api.mch.weixin.qq.com/pay/orderquery", data=xml.encode('utf-8'),
-                         headers={'Content-Type': 'text/xml'})
+
     msg = resp.text.encode('ISO-8859-1').decode('utf-8')
     xmlresp = trans_xml_to_dict(msg)
 

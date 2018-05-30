@@ -44,6 +44,8 @@ class TopUpView(APIView):
         if serializer.is_valid():
             serializer.save()
             payData = PayOrderByWechat(request.data.get('amountPay'), tradeNo, openid)
+            if (payData==400):
+                payData = {'status': 404}
 
         return Response(payData, status=status.HTTP_200_OK)
 
@@ -76,6 +78,9 @@ class TopUpSuccessView(APIView):
             wuser.level = 1
             topuporder.paymentSN = querydata.get('transaction_id')
             topuporder.save()
+
+        if querydata.get('status') == 400:
+            return Response(400, status=status.HTTP_200_OK)
 
         wuser.save()
         serializer = DetailResponseSerializer(wuser)

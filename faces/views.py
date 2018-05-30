@@ -35,24 +35,30 @@ class RegisterFaceView(APIView):
         print(serializer.initial_data)
         if serializer.is_valid():
             uploadedface = serializer.save()
-        output_serializer = UploadedFaceSerializer(uploadedface)
-        imageUrl = output_serializer.data.get('image')
-        imageRoot = BASE_DIR+imageUrl
+            output_serializer = UploadedFaceSerializer(uploadedface)
+            imageUrl = output_serializer.data.get('image')
+            imageRoot = BASE_DIR+imageUrl
 
-        # encode img to base64
-        file = open(imageRoot, 'rb')
-        img64 = base64.b64encode(file.read())
+            # encode img to base64
+            file = open(imageRoot, 'rb')
+            img64 = base64.b64encode(file.read())
 
-        # connect to baidu face api
-        client = createapiface()
-        detectRes = detectface(img64, 'BASE64', client)
+            # connect to baidu face api
+            client = createapiface()
+            detectRes = detectface(img64, 'BASE64', client)
 
-        # detect success -> rigister face
-        if detectRes == 200:
-           groupid = 'customer'
-           userid = output_serializer.data.get('uuid')
-           registerres = registerface(img64, 'BASE64', userid, groupid, client)
-        return Response(detectRes, status=status.HTTP_200_OK)
+            # detect success -> rigister face
+            if detectRes == 200:
+                groupid = 'customer'
+                userid = output_serializer.data.get('uuid')
+                registerres = registerface(img64, 'BASE64', userid, groupid, client)
+
+            return Response(detectRes, status=status.HTTP_200_OK)
+
+        else:
+            return Response(400, status=status.HTTP_200_OK)
+
+
 
 
 class SearchUserFaceView(APIView):

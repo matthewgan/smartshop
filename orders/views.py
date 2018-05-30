@@ -182,12 +182,16 @@ class SubmitOrderView(APIView):
 
         # save to database
         serializer = CreateOrderSerializer(data=orderdata)
+
         if serializer.is_valid():
             serializer.save()
 
             # get data for wechatPay if need to pay
             if totalPrice > userBalance:
                 payData = PayOrderByWechat(payPrice, tradeNo, openID)
+                if (payData == 400):
+                    payData = {'status':404}
+                    return Response(payData, status=status.HTTP_200_OK)
                 wuser.balance = 0
                 wuser.save()
                 payData['status'] = 1
@@ -206,7 +210,8 @@ class SubmitOrderView(APIView):
 
         else:
             print(serializer.errors)
-            return Response('Data Error', status=status.HTTP_200_OK)
+            payData = {'status':400}
+            return Response(payData, status=status.HTTP_200_OK)
 
         return Response(payData, status=status.HTTP_200_OK)
 
@@ -243,6 +248,8 @@ class PayOrderView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             payData = PayOrderByWechat(order.payPrice, order.tradeNo, wuser.openid)
+            if (payData==400):
+                payData = {'status': 404}
             return Response(payData, status=status.HTTP_200_OK)
 
 class PaySuccessView(APIView):
@@ -273,6 +280,9 @@ class PaySuccessView(APIView):
             order.paymentSN = querydata.get('transaction_id')
             order.payTime = timezone.now()
             order.save()
+
+        if querydata.get('status') == 400:
+            return Response(400, status=status.HTTP_200_OK)
 
         wuser.save()
         serializer = DetailResponseSerializer(wuser)
