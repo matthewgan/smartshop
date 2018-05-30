@@ -1,5 +1,6 @@
 # Stdlib imports
 import base64
+from pathlib import Path
 # Core Django imports
 # Third-party app imports
 from rest_framework.views import APIView
@@ -37,7 +38,7 @@ class RegisterFaceView(APIView):
             uploadedface = serializer.save()
             output_serializer = UploadedFaceSerializer(uploadedface)
             imageUrl = output_serializer.data.get('image')
-            imageRoot = BASE_DIR+imageUrl
+            imageRoot = Path(BASE_DIR+imageUrl)
 
             # encode img to base64
             file = open(imageRoot, 'rb')
