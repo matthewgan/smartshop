@@ -158,7 +158,7 @@ LANGUAGES = (
     ('zh-hant', gettext_noop('Traditional Chinese')),
 )
 
-LANGUAGES_BIDI = ["en", "zh-hant", "zh-hans"]
+# LANGUAGES_BIDI = ["en", "zh-hant", "zh-hans"]
 
 TIME_ZONE = 'Asia/Shanghai'
 
