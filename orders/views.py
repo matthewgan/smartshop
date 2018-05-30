@@ -113,7 +113,7 @@ class CancelOrderView(APIView):
         wuser.balance = order.balanceUse
         wuser.save()
         order.status = 4
-        order.cancelTime = timezone.now();
+        order.cancelTime = timezone.now()
         order.save()
         return Response('ok', status=status.HTTP_200_OK)
 

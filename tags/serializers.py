@@ -9,4 +9,10 @@ from .models import Tag
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = '__all__'
+        exclude = ('id', 'timeStamp', )
+
+
+class TagQueryResponseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ('merchandiseID', )

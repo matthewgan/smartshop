@@ -14,7 +14,7 @@ class Merchandise(models.Model):
     code = models.CharField(max_length=15)
     barcode = models.CharField(max_length=15, blank=True)
     name = models.CharField(max_length=30, blank=True)
-    brand = models.CharField(max_length=10, blank=True)
+    brand = models.CharField(max_length=30, blank=True)
     originPrice = models.DecimalField(max_digits=8, decimal_places=2)
     scale = models.CharField(max_length=10, blank=True)
     factory = models.CharField(max_length=30, blank=True)
