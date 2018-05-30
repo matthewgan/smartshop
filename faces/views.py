@@ -42,7 +42,7 @@ class RegisterFaceView(APIView):
 
             # encode img to base64
             file = open(imageRoot, 'rb')
-            img64 = base64.b64encode(file.read())
+            img64 = base64.b64encode(file.read()).decode('UTF-8')
 
             # connect to baidu face api
             client = createapiface()
