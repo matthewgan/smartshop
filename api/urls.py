@@ -29,4 +29,5 @@ urlpatterns = [
     url(r'^gate/', include('gates.urls')),
     url(r'^merchandise/', include('merchandises.urls')),
     url(r'^tag/', include('tags.urls')),
+    url(r'^payment/', include('payments.urls')),
 ]

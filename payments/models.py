@@ -76,7 +76,7 @@ def PayOrderByWechat(fee, out_trade_no, openid):
     body = '物掌柜智慧便利'
     mch_id = '1505139251'
     nonce_str = str(random.random()*10)
-    notify_url = 'https://roxaswang.mynatapp.cc/api/tencent/payNotify/'
+    notify_url = 'https://www.wuzhanggui.shop/api/payment/notify/'
     ip = str(get_host_ip())
     fee = str(int(fee*100))
     stringA = "appid=" + appid + "&body=" + body + "&mch_id=" + mch_id + "&nonce_str=" + nonce_str + "&notify_url=" + notify_url + "&openid=" + openid + "&out_trade_no=" + out_trade_no + "&spbill_create_ip=" + ip + "&total_fee=" + fee + "&trade_type=JSAPI"
