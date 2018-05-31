@@ -9,7 +9,7 @@ from .models import Merchandise
 class MerchandiseListShowInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Merchandise
-        fields = ('id', 'name', 'brand', 'scale', 'unit', 'producePlace', 'originPrice', 'promotionPrice', 'clubPrice')
+        fields = ('id', 'name', 'brand', 'scale', 'unit', 'producePlace', 'originPrice', 'promotionPrice', 'clubPrice', 'code', )
 
 
 class MerchandiseListAllInfoSerializer(serializers.ModelSerializer):

@@ -134,7 +134,6 @@ class CustomerDetailView(APIView):
         return Response(output_serializer.data, status=status.HTTP_200_OK)
 
 
-
 class CustomerListView(ListAPIView):
     queryset = Customer.objects.all()
     serializer_class = CustomerListSerializer
