@@ -95,7 +95,6 @@ def PayOrderByWechat(fee, out_trade_no, openid):
         return 400
 
     res = trans_xml_to_dict(unifiedorderXML)
-
     timestamp = str(time.time())
     timestamp = timestamp[0:10]
     psign = res.get('sign')
@@ -104,9 +103,8 @@ def PayOrderByWechat(fee, out_trade_no, openid):
     stringB = "appId=wx18902f96ec8fb847&nonceStr="+nonce_str+"&package=" + package + "&signType=MD5&timeStamp=" + timestamp
     stringBSignTemp = stringB + "&key=0C99EDFF5CC4C3B4580EF329368F14DA"
     paysign = hashlib.md5(stringBSignTemp.encode('utf-8')).hexdigest().upper()
-
-    toWxApp = {'timeStamp': timestamp, 'nonceStr': nonce_str, 'package': package, 'signType': 'MD5', 'paySign': paysign, 'tradeNo':out_trade_no, 'status': 1}
-
+    toWxApp = {'timeStamp': timestamp, 'nonceStr': nonce_str, 'package': package, 'signType': 'MD5', 'paySign': paysign,
+               'tradeNo': out_trade_no, 'status': 1}
     return toWxApp
 
 
@@ -117,7 +115,6 @@ def OrderQuery(out_trade_no):
     stringA = "appid=" + appid +"&mch_id=" + mch_id + "&nonce_str=" + nonce_str + "&out_trade_no=" + out_trade_no
     stringSignTemp = stringA + "&key=0C99EDFF5CC4C3B4580EF329368F14DA"
     paysign = hashlib.md5(stringSignTemp.encode('utf-8')).hexdigest().upper()
-
 
     orderquery = {
         'appid': appid,
@@ -133,7 +130,7 @@ def OrderQuery(out_trade_no):
     while error<3:
         try:
             resp = requests.post("https://api.mch.weixin.qq.com/pay/orderquery", data=xml.encode('utf-8'),
-                             headers={'Content-Type': 'text/xml'})
+                                  headers={'Content-Type': 'text/xml'})
             break
         except:
             error += 1
@@ -153,7 +150,6 @@ def OrderQuery(out_trade_no):
                 'out_trade_no': xmlresp.get('out_trade_no'),
                 'cash_fee': xmlresp.get('cash_fee'),
             }
-
         else:
             resdata = {
                 'status': 100,
@@ -166,8 +162,6 @@ def OrderQuery(out_trade_no):
             'return_code': xmlresp.get('return_code'),
             'return_msg': xmlresp.get('return_msg'),
         }
-
-    print(resdata)
-
+    #print(resdata)
     return resdata
 
