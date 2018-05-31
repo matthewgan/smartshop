@@ -7,9 +7,11 @@ from .models import Merchandise
 
 
 class MerchandiseListShowInfoSerializer(serializers.ModelSerializer):
+    picture = serializers.CharField(max_length=100, allow_blank=True)
     class Meta:
         model = Merchandise
-        fields = ('id', 'name', 'brand', 'scale', 'unit', 'producePlace', 'originPrice', 'promotionPrice', 'clubPrice', 'code', )
+        fields = ('id', 'name', 'brand', 'scale', 'unit', 'producePlace',
+                  'originPrice', 'promotionPrice', 'clubPrice', 'code', )
 
 
 class MerchandiseListAllInfoSerializer(serializers.ModelSerializer):
