@@ -55,8 +55,8 @@ class CustomerSignupView(APIView):
             code = serializer.validated_data['code']
             # Use code to Request wxid and sessionkey from wechat API
             # appid and secret from wechat miniapp website
-            secret_key = 'e054618417e09aa9b96b3dc472f12079'
-            app_id = 'wx0c5669e2d0dca700'
+            secret_key = '7a3675768fa899753a775ad6e72a1816'
+            app_id = 'wx18902f96ec8fb847'
             # fixed wechat API address for wx.login
             base_address = 'https://api.weixin.qq.com/sns/jscode2session?appid='
             content = base_address+app_id+'&secret='+secret_key+'&js_code='+code+'&grant_type=authorization_code'
