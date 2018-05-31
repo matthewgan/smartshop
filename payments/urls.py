@@ -6,6 +6,6 @@ from django.conf.urls import url
 from .views import GetTencentNotifyView
 
 
-urlpattern = [
+urlpatterns = [
     url(r'^notify/$', GetTencentNotifyView.as_view()),
 ]
