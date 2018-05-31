@@ -72,15 +72,15 @@ def trans_dict_to_xml(data):
 
 
 def PayOrderByWechat(fee, out_trade_no, openid):
-    appid = 'wx0c5669e2d0dca700'
+    appid = 'wx18902f96ec8fb847'
     body = '物掌柜智慧便利'
-    mch_id = '1484492962'
+    mch_id = '1505139251'
     nonce_str = str(random.random()*10)
     notify_url = 'https://roxaswang.mynatapp.cc/api/tencent/payNotify/'
     ip = str(get_host_ip())
     fee = str(int(fee*100))
     stringA = "appid=" + appid + "&body=" + body + "&mch_id=" + mch_id + "&nonce_str=" + nonce_str + "&notify_url=" + notify_url + "&openid=" + openid + "&out_trade_no=" + out_trade_no + "&spbill_create_ip=" + ip + "&total_fee=" + fee + "&trade_type=JSAPI"
-    stringSignTemp = stringA + "&key=1E5EC81A165B729FB4DC68C6E9E286ED"
+    stringSignTemp = stringA + "&key=0C99EDFF5CC4C3B4580EF329368F14DA"
     paysign = hashlib.md5(stringSignTemp.encode('utf-8')).hexdigest().upper()
     pay_xml = "<xml><appid>" + appid + "</appid><body>" + body + "</body><mch_id>" + mch_id + "</mch_id><nonce_str>" + nonce_str + "</nonce_str><notify_url>" + notify_url + "</notify_url><openid>" + openid + "</openid><out_trade_no>" + out_trade_no + "</out_trade_no><spbill_create_ip>" + ip + "</spbill_create_ip><total_fee>" + fee + "</total_fee><trade_type>JSAPI</trade_type><sign>" + paysign + "</sign></xml> "
 
@@ -101,8 +101,8 @@ def PayOrderByWechat(fee, out_trade_no, openid):
     psign = res.get('sign')
     prepay_id = res.get('prepay_id')
     package = "prepay_id=" + prepay_id
-    stringB = "appId=wx0c5669e2d0dca700&nonceStr="+nonce_str+"&package=" + package + "&signType=MD5&timeStamp=" + timestamp
-    stringBSignTemp = stringB + "&key=1E5EC81A165B729FB4DC68C6E9E286ED"
+    stringB = "appId=wx18902f96ec8fb847&nonceStr="+nonce_str+"&package=" + package + "&signType=MD5&timeStamp=" + timestamp
+    stringBSignTemp = stringB + "&key=0C99EDFF5CC4C3B4580EF329368F14DA"
     paysign = hashlib.md5(stringBSignTemp.encode('utf-8')).hexdigest().upper()
 
     toWxApp = {'timeStamp': timestamp, 'nonceStr': nonce_str, 'package': package, 'signType': 'MD5', 'paySign': paysign, 'tradeNo':out_trade_no, 'status': 1}
@@ -111,11 +111,11 @@ def PayOrderByWechat(fee, out_trade_no, openid):
 
 
 def OrderQuery(out_trade_no):
-    appid = 'wx0c5669e2d0dca700'
-    mch_id = '1484492962'
+    appid = 'wx18902f96ec8fb847'
+    mch_id = '1505139251'
     nonce_str = str(random.random()*10)
     stringA = "appid=" + appid +"&mch_id=" + mch_id + "&nonce_str=" + nonce_str + "&out_trade_no=" + out_trade_no
-    stringSignTemp = stringA + "&key=1E5EC81A165B729FB4DC68C6E9E286ED"
+    stringSignTemp = stringA + "&key=0C99EDFF5CC4C3B4580EF329368F14DA"
     paysign = hashlib.md5(stringSignTemp.encode('utf-8')).hexdigest().upper()
 
 
@@ -140,7 +140,6 @@ def OrderQuery(out_trade_no):
     if error==3:
         resdata = {'status': 400}
         return resdata
-
 
     msg = resp.text.encode('ISO-8859-1').decode('utf-8')
     xmlresp = trans_xml_to_dict(msg)

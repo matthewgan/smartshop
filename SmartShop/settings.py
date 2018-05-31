@@ -223,6 +223,7 @@ REST_FRAMEWORK = {
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+
 # Get env variable based on NAMEs
 # Used for hide all the secret keys and app ids
 def get_env_variable(var_name):
