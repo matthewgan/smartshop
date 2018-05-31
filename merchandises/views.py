@@ -36,8 +36,6 @@ class MerchandisesShowByCategoryView(APIView):
     def get(self, request, pk, format=None):
         merchandises = self.get_object(pk)
         serializer = MerchandiseListShowInfoSerializer(merchandises, many=True)
-        for product in serializer.data:
-            product['picture'] = 'https://www.wuzhuanggui.shop/media/'+product.get['code']+'.png'
         return Response(serializer.data)
 
 

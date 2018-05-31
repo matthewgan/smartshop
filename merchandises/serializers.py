@@ -7,11 +7,16 @@ from .models import Merchandise
 
 
 class MerchandiseListShowInfoSerializer(serializers.ModelSerializer):
-    picture = serializers.CharField(max_length=100, allow_blank=True)
+    picture = serializers.SerializerMethodField('render_picture_url')
+
+    def render_picture_url(self, obj):
+        fullurl = 'https://www.wuzhuanggui.shop/media/' + obj.code + '.png'
+        return fullurl
+
     class Meta:
         model = Merchandise
         fields = ('id', 'name', 'brand', 'scale', 'unit', 'producePlace',
-                  'originPrice', 'promotionPrice', 'clubPrice', 'code', )
+                  'originPrice', 'promotionPrice', 'clubPrice', 'code', 'picture', )
 
 
 class MerchandiseListAllInfoSerializer(serializers.ModelSerializer):
