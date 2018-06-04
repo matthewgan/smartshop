@@ -3,7 +3,7 @@
 from django.http import Http404
 # Third-party app imports
 from rest_framework.views import APIView
-from rest_framework.generics import DestroyAPIView
+from rest_framework.generics import DestroyAPIView, UpdateAPIView
 from rest_framework.response import Response
 from rest_framework import status
 # Imports from your apps
@@ -47,6 +47,7 @@ class TagQueryView(APIView):
     """
     Query a list of merchandise ID by tag EPCs
     and send back the merchandises information
+    NOTE : will only process on tags that already registered in the database
     """
     def post(self, request):
         taglist = request.data
@@ -55,4 +56,22 @@ class TagQueryView(APIView):
         ids = tags.values_list('merchandiseID')
         merchandises = Merchandise.objects.filter(pk__in=ids)
         output_serializer = MerchandiseListShowInfoSerializer(merchandises, many=True)
+        return Response(output_serializer.data, status=status.HTTP_200_OK)
+
+
+class TagStatusUpdateView(APIView):
+    """
+    Change tags status when tags is purchased or sold
+    0: just registered
+    1: lock when purchased
+    2: sold
+    """
+    def post(self, request):
+        taglist = request.data.getlist('EPC')
+        st = request.data.get('status')
+        tags = Tag.objects.filter(EPC__in=taglist)
+        for tag in tags:
+            tag.status = st
+            tag.save()
+        output_serializer = TagSerializer(tags, many=True)
         return Response(output_serializer.data, status=status.HTTP_200_OK)
