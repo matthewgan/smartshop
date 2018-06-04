@@ -9,6 +9,8 @@ from rest_framework import status
 # Imports from your apps
 from .models import Tag
 from .serializers import TagSerializer, TagQueryResponseSerializer
+from merchandises.models import Merchandise
+from merchandises.serializers import MerchandiseListShowInfoSerializer
 
 
 class TagCreateView(APIView):
@@ -44,9 +46,13 @@ class TagDeleteView(DestroyAPIView):
 class TagQueryView(APIView):
     """
     Query a list of merchandise ID by tag EPCs
+    and send back the merchandises information
     """
     def post(self, request):
-        tagEPClist = request.data
-
-        print(tagEPClist)
-        return Response(status=status.HTTP_200_OK)
+        taglist = request.data
+        li = taglist.getlist('EPC')
+        tags = Tag.objects.filter(EPC__in=li)
+        ids = tags.values_list('merchandiseID')
+        merchandises = Merchandise.objects.filter(pk__in=ids)
+        output_serializer = MerchandiseListShowInfoSerializer(merchandises, many=True)
+        return Response(output_serializer.data, status=status.HTTP_200_OK)
