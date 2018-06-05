@@ -33,7 +33,7 @@ class TopUpView(APIView):
     """
     def post(self, request):
 
-        wuser = Customer.objects.get(id=request.data.get('id'))
+        wuser = Customer.objects.get(pk=request.data.get('id'))
         openid = wuser.openid
         balance = wuser.balance
         timestamp = str(time.time())
