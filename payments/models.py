@@ -152,8 +152,8 @@ def PayOrderByWechat(fee, out_trade_no, openid):
     msg = resp.text.encode('ISO-8859-1').decode('utf-8')
     res = trans_xml_to_dict(msg)
     if res.get('return_code') == 'SUCCESS':
-        timestamp = str(time.time())
-        timestamp = timestamp[0:10]
+        timestamp = round(time.time())
+        timestamp = str(timestamp)
         psign = res.get('sign')
         prepay_id = res.get('prepay_id')
         package = "prepay_id=" + prepay_id
