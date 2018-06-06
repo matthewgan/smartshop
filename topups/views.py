@@ -9,7 +9,7 @@ from rest_framework import status
 # Imports from your apps
 from customers.models import Customer
 from orders.models import Order
-from .serializers import CreateTopUpSerializer, TopUpGiftSerializer
+from .serializers import CreateTopUpSerializer, TopUpGiftSerializer, TopUpSuccessSerializer
 from .models import TopUp, TopUpGift
 from payments.models import PayOrderByWechat, OrderQuery
 from customers.serializers import DetailResponseSerializer
@@ -23,7 +23,6 @@ class TopupCreateView(APIView):
             timestamp = str(time.time())
             topup.tradeNo = timestamp.replace('.', '0') + str(topup.id)
             topup.amountAdd = calculate_gift(topup.amountPay)
-            print(topup.amountAdd)
             topup.save()
             result = PayOrderByWechat(topup.amountPay, topup.tradeNo, topup.userID.openid)
             return Response(result, status=status.HTTP_200_OK)
@@ -86,24 +85,42 @@ class TopUpSuccessView(APIView):
     Raises:
     """
     def post(self, request):
-        topuporder = TopUp.objects.get(tradeNo=request.data.get('tradeNo'))
-        wuser = Customer.objects.get(id=request.data.get('id'))
-        querydata = OrderQuery(request.data.get('tradeNo'))
+        serializer = TopUpSuccessSerializer(data=request.data)
+        if serializer.is_valid():
+            tradeNo = serializer.validated_data.get('tradeNo')
+            topup = TopUp.objects.get(tradeNo=tradeNo)
+            querydata = OrderQuery(topup.tradeNo)
+            if querydata.get('status') == 200:
+                topup.status = 1
+                topup.paymentSN = querydata.get('transaction_id')
+                topup.userID.level = 1
+                topup.userID.balance += topup.amountPay + topup.amountAdd
+                topup.save()
+                output_serializer = DetailResponseSerializer(topup.userID)
+                return Response(output_serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(querydata, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        if querydata.get('status') == 200:
-            topuporder.status = 1
-            wuser.balance = wuser.balance + topuporder.amountPay +topuporder.amountAdd
-            wuser.level = 1
-            topuporder.paymentSN = querydata.get('transaction_id')
-            topuporder.save()
-
-        if querydata.get('status') == 400:
-            return Response(400, status=status.HTTP_200_OK)
-
-        wuser.save()
-        serializer = DetailResponseSerializer(wuser)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        # topuporder = TopUp.objects.get(tradeNo=request.data.get('tradeNo'))
+        # wuser = Customer.objects.get(id=request.data.get('id'))
+        # querydata = OrderQuery(request.data.get('tradeNo'))
+        #
+        # if querydata.get('status') == 200:
+        #     topuporder.status = 1
+        #     wuser.balance = wuser.balance + topuporder.amountPay +topuporder.amountAdd
+        #     wuser.level = 1
+        #     topuporder.paymentSN = querydata.get('transaction_id')
+        #     topuporder.save()
+        #
+        # if querydata.get('status') == 400:
+        #     return Response(400, status=status.HTTP_200_OK)
+        #
+        # wuser.save()
+        # serializer = DetailResponseSerializer(wuser)
+        #
+        # return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class PointToBalanceView(APIView):

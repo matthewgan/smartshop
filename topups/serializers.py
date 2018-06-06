@@ -9,10 +9,16 @@ from .models import TopUp, TopUpGift
 class CreateTopUpSerializer(serializers.ModelSerializer):
     class Meta:
         model = TopUp
-        fields = ('userID', 'amountPay', 'amountAdd')
+        fields = ('userID', 'amountPay', 'amountAdd',)
+
+
+class TopUpSuccessSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TopUp
+        fields = ('userID', 'tradeNo',)
 
 
 class TopUpGiftSerializer(serializers.ModelSerializer):
     class Meta:
         model = TopUpGift
-        exclude = ('id', 'timestamp', )
+        exclude = ('id', 'timestamp',)
