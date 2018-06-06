@@ -9,9 +9,8 @@ from rest_framework import status
 # Imports from your apps
 from customers.models import Customer
 from orders.models import Order
-from .serializers import CreateTopUpSerializer
-from payments.models import PayOrderByWechat
-from .models import TopUp
+from .serializers import CreateTopUpSerializer, TopUpGiftSerializer
+from .models import TopUp, TopUpGift
 from payments.models import PayOrderByWechat, OrderQuery
 from customers.serializers import DetailResponseSerializer
 
@@ -23,7 +22,8 @@ class TopupCreateView(APIView):
             topup = serializer.save()
             timestamp = str(time.time())
             topup.tradeNo = timestamp.replace('.', '0') + str(topup.id)
-            print(topup.tradeNo)
+            topup.amountAdd = calculate_gift(topup.amountPay)
+            print(topup.amountAdd)
             topup.save()
             result = PayOrderByWechat(topup.amountPay, topup.tradeNo, topup.userID.openid)
             return Response(result, status=status.HTTP_200_OK)
@@ -131,3 +131,40 @@ class PointToBalanceView(APIView):
             wuser.save()
             serializer = DetailResponseSerializer(wuser)
             return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ShowGiftView(APIView):
+    """
+    Get Top Up Gift from wechat, Show gift rules on screen
+    """
+    def get(self, request):
+        gift = TopUpGift.objects.latest('timestamp')
+        serializer = TopUpGiftSerializer(gift)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+def calculate_gift(input_value):
+    """
+    claculate how much gift should give when customer pay for topup
+    :param input_value:
+    :return:
+    """
+    input_topup = input_value
+    output_gift = 0
+    rule = TopUpGift.objects.latest('timestamp')
+    while input_topup - rule.level5topup >= 0:
+        input_topup -= rule.level5topup
+        output_gift += rule.level5gift
+    if input_topup - rule.level4topup >= 0:
+        input_topup -= rule.level4topup
+        output_gift += rule.level4gift
+    if input_topup - rule.level3topup >= 0:
+        input_topup -= rule.level3topup
+        output_gift += rule.level3gift
+    if input_topup - rule.level2topup >= 0:
+        input_topup -= rule.level2topup
+        output_gift += rule.level2gift
+    if input_topup - rule.level1topup >= 0:
+        input_topup -= rule.level1topup
+        output_gift += rule.level1gift
+    return output_gift
