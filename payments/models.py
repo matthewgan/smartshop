@@ -39,18 +39,21 @@ def get_notify_url():
 
 
 def isoformat(time):
-    '''
+    """
     将datetime或者timedelta对象转换成ISO 8601时间标准格式字符串
     :param time: 给定datetime或者timedelta
     :return: 根据ISO 8601时间标准格式进行输出
-    '''
-    if isinstance(time, datetime.datetime): # 如果输入是datetime
-        return time.isoformat();
-    elif isinstance(time, datetime.timedelta): # 如果输入时timedelta，计算其代表的时分秒
+    """
+    if isinstance(time, datetime.datetime):
+        # 如果输入是datetime
+        return time.isoformat()
+    elif isinstance(time, datetime.timedelta):
+        # 如果输入时timedelta，计算其代表的时分秒
         hours = time.seconds // 3600
         minutes = time.seconds % 3600 // 60
         seconds = time.seconds % 3600 % 60
-        return 'P%sDT%sH%sM%sS' % (time.days, hours, minutes, seconds) # 将字符串进行连接
+        return 'P%sDT%sH%sM%sS' % (time.days, hours, minutes, seconds)
+        # 将字符串进行连接
 
 
 def get_host_ip():
@@ -66,7 +69,6 @@ def get_host_ip():
 def trans_xml_to_dict(xml):
     """
     将微信支付交互返回的 XML 格式数据转化为 Python Dict 对象
-
     :param xml: 原始 XML 格式数据
     :return: dict 对象
     """
@@ -74,7 +76,6 @@ def trans_xml_to_dict(xml):
     xml = soup.find('xml')
     if not xml:
         return {}
-
     # 将 XML 数据转化为 Dict
     data = dict([(item.name, item.text) for item in xml.find_all()])
     return data
@@ -83,7 +84,6 @@ def trans_xml_to_dict(xml):
 def trans_dict_to_xml(data):
     """
     将 dict 对象转换成微信支付交互所需的 XML 格式数据
-
     :param data: dict 对象
     :return: xml 格式数据
     """
@@ -97,7 +97,6 @@ def trans_dict_to_xml(data):
 
 
 def PayOrderByWechat(fee, out_trade_no, openid):
-
     # static data need to be put in setting
     appid = get_wechat_app_id()
     sub_appid = get_wechat_sub_app_id()
@@ -115,7 +114,7 @@ def PayOrderByWechat(fee, out_trade_no, openid):
 
     # sign for the data user MD5
     stringA = "appid=" + appid + "&body=" + body + "&mch_id=" + mch_id + "&nonce_str=" + nonce_str + "&notify_url=" \
-            + notify_url  + "&out_trade_no=" + out_trade_no + "&spbill_create_ip=" + ip + "&sub_appid=" + sub_appid \
+            + notify_url + "&out_trade_no=" + out_trade_no + "&spbill_create_ip=" + ip + "&sub_appid=" + sub_appid \
             + "&sub_mch_id=" + sub_mchid + "&sub_openid=" + openid + "&total_fee=" + fee + "&trade_type=JSAPI"
     stringSignTemp = stringA + "&key=" + api_key
     paysign = hashlib.md5(stringSignTemp.encode('utf-8')).hexdigest().upper()
@@ -178,7 +177,6 @@ def PayOrderByWechat(fee, out_trade_no, openid):
 
 
 def OrderQuery(out_trade_no):
-
     # static data need to be put in setting
     appid = get_wechat_app_id()
     sub_appid = get_wechat_sub_app_id()
@@ -190,8 +188,8 @@ def OrderQuery(out_trade_no):
     nonce_str = str(random.random()*10)
 
     # sign for the data user MD5
-    stringA = "appid=" + appid +"&mch_id=" + mch_id + "&nonce_str=" + nonce_str + "&out_trade_no=" \
-              + out_trade_no + '&sub_appid=' +sub_appid + "&sub_mch_id=" + sub_mchid
+    stringA = "appid=" + appid + "&mch_id=" + mch_id + "&nonce_str=" + nonce_str + "&out_trade_no=" \
+              + out_trade_no + '&sub_appid=' + sub_appid + "&sub_mch_id=" + sub_mchid
     stringSignTemp = stringA + "&key=" + get_service_api_key()
     paysign = hashlib.md5(stringSignTemp.encode('utf-8')).hexdigest().upper()
 

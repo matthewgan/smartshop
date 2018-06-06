@@ -95,6 +95,7 @@ class TopUpSuccessView(APIView):
                 topup.paymentSN = querydata.get('transaction_id')
                 topup.userID.level = 1
                 topup.userID.balance += topup.amountPay + topup.amountAdd
+                topup.userID.save()
                 topup.save()
                 output_serializer = DetailResponseSerializer(topup.userID)
                 return Response(output_serializer.data, status=status.HTTP_200_OK)
@@ -184,4 +185,7 @@ def calculate_gift(input_value):
     if input_topup - rule.level1topup >= 0:
         input_topup -= rule.level1topup
         output_gift += rule.level1gift
+    if input_topup - rule.level0topup >= 0:
+        input_topup -= rule.level0topup
+        output_gift += rule.level0gift
     return output_gift

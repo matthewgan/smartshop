@@ -26,6 +26,8 @@ class TopUp(models.Model):
 
 class TopUpGift(models.Model):
     id = models.AutoField(primary_key=True)
+    level0topup = models.IntegerField(default=20)
+    level0gift = models.IntegerField(default=0)
     level1topup = models.IntegerField(default=50)
     level1gift = models.IntegerField(default=3)
     level2topup = models.IntegerField(default=100)
