@@ -11,7 +11,8 @@ from customers.models import Customer
 
 class TopUp(models.Model):
     id = models.AutoField(primary_key=True)
-    status = models.IntegerField(default=0)# 0fail 1success
+    status = models.IntegerField(default=0)
+    # 0: fail 1: success
     userID = models.ForeignKey(Customer, on_delete=models.DO_NOTHING)
     paymentSN = models.CharField(max_length=128, blank=True)
     tradeNo = models.CharField(max_length=128, blank=True)

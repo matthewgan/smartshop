@@ -16,38 +16,56 @@ from payments.models import PayOrderByWechat, OrderQuery
 from customers.serializers import DetailResponseSerializer
 
 
-class TopUpView(APIView):
-    """
-    Topup to add user balance
-    miniApp-balance.js
-
-    Parameters:
-        id - user uuid
-        amountPay - need to user wechatPay to real pay
-        amountAdd - extra free balance added
-
-    Returns:
-      payData - for miniApp to request a wechatPay
-
-    Raises:
-    """
+class TopupCreateView(APIView):
     def post(self, request):
-
-        wuser = Customer.objects.get(pk=request.data.get('id'))
-        openid = wuser.openid
-        balance = wuser.balance
-        timestamp = str(time.time())
-        tradeNo = timestamp.replace('.', '0')
-
-        data = {'userID': request.data.get('id'), 'tradeNo': tradeNo, 'amountPay': request.data.get('amountPay'), 'amountAdd': request.data.get('amountAdd')}
-        serializer = CreateTopUpSerializer(data=data)
+        serializer = CreateTopUpSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            payData = PayOrderByWechat(request.data.get('amountPay'), tradeNo, openid)
-            if (payData==400):
-                payData = {'status': 404}
+            topup = serializer.save()
+            timestamp = str(time.time())
+            topup.tradeNo = timestamp.replace('.', '0') + str(topup.id)
+            print(topup.tradeNo)
+            topup.save()
+            result = PayOrderByWechat(topup.amountPay, topup.tradeNo, topup.userID.openid)
+            return Response(result, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(payData, status=status.HTTP_200_OK)
+
+# class TopUpView(APIView):
+#     """
+#     Topup to add user balance
+#     miniApp-balance.js
+#
+#     Parameters:
+#         id - user uuid
+#         amountPay - need to user wechatPay to real pay
+#         amountAdd - extra free balance added
+#
+#     Returns:
+#       payData - for miniApp to request a wechatPay
+#
+#     Raises:
+#     """
+#     def post(self, request):
+#         wuser = Customer.objects.get(id=request.data.get('id'))
+#         openid = wuser.openid
+#         balance = wuser.balance
+#         timestamp = str(time.time())
+#         tradeNo = timestamp.replace('.', '0')
+#
+#         data = {'userID': request.data.get('id'),
+#                 'tradeNo': tradeNo,
+#                 'amountPay': request.data.get('amountPay'),
+#                 'amountAdd': request.data.get('amountAdd'),
+#                 }
+#         serializer = CreateTopUpSerializer(data=data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             payData = PayOrderByWechat(request.data.get('amountPay'), tradeNo, openid)
+#             if (payData==400):
+#                 payData = {'status': 404}
+#
+#         return Response(payData, status=status.HTTP_200_OK)
 
 
 class TopUpSuccessView(APIView):
