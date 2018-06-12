@@ -34,7 +34,7 @@ def get_alipay_app_id():
 
 
 def get_alipay_notify_url():
-    return 'http://roxaswang.mynatapp.cc/api/payment/notify/'
+    return 'https://www.wuzhanggui.shop/api/payment/alipaynotify/'
 
 
 def get_alipay():
@@ -76,7 +76,7 @@ def get_service_api_key():
 
 
 def get_notify_url():
-    return 'https://roxaswang.mynatapp.cc/api/payment/tencentNotify/'
+    return 'https://www.wuzhanggui.shop/api/payment/wechatnotify/'
 
 
 def get_tencent_unifiedorder_api():
@@ -343,7 +343,7 @@ def createWechatPayQRcode(fee, out_trade_no, openid):
         except:
             error += 1
     if error == 3:
-        return 400
+        return 'ERROR'
 
     # get the data for wx.payment
     msg = resp.text.encode('ISO-8859-1').decode('utf-8')
