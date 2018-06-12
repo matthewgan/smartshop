@@ -236,6 +236,7 @@ def get_env_variable(var_name):
         error_msg = "Set the %s env variable" % var_name
         raise ImproperlyConfigured(error_msg)
 
+
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error when DEBUG=False.

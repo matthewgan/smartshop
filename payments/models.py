@@ -11,48 +11,11 @@ import hashlib
 import datetime
 from bs4 import BeautifulSoup
 from django.http import JsonResponse
-from alipay import AliPay
 # Imports from your apps
 from orders.models import Order
 from customers.models import Customer
 from customers.serializers import DetailResponseSerializer
 
-
-# Global setting given by alipay
-def get_app_private_key_string():
-    return '''-----BEGIN RSA PRIVATE KEY-----
-MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCrz/OU3b2Ncte4RKEGwGyBWu1ioQVn3qH/XTBoWcmlG2PrlrXXEhaLFTaXdqK1CDa7KjETOUAZ9hA8ZhuOic380+pmU5LvmoktwmOqrxGSaRJ54oIr6NFLnrIGK+KVpbEJ5J4IvU4OWm3FKX8mSzNR9e8Ziv9MrjoK2QNTDBulbs+v4B8sQTg4KjyLNOiIEEkA0pdlks70ruv8MrrGzhwlq5iQOzl+zfPJJ9CJ33TXnS1zgfgT7S01ifUguQu2NTv25l+/YxQExoxRwW33n6NbgYICNTtMYwBqVB7pS+wSenIihBRymbFu7eQejLYw53Fd88BjnzpThvFrQ7BZunWJAgMBAAECggEAXEcpPVhHGXSH9hkuH1E0NdmfS+zN2XbSrTPg7vrieYIXjY35hlTZtMOk+X6nbvHFa4sCpp+GFSt6luYEgO70qokrCOB0N6pZaTFRlHfIyUkTulD0tx6pYqMOXJAvd05xoq2eT3VVOhJJiK578xZKrweW7rIf4pBk7jSWO4FyS8wvrEO2DZVTOPr2vkEpsT7a1yHbTROmaRJmcyszhBBZwbokoMEfRygR5uh1vTKu0nb+Vv5mvq/l5gbu0jJ9Ptt/SuHQg3EbVWiAd+f2HNx4VJE4YxZTg/d7K4BUva+cQkeZWiHEuaJKRTW/ww19L6UBLMipSfMfuyL/LR72SplV8QKBgQDyZEszx+wKQD7QK3agnL1jPAxIOPORzeZ74XmVkxFtHA8KtUdvMAynte9x49xjRKM2uLVIyGpLZ4eyumASelNrU5HSU7tZgzVoQW3x5Fu0ZdxMcBhgCD0lCj5FjijgHVBhR+Uj6JG95ES9WGgYfO0XvxyjlhP/q1stdkGa3q44vQKBgQC1dUZPsrXcLpxYw7t1nLMNZ/777cUKQBCng0J3xu16qiIY3vJsNzXF1NhKIHLh8U7GXz4SWgfXcPthWjqEwV8TXUqI4zt1P98qckoWgLRIyYuo5xd98e9Fx0q6kc4T0g03fz4qv7Kra2qEZIRA3PHqL6VFQ9thEhazZU76Rpr6vQKBgC8NjROmMYnj4s2iQkr3YkRLOc8jTxT0tVNC98kzXWSi18CqZA2PdEVyKeMf6n5SqqRKwtY4IXo1xL/LMi8kE+F3vYzouCuuLsXoPaGBRNQGGfe0ouaxcr0n+eKisAihaCMaQ77uvKvyDe37pWlrhtLfRH30+jjdWLvAgwe/Rm65AoGBAKj/oU1mxsNbUdfF69g86fHJcoxVxRan1hr9P7FoPxLoUztQoP0yak1mz04ybGyMHm7Yk2nqGbWID0d7DldH9XGGiH13DJBFvWW97cyJb97+fqj/GTz+T3dwheO/GewRzKdsRYzw3smSEDFfoGD8pf4TA9y/txjwDN5lsymbCooNAoGAEpdcjuXYWmuZ5Sc1lwMBN/qmwlHpCPjeR0aG2IcBfMYXmxPnHADaH91EiyJhTEBr4S/UHTliS3rpcBuRIEreUu+l1bk0JO3oQoTqZGCANet1avL29UBHl4E7BC9G3Ud/AUUjd9H16WmFd3Mt0PdfvKrHTfh6lFdvl5R1xyVxDLg=
------END RSA PRIVATE KEY-----'''
-
-def get_alipay_public_key_string():
-    return '''-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAynoFVXyeU95UuaAvSCFplVy1tcj5A4AOUw1WJUynu4thRZCpzLMjI4dEVJhxB5TKEBcsQuE/I064lfOeVKHf7B7jlxpF4qiTta7JRIqa5TXy8EprWK4wu10BB75mgCxsM60KFMiquF5I4hiu5RrQjM2YQYPyfZtle0+HTKSmvnGNYZU78UcX/gMe12Ii04giYJvAPE58S1Gz5clUFD6p9PAd/J8gIldTKLQQ8Q9v/L0+2ED1jTqDduSVvNVjE4HVeTK8ViiGAS1OhVTO+YwvQV+bgDLqx+wXWoHxyt+Lb1JHCiq2BJJQdCwl1MH5gXnfw7bTKZbmMEelRKTnWWlM4QIDAQAB
------END PUBLIC KEY-----'''
-
-def get_alipay_app_id():
-    return '2018052960273226'
-
-
-def get_alipay_notify_url():
-    return 'https://www.wuzhanggui.shop/api/payment/alipaynotify/'
-
-
-def get_alipay():
-    # static data need to be put in setting
-    appid = get_alipay_app_id()
-    app_private_key_string = get_app_private_key_string()
-    alipay_public_key_string = get_alipay_public_key_string()
-
-    alipay = AliPay(
-        appid=appid,
-        app_notify_url=None,
-        app_private_key_string=app_private_key_string,
-        alipay_public_key_string=alipay_public_key_string,
-        sign_type="RSA2",
-        debug=False,
-    )
-
-    return alipay
 
 # Global setting given by wechat
 def get_wechat_app_id():
@@ -360,35 +323,6 @@ def createWechatPayQRcode(fee, out_trade_no, openid):
 
 
 
-def createAlipayQRcode(fee, out_trade_no):
-    # create an order
-    res = get_alipay().api_alipay_trade_precreate(
-        subject="物掌柜智慧便利",
-        out_trade_no=out_trade_no,
-        total_amount=fee,
-    )
-
-    # get QRcode
-    aliQRcode = res['qr_code']
-
-    return aliQRcode
-
-    # check order status
-    # paid = False
-    # for i in range(10):
-    #     # check every 3s, and 10 times in all
-    #     print("now sleep 3s")
-    #     time.sleep(3)
-    #     result = get_alipay().api_alipay_trade_query(out_trade_no=out_trade_no)
-    #     print(result)
-    #     if result.get("trade_status", "") == "TRADE_SUCCESS":
-    #         paid = True
-    #         break
-    #     print("not paid...")
-
-    # # order is not paid in 30s , cancel this order
-    # if paid is False:
-    #     alipay.api_alipay_trade_cancel(out_trade_no=out_trade_no)
 
 
 def PayOrderOnline(tradeNo, openID):
@@ -438,11 +372,11 @@ def PayOrderOffline(tradeNo, openID):
     fee = float('%.2f' % order.payPrice)
 
     # generate the QRcode for Alipay and Wechat pay
-    aliQRUrl = createAlipayQRcode(fee, tradeNo)
+    # aliQRUrl = createAlipayQRcode(fee, tradeNo)
     wechatQRUrl = createWechatPayQRcode(fee, tradeNo, openID)
 
     res = {
-        'AliPayQRcodeUrl': aliQRUrl,
+        #'AliPayQRcodeUrl': aliQRUrl,
         'WechatPayQRcodeUrl': wechatQRUrl,
         'status': 1,
     }
