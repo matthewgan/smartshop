@@ -11,7 +11,7 @@ from customers.models import Customer
 from orders.models import Order
 from .serializers import CreateTopUpSerializer, TopUpGiftSerializer, TopUpSuccessSerializer
 from .models import TopUp, TopUpGift
-from payments.models import PayOrderByWechat, OrderQuery
+from payments.models import PayOrderByWechat, MiniAppOrderQuery
 from customers.serializers import DetailResponseSerializer
 
 
@@ -89,7 +89,7 @@ class TopUpSuccessView(APIView):
         if serializer.is_valid():
             tradeNo = serializer.validated_data.get('tradeNo')
             topup = TopUp.objects.get(tradeNo=tradeNo)
-            querydata = OrderQuery(topup.tradeNo)
+            querydata = MiniAppOrderQuery(topup.tradeNo)
             if querydata.get('status') == 200:
                 topup.status = 1
                 topup.paymentSN = querydata.get('transaction_id')

@@ -50,7 +50,8 @@ class GetOrderDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ('id', 'userID', 'shopID', 'status', 'paymentMethod', 'paymentSN', 'discount', 'delivery', 'totalPrice',
-                  'balanceUse', 'payPrice', 'name', 'totalNum', 'comment', 'addressID', 'details', 'createTime', 'addName', 'addTel', 'addDetail')
+                  'balanceUse', 'payPrice', 'name', 'totalNum', 'comment', 'addressID', 'details', 'createTime',
+                  'addName', 'addTel', 'addDetail', 'tradeNo')
 
     def create(self, validated_data):
         details_data = validated_data.pop('details')

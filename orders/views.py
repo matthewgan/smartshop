@@ -13,8 +13,6 @@ from .serializers import OrderListShowSerializer, CreateOrderSerializer, \
     WeChatPayOrderSerializer, GetOrderDetailSerializer
 from merchandises.models import Merchandise
 from customers.models import Customer
-from payments.models import PayOrderByWechat, OrderQuery
-from customers.serializers import DetailResponseSerializer
 
 
 class GetOrderNumView(APIView):
@@ -118,42 +116,41 @@ class CancelOrderView(APIView):
         return Response('ok', status=status.HTTP_200_OK)
 
 
-class SubmitOrderView(APIView):
+class CreateOrderView(APIView):
     """
-    Create order in model and get data from Tencent server send to miniApp for WechatPay
-    miniApp-.cart/index.js
-
-    Parameters:
-        userID - user id
-        shopID -
-        addressID -
-        orderList -
-
-    Returns:
-      payData
-      -WeChatPay package(when need wechatpay)
-      -success payInfo & new balance
-
-    Raises:
+        :param orderMethod # 0 for online order, 1 for offline order
+        :param userID
+        :param shopID
+        :param orderList(
+            {'id':1, 'num':1),
+            {'id':2, 'num':2)
+        )
+        :return:
+        SUCCESS:
+        {
+            'code': 200,
+            'tradeNo': tradeNo,
+        }
+        FAIL:
+        {
+            'code': 201,
+            'Order Create Error'
+        {
     """
     def post(self, request):
-
         # get data from request
+        orderMethod = request.data.get('orderMethod') # 0 for online order, 1 for offline order
         userID = request.data.get('userID')
         shopID = request.data.get('shopID')
-        addressID = request.data.get('addressID')
+        if orderMethod == 0:
+            addressID = request.data.get('addressID')
         orderList = request.data.get('orderList')
-
-        # get userInfo from database
-        wuser = Customer.objects.get(id=userID)
-        userLevel = wuser.level
-        userBalance = float('%.2f' % wuser.balance)
-        openID = wuser.openid
 
         # set orderDetail list & calculate total price
         details = []
         totalNum = 0
         totalPrice = 0
+        deliveryFee = 0
         for order in orderList:
             merchandise = Merchandise.objects.get(id=order.get('id'))
             name = merchandise.name
@@ -161,132 +158,67 @@ class SubmitOrderView(APIView):
             # set price for VIP customer
             # if userLevel == 1:
             #     priceOnSold = merchandise.clubPrice
-            details.append({'merchandiseID': order.get('id'), 'merchandiseNum': order.get('num'), 'priceOnSold': float('%.2f' % priceOnSold)})
+            details.append({'merchandiseID': order.get('id'),
+                            'merchandiseNum': order.get('num'),
+                            'priceOnSold': float('%.2f' % priceOnSold),
+                            })
             totalPrice = totalPrice + order.get('num')*float('%.2f' % priceOnSold)
             totalNum = totalNum + order.get('num')
 
         # prepare data for wechatPay
         timestamp = str(time.time())
-        tradeNo = timestamp.replace('.','0')
-        if totalPrice > userBalance:
-            payPrice = totalPrice-userBalance
-            balanceUse = userBalance
-        else:
-            payPrice = 0
-            balanceUse = totalPrice
-        payPrice = float('%.2f' % payPrice)
-        balanceUse = float('%.2f' % balanceUse)
+        tradeNo = timestamp.replace('.','0') + str(userID)
 
         # prepare data for serializer to create order
-        orderdata = {'userID': userID, 'shopID': shopID, 'status': 0, 'paymentMethod': 'weChatPay', 'tradeNo': tradeNo, 'discount': 0, 'delivery': 5, 'totalPrice': totalPrice, 'balanceUse': balanceUse, 'payPrice': payPrice, 'name': name, 'totalNum': totalNum, 'comment': '', 'addressID': addressID, 'details': details}
+        if orderMethod == 0:
+            orderdata = {'userID': userID,
+                         'shopID': shopID,
+                         'status': 0,
+                         'paymentMethod': 'WaitForPay',
+                         'tradeNo': tradeNo,
+                         'discount': 0,
+                         'delivery': deliveryFee,
+                         'totalPrice': totalPrice,
+                         'balanceUse': 0.00,
+                         'payPrice': 0.00,
+                         'name': name,
+                         'totalNum': totalNum,
+                         'comment': '',
+                         'addressID': addressID,
+                         'details': details,
+                         }
 
+        else:
+            orderdata = {'userID': userID,
+                         'shopID': shopID,
+                         'status': 5,
+                         'paymentMethod': 'WaitForPay',
+                         'tradeNo': tradeNo,
+                         'discount': 0,
+                         'delivery': 0.00,
+                         'totalPrice': totalPrice,
+                         'balanceUse': 0.00,
+                         'payPrice': 0.00,
+                         'name': name,
+                         'totalNum': totalNum,
+                         'comment': '',
+                         'addressID': 1,
+                         'details': details,
+                         }
         # save to database
         serializer = CreateOrderSerializer(data=orderdata)
 
         if serializer.is_valid():
             serializer.save()
+            res = {
+                'code': 200,
+                'tradeNo': tradeNo,
+            }
+            return Response(res, status=status.HTTP_200_OK)
 
-            # get data for wechatPay if need to pay
-            if totalPrice > userBalance:
-                payData = PayOrderByWechat(payPrice, tradeNo, openID)
-                if (payData == 400):
-                    payData = {'status':404}
-                    return Response(payData, status=status.HTTP_200_OK)
-                wuser.balance = 0
-                wuser.save()
-                payData['status'] = 1
-            else:
-                # complete pay if balance is enough to pay
-                payData = {'status': 2}
-                order = Order.objects.get(tradeNo=tradeNo)
-                order.status = 1
-                order.payTime = timezone.now()
-                wuser.balance = float('%.2f' %wuser.balance) - totalPrice
-                print(wuser.balance)
-                order.save()
-                wuser.save()
-                serializer = DetailResponseSerializer(wuser)
-                payData['balance'] = serializer.data.get('balance')
-
-        else:
-            print(serializer.errors)
-            payData = {'status':400}
-            return Response(payData, status=status.HTTP_200_OK)
-
-        return Response(payData, status=status.HTTP_200_OK)
+        return Response('Order Create Error', status=status.HTTP_200_OK)
 
 
-class PayOrderView(APIView):
-    """
-        To finish payment on order page (for order that status is 0)
-        miniApp-order.js & detail.js
 
-        Parameters:
-            id - order id
-            userId - user id
-
-        Returns:
-                id - user uuid
-          point -
-          level -
-          balance -
-
-        Raises:
-        """
-
-    def post(self, request):
-
-        # get data from request
-        print(request.data.get('id'))
-        order = Order.objects.get(id=request.data.get('id'))
-        wuser = Customer.objects.get(id=request.data.get('userId'))
-        if order.payPrice == 0:
-            order.status = 1
-            order.payTime = timezone.now()
-            order.save()
-            serializer = DetailResponseSerializer(wuser)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            payData = PayOrderByWechat(order.payPrice, order.tradeNo, wuser.openid)
-            if (payData==400):
-                payData = {'status': 404}
-            return Response(payData, status=status.HTTP_200_OK)
-
-class PaySuccessView(APIView):
-    """
-    When wechatPay success, request for this Api,it will renew the order and user info, also query the tencent server to ensure the payment
-    miniApp-cart/index.js & balance.js & order.js & detail.js
-
-    Parameters:
-        id - user uuid
-        tradeNo - the tradeNo of selected order
-
-    Returns:
-      id - user uuid
-      point -
-      level -
-      balance -
-
-    Raises:
-    """
-    def post(self, request):
-        order = Order.objects.get(tradeNo=request.data.get('tradeNo'))
-        wuser = Customer.objects.get(id=request.data.get('id'))
-        querydata = OrderQuery(request.data.get('tradeNo'))
-
-        if querydata.get('status') == 200:
-            order.status = 1
-            wuser.point = wuser.point + order.payPrice*100
-            order.paymentSN = querydata.get('transaction_id')
-            order.payTime = timezone.now()
-            order.save()
-
-        if querydata.get('status') == 400:
-            return Response(400, status=status.HTTP_200_OK)
-
-        wuser.save()
-        serializer = DetailResponseSerializer(wuser)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
 

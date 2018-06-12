@@ -18,7 +18,7 @@ class Order(models.Model):
     shopID = models.ForeignKey(Shop, on_delete=models.DO_NOTHING)
     userID = models.ForeignKey(Customer, on_delete=models.DO_NOTHING)
     status = models.IntegerField(default=0)
-    # status 0:waitForPay 1:waitForRecieve 2:Complete 4:Cancel 3:Offline 5:OfflineCancel
+    # status 0:waitForPay 1:waitForRecieve 2:Complete 4:Cancel 3:OfflineComplete 5:offlineWaitForPay 6:OfflineCancel
     paymentMethod = models.CharField(max_length=10)
     paymentSN = models.CharField(max_length=128, blank=True)
     tradeNo = models.CharField(max_length=128, blank=True)
