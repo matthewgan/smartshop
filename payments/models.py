@@ -15,7 +15,7 @@ from alipay import AliPay
 # Imports from your apps
 from orders.models import Order
 from customers.models import Customer
-from  customers.serializers import DetailResponseSerializer
+from customers.serializers import DetailResponseSerializer
 
 
 # Global setting given by alipay

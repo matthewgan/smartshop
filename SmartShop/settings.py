@@ -34,7 +34,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'ck#9960wa10!&12(0k=!xbxwv686=$=l*j6oadyfp^=$1h8zjc'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # Whether the framework should propagate raw exceptions rather than catching
 # them. This is useful under some testing situations and should never be used
@@ -45,7 +45,7 @@ DEBUG_PROPAGATE_EXCEPTIONS = False
 # In the format [('Full Name', 'email@example.com'), ('Full Name', 'anotheremail@example.com')]
 ADMINS = [('Matthew Gan', 'matthewgan@126.com'), ]
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '101.132.174.202', 'www.wuzhanggui.shop', 'wuzhanggui.shop', 'roxaswang.mynatapp.cc']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '101.132.174.202', 'www.wuzhanggui.shop', 'wuzhanggui.shop', ]
 # ALLOWED_HOSTS = ["127.0.0.1", "localhost", ]
 
 
