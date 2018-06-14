@@ -145,6 +145,7 @@ class CreateOrderView(APIView):
         if orderMethod == 0:
             addressID = request.data.get('addressID')
         orderList = request.data.get('orderList')
+        wuser = Customer.objects.get(pk=userID)
 
         # set orderDetail list & calculate total price
         details = []
@@ -169,6 +170,15 @@ class CreateOrderView(APIView):
         timestamp = str(time.time())
         tradeNo = timestamp.replace('.','0') + str(userID)
 
+        # calculate the pay money
+        if totalPrice > wuser.balance:
+            payPrice = totalPrice - float('%.2f' %wuser.balance)
+            balanceUse = wuser.balance
+
+        else:
+            payPrice = 0
+            balanceUse = totalPrice
+
         # prepare data for serializer to create order
         if orderMethod == 0:
             orderdata = {'userID': userID,
@@ -179,8 +189,8 @@ class CreateOrderView(APIView):
                          'discount': 0,
                          'delivery': deliveryFee,
                          'totalPrice': totalPrice,
-                         'balanceUse': 0.00,
-                         'payPrice': 0.00,
+                         'balanceUse': balanceUse,
+                         'payPrice': payPrice,
                          'name': name,
                          'totalNum': totalNum,
                          'comment': '',
@@ -197,8 +207,8 @@ class CreateOrderView(APIView):
                          'discount': 0,
                          'delivery': 0.00,
                          'totalPrice': totalPrice,
-                         'balanceUse': 0.00,
-                         'payPrice': 0.00,
+                         'balanceUse': balanceUse,
+                         'payPrice': payPrice,
                          'name': name,
                          'totalNum': totalNum,
                          'comment': '',

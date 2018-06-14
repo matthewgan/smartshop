@@ -139,10 +139,7 @@ class PayOrderPreProcess(APIView):
         order = Order.objects.get(tradeNo=tradeNo)
 
         # calculate the pay money and determin the method of payments
-        if order.totalPrice > userBalance:  # user Alipay or WechatPay
-            order.payPrice = float('%.2f' % order.totalPrice) - userBalance
-            order.balanceUse = userBalance
-            order.save()
+        if order.payPrice > 0:  # user Alipay or WechatPay
             wuser.balance = 0
             wuser.save()
             if orderMethod == 0:  # user WechatPay within miniApp
@@ -151,6 +148,7 @@ class PayOrderPreProcess(APIView):
                 res = PayOrderOffline(tradeNo, openID)
         else:
             # complete pay if balance is enough to pay
+
             res = PayOrderWithBalance(tradeNo)
 
         return Response(res, status=status.HTTP_200_OK)

@@ -114,6 +114,7 @@ def PayOrderByWechat(fee, out_trade_no, openid):
     api_key = get_service_api_key()
     notify_url = get_notify_url()
     tencent_unifiedorder_api = get_tencent_unifiedorder_api()
+    print(fee)
 
     # prepare the data for the Tencent API
     body = '物掌柜智慧便利'
@@ -402,8 +403,6 @@ def PayOrderWithBalance(tradeNo):
     # edit the database of order and customer
     order.status = 1
     order.payTime = timezone.now()
-    order.payPrice = order.totalPrice
-    order.balanceUse = order.payPrice
     order.paymentMethod = 'Balance'
     wuser.balance = wuser.balance - order.totalPrice
 
