@@ -6,106 +6,81 @@ import datetime
 import requests
 # Core Django imports
 from django.utils import timezone
+from django.db import models
 # Third-party app imports
 import hashlib
-import datetime
-from bs4 import BeautifulSoup
-from django.http import JsonResponse
 # Imports from your apps
 from orders.models import Order
-from customers.models import Customer
 from customers.serializers import DetailResponseSerializer
+from .methods import get_wechat_app_id, get_wechat_mch_id, get_wechat_sub_mch_id, get_wechat_sub_app_id
+from .methods import get_host_ip, get_service_api_key, get_notify_url, get_tencent_unified_order_api
+from .methods import trans_dict_to_xml, trans_xml_to_dict
 
 
-# Global setting given by wechat
-def get_wechat_app_id():
-    return 'wxff1e7b77ac356972'
+class PaymentRecord(models.Model):
+    app_id = models.CharField(max_length=20, default=get_wechat_app_id())
+    mch_id = models.CharField(max_length=12, default=get_wechat_mch_id())
+    sub_mch_id = models.CharField(max_length=12, default=get_wechat_sub_mch_id())
+    sub_app_id = models.CharField(max_length=20, default=get_wechat_sub_app_id())
+    sub_open_id = models.CharField(max_length=30)
+    body = models.CharField(max_length=200, default='物掌柜智慧便利')
+    nonce_str = models.CharField(max_length=10, default=str(int(random.random()*1e10)))
+    notify_url = models.CharField(max_length=200, default=get_notify_url())
+    out_trade_no = models.CharField(max_length=20)
+    spbill_create_ip = models.CharField(max_length=20, default=get_host_ip())
+    total_fee = models.CharField(max_length=20)
+    sign = models.CharField(max_length=100)
+    timestamp = models.DateTimeField(default=time.time())
 
+    def create_record(self, open_id, trade_no, total_fee):
+        record = self.create(sub_open_id=open_id, out_trade_no=trade_no, total_fee=total_fee)
+        return record
 
-def get_wechat_sub_app_id():
-    return 'wx18902f96ec8fb847'
+    def get_str_for_sign(self):
+        sign_string = "appid=" + str(self.app_id) \
+                      + "&body=" + str(self.body) \
+                      + "&mch_id=" + str(self.mch_id) \
+                      + "&nonce_str=" + str(self.nonce_str) \
+                      + "&notify_url=" + str(self.notify_url) \
+                      + "&out_trade_no=" + str(self.out_trade_no) \
+                      + "&spbill_create_ip=" + str(self.spbill_create_ip) \
+                      + "&sub_appid=" + str(self.sub_app_id) \
+                      + "&sub_mch_id=" + str(self.sub_mch_id) \
+                      + "&sub_openid=" + str(self.sub_open_id) \
+                      + "&total_fee=" + str(self.total_fee) \
+                      + "&trade_type=JSAPI" \
+                      + "&key=" + get_service_api_key()
+        return sign_string
 
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        sign_str = self.get_str_for_sign()
+        self.sign = hashlib.md5(sign_str.encode('utf-8')).hexdigest().upper()
+        super(PaymentRecord, self).save(force_update=force_update)
 
-def get_wechat_mch_id():
-    return '1484700102'
+    def model_to_dict(self):
+        model_dict = {
+            'appid': self.app_id,
+            'mch_id': self.mch_id,
+            'sub_mch_id': self.sub_mch_id,
+            'sub_appid': self.sub_app_id,
+            'sub_openid': self.sub_open_id,
+            'body': self.body,
+            'nonce_str': self.nonce_str,
+            'notify_url': self.notify_url,
+            'out_trade_no': self.out_trade_no,
+            'spbill_create_ip': self.spbill_create_ip,
+            'total_fee': self.total_fee,
+            'trade_type': 'JSAPI',
+            'sign': self.sign,
+        }
+        return model_dict
 
-
-def get_wechat_sub_mch_id():
-    return '1505139251'
-
-
-def get_service_api_key():
-    return 'PRiiXyGL0ULPRiiXyGL0UL8888888888'
-
-
-def get_notify_url():
-    return 'https://www.wuzhanggui.shop/api/payment/wechatnotify/'
-
-
-def get_tencent_unifiedorder_api():
-    return 'https://api.mch.weixin.qq.com/pay/unifiedorder'
-
-
-def isoformat(time):
-    """
-    将datetime或者timedelta对象转换成ISO 8601时间标准格式字符串
-    :param time: 给定datetime或者timedelta
-    :return: 根据ISO 8601时间标准格式进行输出
-    """
-    if isinstance(time, datetime.datetime):
-        # 如果输入是datetime
-        return time.isoformat()
-    elif isinstance(time, datetime.timedelta):
-        # 如果输入时timedelta，计算其代表的时分秒
-        hours = time.seconds // 3600
-        minutes = time.seconds % 3600 // 60
-        seconds = time.seconds % 3600 % 60
-        return 'P%sDT%sH%sM%sS' % (time.days, hours, minutes, seconds)
-        # 将字符串进行连接
-
-
-def get_host_ip():
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(('8.8.8.8', 80))
-        ip = s.getsockname()[0]
-    finally:
-        s.close()
-    return ip
-
-
-def trans_xml_to_dict(xml):
-    """
-    将微信支付交互返回的 XML 格式数据转化为 Python Dict 对象
-    :param xml: 原始 XML 格式数据
-    :return: dict 对象
-    """
-    soup = BeautifulSoup(xml, features='xml')
-    xml = soup.find('xml')
-    if not xml:
-        return {}
-    # 将 XML 数据转化为 Dict
-    data = dict([(item.name, item.text) for item in xml.find_all()])
-    return data
-
-
-def trans_dict_to_xml(data):
-    """
-    将 dict 对象转换成微信支付交互所需的 XML 格式数据
-    :param data: dict 对象
-    :return: xml 格式数据
-    """
-    xml = []
-    for k in sorted(data.keys()):
-        v = data.get(k)
-        if k == 'detail' and not v.startswith('<![CDATA['):
-            v = '<![CDATA[{}]]>'.format(v)
-        xml.append('<{key}>{value}</{key}>'.format(key=k, value=v))
-    return '<xml>{}</xml>'.format(''.join(xml))
+    def __str__(self):
+        return self.out_trade_no
 
 
 def PayOrderByWechat(fee, out_trade_no, openid):
-
     # static data need to be put in setting
     appid = get_wechat_app_id()
     sub_appid = get_wechat_sub_app_id()
@@ -113,13 +88,13 @@ def PayOrderByWechat(fee, out_trade_no, openid):
     mch_id = get_wechat_mch_id()
     api_key = get_service_api_key()
     notify_url = get_notify_url()
-    tencent_unifiedorder_api = get_tencent_unifiedorder_api()
+    tencent_unifiedorder_api = get_tencent_unified_order_api()
 
     # prepare the data for the Tencent API
     body = '物掌柜智慧便利'
-    nonce_str = str(random.random()*10)
+    nonce_str = str(random.random() * 10)
     ip = str(get_host_ip())
-    fee = str(int(fee*100))
+    total_fee = str(int(fee * 100))
 
     # sign for the data user MD5
     stringA = "appid=" + appid + "&body=" + body + "&mch_id=" + mch_id + "&nonce_str=" + nonce_str + "&notify_url=" \
@@ -141,7 +116,7 @@ def PayOrderByWechat(fee, out_trade_no, openid):
         'out_trade_no': out_trade_no,
         'spbill_create_ip': ip,
         'total_fee': fee,
-        'trade_type':'JSAPI',
+        'trade_type': 'JSAPI',
         'sign': paysign,
     }
     xml = trans_dict_to_xml(orderquery)
@@ -185,7 +160,6 @@ def PayOrderByWechat(fee, out_trade_no, openid):
 
     return toWxApp
 
-
 def MiniAppOrderQuery(out_trade_no):
     # static data need to be put in setting
     appid = get_wechat_app_id()
@@ -215,7 +189,7 @@ def MiniAppOrderQuery(out_trade_no):
     }
     xml = trans_dict_to_xml(orderquery)
 
-    # request for tencent orderquery api
+    # request for tencent order query api
     error = 0
     while error < 3:
         try:
@@ -256,6 +230,7 @@ def MiniAppOrderQuery(out_trade_no):
     return resdata
 
 
+
 def createWechatPayQRcode(fee, out_trade_no, openid):
     # static data need to be put in setting
     appid = get_wechat_app_id()
@@ -264,7 +239,7 @@ def createWechatPayQRcode(fee, out_trade_no, openid):
     mch_id = get_wechat_mch_id()
     api_key = get_service_api_key()
     notify_url = get_notify_url()
-    tencent_unifiedorder_api = get_tencent_unifiedorder_api()
+    tencent_unifiedorder_api = get_tencent_unified_order_api()
 
     # prepare the data for the Tencent API
     body = '物掌柜智慧便利'
@@ -320,9 +295,6 @@ def createWechatPayQRcode(fee, out_trade_no, openid):
             return 'ERROR'
     else:
         return 'ERROR'
-
-
-
 
 
 def PayOrderOnline(tradeNo, openID):
@@ -402,8 +374,6 @@ def PayOrderWithBalance(tradeNo):
     # edit the database of order and customer
     order.status = 1
     order.payTime = timezone.now()
-    order.payPrice = order.totalPrice
-    order.balanceUse = order.payPrice
     order.paymentMethod = 'Balance'
     wuser.balance = wuser.balance - order.totalPrice
 
