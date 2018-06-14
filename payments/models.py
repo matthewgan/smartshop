@@ -12,6 +12,7 @@ import hashlib
 # Imports from your apps
 from orders.models import Order
 from customers.serializers import DetailResponseSerializer
+from wechatpay.methods import wechat_pay, wechat_pay_qr_code
 
 
 """
@@ -257,7 +258,7 @@ def PayOrderOnline(tradeNo, openID):
     }
     """
     order = Order.objects.get(tradeNo=tradeNo)
-    payData = PayOrderByWechat(order.payPrice, order.tradeNo, openID)
+    payData = wechat_pay(order.payPrice, order.tradeNo, openID)
     if payData == 400:
         payData = {'status': 404}
         return payData
@@ -283,7 +284,7 @@ def PayOrderOffline(tradeNo, openID):
 
     # generate the QRcode for Alipay and Wechat pay
     # aliQRUrl = createAlipayQRcode(fee, tradeNo)
-    wechatQRUrl = createWechatPayQRcode(fee, tradeNo, openID)
+    wechatQRUrl = wechat_pay_qr_code(fee, tradeNo, openID)
 
     res = {
         #'AliPayQRcodeUrl': aliQRUrl,
