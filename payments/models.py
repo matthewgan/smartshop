@@ -12,74 +12,9 @@ import hashlib
 # Imports from your apps
 from orders.models import Order
 from customers.serializers import DetailResponseSerializer
-from .methods import get_wechat_app_id, get_wechat_mch_id, get_wechat_sub_mch_id, get_wechat_sub_app_id
-from .methods import get_host_ip, get_service_api_key, get_notify_url, get_tencent_unified_order_api
-from .methods import trans_dict_to_xml, trans_xml_to_dict
 
 
-class PaymentRecord(models.Model):
-    app_id = models.CharField(max_length=20, default=get_wechat_app_id())
-    mch_id = models.CharField(max_length=12, default=get_wechat_mch_id())
-    sub_mch_id = models.CharField(max_length=12, default=get_wechat_sub_mch_id())
-    sub_app_id = models.CharField(max_length=20, default=get_wechat_sub_app_id())
-    sub_open_id = models.CharField(max_length=30)
-    body = models.CharField(max_length=200, default='物掌柜智慧便利')
-    nonce_str = models.CharField(max_length=10, default=str(int(random.random()*1e10)))
-    notify_url = models.CharField(max_length=200, default=get_notify_url())
-    out_trade_no = models.CharField(max_length=20)
-    spbill_create_ip = models.CharField(max_length=20, default=get_host_ip())
-    total_fee = models.CharField(max_length=20)
-    sign = models.CharField(max_length=100)
-    timestamp = models.DateTimeField(default=time.time())
-
-    def create_record(self, open_id, trade_no, total_fee):
-        record = self.create(sub_open_id=open_id, out_trade_no=trade_no, total_fee=total_fee)
-        return record
-
-    def get_str_for_sign(self):
-        sign_string = "appid=" + str(self.app_id) \
-                      + "&body=" + str(self.body) \
-                      + "&mch_id=" + str(self.mch_id) \
-                      + "&nonce_str=" + str(self.nonce_str) \
-                      + "&notify_url=" + str(self.notify_url) \
-                      + "&out_trade_no=" + str(self.out_trade_no) \
-                      + "&spbill_create_ip=" + str(self.spbill_create_ip) \
-                      + "&sub_appid=" + str(self.sub_app_id) \
-                      + "&sub_mch_id=" + str(self.sub_mch_id) \
-                      + "&sub_openid=" + str(self.sub_open_id) \
-                      + "&total_fee=" + str(self.total_fee) \
-                      + "&trade_type=JSAPI" \
-                      + "&key=" + get_service_api_key()
-        return sign_string
-
-    def save(self, force_insert=False, force_update=False, using=None,
-             update_fields=None):
-        sign_str = self.get_str_for_sign()
-        self.sign = hashlib.md5(sign_str.encode('utf-8')).hexdigest().upper()
-        super(PaymentRecord, self).save(force_update=force_update)
-
-    def model_to_dict(self):
-        model_dict = {
-            'appid': self.app_id,
-            'mch_id': self.mch_id,
-            'sub_mch_id': self.sub_mch_id,
-            'sub_appid': self.sub_app_id,
-            'sub_openid': self.sub_open_id,
-            'body': self.body,
-            'nonce_str': self.nonce_str,
-            'notify_url': self.notify_url,
-            'out_trade_no': self.out_trade_no,
-            'spbill_create_ip': self.spbill_create_ip,
-            'total_fee': self.total_fee,
-            'trade_type': 'JSAPI',
-            'sign': self.sign,
-        }
-        return model_dict
-
-    def __str__(self):
-        return self.out_trade_no
-
-
+"""
 def PayOrderByWechat(fee, out_trade_no, openid):
     # static data need to be put in setting
     appid = get_wechat_app_id()
@@ -159,7 +94,9 @@ def PayOrderByWechat(fee, out_trade_no, openid):
         toWxApp = {'return_msg': res.get('return_msg')}
 
     return toWxApp
+"""
 
+"""
 def MiniAppOrderQuery(out_trade_no):
     # static data need to be put in setting
     appid = get_wechat_app_id()
@@ -228,9 +165,9 @@ def MiniAppOrderQuery(out_trade_no):
         }
 
     return resdata
+"""
 
-
-
+"""
 def createWechatPayQRcode(fee, out_trade_no, openid):
     # static data need to be put in setting
     appid = get_wechat_app_id()
@@ -295,6 +232,7 @@ def createWechatPayQRcode(fee, out_trade_no, openid):
             return 'ERROR'
     else:
         return 'ERROR'
+"""
 
 
 def PayOrderOnline(tradeNo, openID):

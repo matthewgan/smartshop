@@ -1,6 +1,5 @@
 # Stdlib imports
 import time
-from django.utils import timezone
 # Core Django imports
 # Third-party app imports
 from rest_framework.views import APIView
@@ -8,14 +7,44 @@ from rest_framework.response import Response
 from rest_framework import status
 # Imports from your apps
 from customers.models import Customer
-from orders.models import Order
 from .serializers import CreateTopUpSerializer, TopUpGiftSerializer, TopUpSuccessSerializer
 from .models import TopUp, TopUpGift
-from payments.models import PayOrderByWechat, MiniAppOrderQuery
+from wechatpay.methods import wechat_pay, wechat_pay_query
 from customers.serializers import DetailResponseSerializer
 
 
+def calculate_gift(input_value):
+    """
+    claculate how much gift should give when customer pay for topup
+    :param input_value:
+    :return:
+    """
+    input_topup = input_value
+    output_gift = 0
+    rule = TopUpGift.objects.latest('timestamp')
+    while input_topup - rule.level5topup >= 0:
+        input_topup -= rule.level5topup
+        output_gift += rule.level5gift
+    if input_topup - rule.level4topup >= 0:
+        input_topup -= rule.level4topup
+        output_gift += rule.level4gift
+    if input_topup - rule.level3topup >= 0:
+        input_topup -= rule.level3topup
+        output_gift += rule.level3gift
+    if input_topup - rule.level2topup >= 0:
+        input_topup -= rule.level2topup
+        output_gift += rule.level2gift
+    if input_topup - rule.level1topup >= 0:
+        input_topup -= rule.level1topup
+        output_gift += rule.level1gift
+    if input_topup - rule.level0topup >= 0:
+        input_topup -= rule.level0topup
+        output_gift += rule.level0gift
+    return output_gift
+
+
 class TopupCreateView(APIView):
+    """Generate Top up order and call payment method"""
     def post(self, request):
         serializer = CreateTopUpSerializer(data=request.data)
         if serializer.is_valid():
@@ -24,47 +53,10 @@ class TopupCreateView(APIView):
             topup.tradeNo = timestamp.replace('.', '0') + str(topup.id)
             topup.amountAdd = calculate_gift(topup.amountPay)
             topup.save()
-            result = PayOrderByWechat(topup.amountPay, topup.tradeNo, topup.userID.openid)
+            result = wechat_pay(topup.amountPay, topup.tradeNo, topup.userID.openid)
             return Response(result, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-# class TopUpView(APIView):
-#     """
-#     Topup to add user balance
-#     miniApp-balance.js
-#
-#     Parameters:
-#         id - user uuid
-#         amountPay - need to user wechatPay to real pay
-#         amountAdd - extra free balance added
-#
-#     Returns:
-#       payData - for miniApp to request a wechatPay
-#
-#     Raises:
-#     """
-#     def post(self, request):
-#         wuser = Customer.objects.get(id=request.data.get('id'))
-#         openid = wuser.openid
-#         balance = wuser.balance
-#         timestamp = str(time.time())
-#         tradeNo = timestamp.replace('.', '0')
-#
-#         data = {'userID': request.data.get('id'),
-#                 'tradeNo': tradeNo,
-#                 'amountPay': request.data.get('amountPay'),
-#                 'amountAdd': request.data.get('amountAdd'),
-#                 }
-#         serializer = CreateTopUpSerializer(data=data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             payData = PayOrderByWechat(request.data.get('amountPay'), tradeNo, openid)
-#             if (payData==400):
-#                 payData = {'status': 404}
-#
-#         return Response(payData, status=status.HTTP_200_OK)
 
 
 class TopUpSuccessView(APIView):
@@ -89,7 +81,7 @@ class TopUpSuccessView(APIView):
         if serializer.is_valid():
             tradeNo = serializer.validated_data.get('tradeNo')
             topup = TopUp.objects.get(tradeNo=tradeNo)
-            querydata = MiniAppOrderQuery(topup.tradeNo)
+            querydata = wechat_pay_query(topup.tradeNo)
             if querydata.get('status') == 200:
                 topup.status = 1
                 topup.paymentSN = querydata.get('transaction_id')
@@ -103,25 +95,6 @@ class TopUpSuccessView(APIView):
                 return Response(querydata, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        # topuporder = TopUp.objects.get(tradeNo=request.data.get('tradeNo'))
-        # wuser = Customer.objects.get(id=request.data.get('id'))
-        # querydata = OrderQuery(request.data.get('tradeNo'))
-        #
-        # if querydata.get('status') == 200:
-        #     topuporder.status = 1
-        #     wuser.balance = wuser.balance + topuporder.amountPay +topuporder.amountAdd
-        #     wuser.level = 1
-        #     topuporder.paymentSN = querydata.get('transaction_id')
-        #     topuporder.save()
-        #
-        # if querydata.get('status') == 400:
-        #     return Response(400, status=status.HTTP_200_OK)
-        #
-        # wuser.save()
-        # serializer = DetailResponseSerializer(wuser)
-        #
-        # return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class PointToBalanceView(APIView):
@@ -159,33 +132,3 @@ class ShowGiftView(APIView):
         gift = TopUpGift.objects.latest('timestamp')
         serializer = TopUpGiftSerializer(gift)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-def calculate_gift(input_value):
-    """
-    claculate how much gift should give when customer pay for topup
-    :param input_value:
-    :return:
-    """
-    input_topup = input_value
-    output_gift = 0
-    rule = TopUpGift.objects.latest('timestamp')
-    while input_topup - rule.level5topup >= 0:
-        input_topup -= rule.level5topup
-        output_gift += rule.level5gift
-    if input_topup - rule.level4topup >= 0:
-        input_topup -= rule.level4topup
-        output_gift += rule.level4gift
-    if input_topup - rule.level3topup >= 0:
-        input_topup -= rule.level3topup
-        output_gift += rule.level3gift
-    if input_topup - rule.level2topup >= 0:
-        input_topup -= rule.level2topup
-        output_gift += rule.level2gift
-    if input_topup - rule.level1topup >= 0:
-        input_topup -= rule.level1topup
-        output_gift += rule.level1gift
-    if input_topup - rule.level0topup >= 0:
-        input_topup -= rule.level0topup
-        output_gift += rule.level0gift
-    return output_gift

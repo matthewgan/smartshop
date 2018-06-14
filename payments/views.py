@@ -1,20 +1,20 @@
 # Stdlib imports
+import datetime
 # Core Django imports
 from django.utils import timezone
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
 # Third-party app imports
-import datetime
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import AllowAny
 # Imports from your apps
-from payments.models import PayOrderByWechat
 from customers.models import Customer
 from customers.serializers import DetailResponseSerializer
 from orders.models import Order
-from payments.models import PayOrderOnline, PayOrderOffline, PayOrderWithBalance, MiniAppOrderQuery
-from payments.models import trans_xml_to_dict, trans_dict_to_xml
+from .models import PayOrderOnline, PayOrderOffline, PayOrderWithBalance
+from .methods import trans_xml_to_dict, trans_dict_to_xml
+from wechatpay.methods import wechat_pay_query
 
 
 @permission_classes((AllowAny, ))
@@ -23,8 +23,8 @@ class GetTencentNotifyView(APIView):
         msg = request.text.encode('ISO-8859-1').decode('utf-8')
         res = trans_xml_to_dict(msg)
 
-        if res.get('return_code')=='SUCCESS':
-            if res.get('result_code')=='SUCCESS':
+        if res.get('return_code') == 'SUCCESS':
+            if res.get('result_code') == 'SUCCESS':
                 tradeNo = res.get('out_trade_no')
                 order = Order.objects.get(tradeNo=tradeNo)
                 wuser = order.userID
@@ -42,7 +42,6 @@ class GetTencentNotifyView(APIView):
             error_mes = res.get('return_msg')
             print(error_mes)
 
-
         res = {
             'return_code': 'SUCCESS',
             'return_msg': 'OK',
@@ -55,8 +54,6 @@ class GetTencentNotifyView(APIView):
 @permission_classes((AllowAny,))
 class GetAlipayNotifyView(APIView):
     def post(self, request):
-
-
         if request.get('trade_status') == '交易支付成功':
             tradeNo = request.get('out_trade_no')
             order = Order.objects.get(tradeNo=tradeNo)
@@ -75,10 +72,8 @@ class GetAlipayNotifyView(APIView):
 
 
 class paytest(APIView):
-
     def post(self,request):
         tn = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-
         return Response('ok', status=status.HTTP_200_OK)
 
 
@@ -127,11 +122,10 @@ class PayOrderPreProcess(APIView):
         # get data from request
         orderMethod = request.data.get('orderMethod')
         userID = request.data.get('userID')
-        tradeNo = id=request.data.get('tradeNo')
+        tradeNo = request.data.get('tradeNo')
 
         # get userInfo from database
         wuser = Customer.objects.get(pk=userID)
-        userLevel = wuser.level
         userBalance = float('%.2f' % wuser.balance)
         openID = wuser.openid
 
@@ -176,7 +170,7 @@ class PaySuccessView(APIView):
     def post(self, request):
         order = Order.objects.get(tradeNo=request.data.get('tradeNo'))
         wuser = Customer.objects.get(id=request.data.get('id'))
-        querydata = MiniAppOrderQuery(request.data.get('tradeNo'))
+        querydata = wechat_pay_query(request.data.get('tradeNo'))
 
         if querydata.get('status') == 200:
             order.status = 1
