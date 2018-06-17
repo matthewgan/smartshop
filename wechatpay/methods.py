@@ -40,7 +40,10 @@ def wechat_pay(bill, trace_no, open_id):
         record.save_pay_sign()
         return record.prepay_response_to_dict
     else:
-        return {'return_msg': res.get('return_msg')}
+        return {
+            'status': 'fail',
+            'error_msg': res.get('return_msg'),
+        }
 
 
 def wechat_pay_query(trace_no):

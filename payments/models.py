@@ -1,17 +1,9 @@
 # Stdlib imports
-import time
-import random
-import socket
-import datetime
-import requests
 # Core Django imports
 from django.utils import timezone
-from django.db import models
 # Third-party app imports
-import hashlib
 # Imports from your apps
 from orders.models import Order
-from customers.serializers import DetailResponseSerializer
 from wechatpay.methods import wechat_pay, wechat_pay_qr_code
 
 
@@ -321,5 +313,4 @@ def PayOrderWithBalance(tradeNo):
     wuser.save()
     serializer = DetailResponseSerializer(wuser)
     res['balance'] = serializer.data.get('balance')
-
     return res

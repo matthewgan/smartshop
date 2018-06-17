@@ -11,7 +11,7 @@ from rest_framework import status
 # Imports from your apps
 from SmartShop.settings import MEDIA_ROOT
 from .serializers import UploadedFaceSerializer, SearchFaceUploadSerializer
-from baidu.methods import registerface, createapiface, detectface, searchface
+from baidu.methods import register_face, create_aip_client, detect_face, search_face
 from customers.models import Customer
 from customers.serializers import EntranceGetInfoResponseSerializer
 
@@ -50,45 +50,44 @@ class RegisterFaceView(APIView):
             img64 = base64.b64encode(file.read()).decode('UTF-8')
 
             # connect to baidu face api
-            client = createapiface()
-            detectRes = detectface(img64, 'BASE64', client)
+            client = create_aip_client()
+            detect_res = detect_face(img64, 'BASE64', client)
 
-            # detect success -> rigister face
-            if detectRes == 200:
-                groupid = 'customer'
+            # detect success -> register face
+            if detect_res == 200:
+                group_id = 'customer'
                 userid = output_serializer.data.get('uuid')
-                registerres = registerface(img64, 'BASE64', userid, groupid, client)
-
-            return Response(detectRes, status=status.HTTP_200_OK)
+                register_res = register_face(img64, 'BASE64', userid, group_id, client)
+            return Response(detect_res, status=status.HTTP_200_OK)
 
         else:
-            return Response(400, status=status.HTTP_200_OK)
-
-
+            return Response(400, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SearchUserFaceView(APIView):
     def post(self, request):
         serializer = SearchFaceUploadSerializer(data=request.data)
         if serializer.is_valid():
-            uploadface = serializer.save()
-            output_serializer = SearchFaceUploadSerializer(uploadface)
-            imgUrl = output_serializer.data.get('image')
-            # TODO
-            imgRoot = MEDIA_ROOT + imgUrl[6:]
+            upload_face = serializer.save()
+            output_serializer = SearchFaceUploadSerializer(upload_face)
+            imageUrl = output_serializer.data.get('image')
+            # imageRoot = Path(BASE_DIR+imageUrl)
 
             # encode img to base64
-            print(imgRoot)
-            file = open(imgRoot, 'rb')
-            img64 = base64.b64encode(file.read())
+            # file = open(imageRoot, 'rb')
+            name = os.path.basename(imageUrl)
+            filepath = os.path.join(MEDIA_ROOT, name)
+            print(filepath)
+            file = open(filepath, 'rb')
+            img64 = base64.b64encode(file.read()).decode('UTF-8')
 
             # connect to baidu face api
-            client = createapiface()
-            detectRes = detectface(img64, 'BASE64', client)
-            if detectRes == 200:
-                searchres = searchface(img64, 'BASE64', client)
-                if searchres.get('status') == 200:
-                    wuser = Customer.objects.get(id=searchres.get('userid'))
+            client = create_aip_client()
+            detect_res = detect_face(img64, 'BASE64', client)
+            if detect_res == 200:
+                search_res = search_face(img64, 'BASE64', client)
+                if search_res.get('status') == 200:
+                    wuser = Customer.objects.get(id=search_res.get('userid'))
                     output_serializer = EntranceGetInfoResponseSerializer(wuser)
                     return Response(output_serializer.data, status=status.HTTP_200_OK)
         else:

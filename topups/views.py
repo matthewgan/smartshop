@@ -10,7 +10,7 @@ from customers.models import Customer
 from .serializers import CreateTopUpSerializer, TopUpGiftSerializer, TopUpSuccessSerializer
 from .models import TopUp, TopUpGift
 from wechatpay.methods import wechat_pay, wechat_pay_query
-from customers.serializers import DetailResponseSerializer
+from customers.serializers import CustomerPaymentResponseSerializer
 
 
 def calculate_gift(input_value):
@@ -89,7 +89,7 @@ class TopUpSuccessView(APIView):
                 topup.userID.balance += topup.amountPay + topup.amountAdd
                 topup.userID.save()
                 topup.save()
-                output_serializer = DetailResponseSerializer(topup.userID)
+                output_serializer = (topup.userID)
                 return Response(output_serializer.data, status=status.HTTP_200_OK)
             else:
                 return Response(querydata, status=status.HTTP_200_OK)
@@ -120,7 +120,7 @@ class PointToBalanceView(APIView):
             wuser.balance = wuser.balance + request.data.get('balanceAdd')
             wuser.point = wuser.point - request.data.get('pointUse')
             wuser.save()
-            serializer = DetailResponseSerializer(wuser)
+            serializer = CustomerPaymentResponseSerializer(wuser)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
 

@@ -10,10 +10,10 @@ from rest_framework.decorators import permission_classes
 from rest_framework.permissions import AllowAny
 # Imports from your apps
 from customers.models import Customer
-from customers.serializers import DetailResponseSerializer
+from customers.serializers import CustomerPaymentResponseSerializer
 from orders.models import Order
 from .models import PayOrderOnline, PayOrderOffline, PayOrderWithBalance
-from .methods import trans_xml_to_dict, trans_dict_to_xml
+from wechatpay.methods import trans_xml_to_dict, trans_dict_to_xml
 from wechatpay.methods import wechat_pay_query
 
 
@@ -25,14 +25,14 @@ class GetTencentNotifyView(APIView):
 
         if res.get('return_code') == 'SUCCESS':
             if res.get('result_code') == 'SUCCESS':
-                tradeNo = res.get('out_trade_no')
-                order = Order.objects.get(tradeNo=tradeNo)
+                trade_no = res.get('out_trade_no')
+                order = Order.objects.get(tradeNo=trade_no)
                 wuser = order.userID
                 order.status = 3
                 wuser.point = wuser.point + order.payPrice * 100
                 order.paymentSN = res.get('transaction_id')
                 order.payTime = timezone.now()
-                order.paymentMethod = 'Wechat_Pay_In_Store'
+                order.paymentMethod = 'wechatpay'
                 order.save()
             else:
                 error_code = res.get('err_code')
@@ -46,9 +46,8 @@ class GetTencentNotifyView(APIView):
             'return_code': 'SUCCESS',
             'return_msg': 'OK',
         }
-
-        resxml = trans_dict_to_xml(res)
-        return Response(resxml, status=status.HTTP_200_OK)
+        res_xml = trans_dict_to_xml(res)
+        return Response(res_xml, status=status.HTTP_200_OK)
 
 
 @permission_classes((AllowAny,))
@@ -71,18 +70,8 @@ class GetAlipayNotifyView(APIView):
         return Response('SUCCESS', status=status.HTTP_200_OK)
 
 
-class paytest(APIView):
-    def post(self,request):
-        tn = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-        return Response('ok', status=status.HTTP_200_OK)
-
-
 class PayOrderPreProcess(APIView):
     """
-    :param orderType
-    :param userID
-    :param tradeNo
-
     :return:
     orderMethod == 0 (online pay)
     SUCCESS
@@ -120,32 +109,33 @@ class PayOrderPreProcess(APIView):
     """
     def post(self, request):
         # get data from request
-        orderMethod = request.data.get('orderMethod')
-        userID = request.data.get('userID')
-        tradeNo = request.data.get('tradeNo')
+        order_method = request.data.get('orderMethod')
+        user_id = request.data.get('userID')
+        trade_no = request.data.get('tradeNo')
 
         # get userInfo from database
-        wuser = Customer.objects.get(pk=userID)
-        userBalance = float('%.2f' % wuser.balance)
-        openID = wuser.openid
+        wuser = Customer.objects.get(pk=user_id)
+        open_id = wuser.openid
 
         # get orderInfo from database
-        order = Order.objects.get(tradeNo=tradeNo)
+        order = Order.objects.get(tradeNo=trade_no)
 
         # calculate the pay money and determin the method of payments
         if order.payPrice > 0:  # user Alipay or WechatPay
             wuser.balance = 0
             wuser.save()
-            if orderMethod == 0:  # user WechatPay within miniApp
-                res = PayOrderOnline(tradeNo, openID)
-            if orderMethod == 1:  # offline order
-                res = PayOrderOffline(tradeNo, openID)
+            if order_method == 0:  # user WechatPay within miniApp
+                res = PayOrderOnline(trade_no, open_id)
+                return Response(res, status=status.HTTP_200_OK)
+            if order_method == 1:  # offline order
+                res = PayOrderOffline(trade_no, open_id)
+                return Response(res, status=status.HTTP_200_OK)
         else:
             # complete pay if balance is enough to pay
+            res = PayOrderWithBalance(trade_no)
+            return Response(res, status=status.HTTP_200_OK)
 
-            res = PayOrderWithBalance(tradeNo)
 
-        return Response(res, status=status.HTTP_200_OK)
 
 
 class PaySuccessView(APIView):
@@ -182,6 +172,6 @@ class PaySuccessView(APIView):
             return Response(400, status=status.HTTP_200_OK)
 
         wuser.save()
-        serializer = DetailResponseSerializer(wuser)
+        serializer = CustomerPaymentResponseSerializer(wuser)
 
         return Response(serializer.data, status=status.HTTP_200_OK)

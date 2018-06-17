@@ -9,8 +9,7 @@ import time
 
 # Imports from your apps
 from .models import Order, OrderDetail
-from .serializers import OrderListShowSerializer, CreateOrderSerializer, \
-    WeChatPayOrderSerializer, GetOrderDetailSerializer
+from .serializers import OrderListShowSerializer, CreateOrderSerializer, GetOrderDetailSerializer
 from merchandises.models import Merchandise
 from customers.models import Customer
 
@@ -30,12 +29,12 @@ class GetOrderNumView(APIView):
     Raises:
     """
     def post(self, request):
-        orderList = Order.objects.filter(userID=request.data['id'])
-        waitNUm = len(orderList.filter(status=0))
-        processNum = len(orderList.filter(status=1))
+        order_list = Order.objects.filter(userID=request.data['id'])
+        wait_num = len(order_list.filter(status=0))
+        process_num = len(order_list.filter(status=1))
         res = []
-        res.append(waitNUm)
-        res.append(processNum)
+        res.append(wait_num)
+        res.append(process_num)
 
         return Response(res, status=status.HTTP_200_OK)
 
@@ -58,11 +57,9 @@ class GetOrderListView(APIView):
     Raises:
     """
     def post(self, request):
-
-        orderList = Order.objects.filter(userID=request.data['userID'])
-        typeList = orderList.filter(status=request.data['status'])
-        serializer = OrderListShowSerializer(typeList, many=True)
-
+        order_list = Order.objects.filter(userID=request.data['userID'])
+        type_list = order_list.filter(status=request.data['status'])
+        serializer = OrderListShowSerializer(type_list, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -83,10 +80,8 @@ class GetOderDetailView(APIView):
     Raises:
     """
     def post(self, request):
-
         order = Order.objects.get(id=request.data['id'])
         serializer = GetOrderDetailSerializer(order)
-
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -105,7 +100,6 @@ class CancelOrderView(APIView):
     Raises:
     """
     def post(self, request):
-
         order = Order.objects.get(id=request.data['id'])
         wuser = Customer.objects.get(id=request.data['userId'])
         wuser.balance = order.balanceUse
@@ -139,78 +133,81 @@ class CreateOrderView(APIView):
     """
     def post(self, request):
         # get data from request
-        orderMethod = request.data.get('orderMethod') # 0 for online order, 1 for offline order
-        userID = request.data.get('userID')
-        shopID = request.data.get('shopID')
-        if orderMethod == 0:
-            addressID = request.data.get('addressID')
-        orderList = request.data.get('orderList')
-        wuser = Customer.objects.get(pk=userID)
+        order_method = request.data.get('orderMethod')
+        # 0 for online order, 1 for offline order
+        user_id = request.data.get('userID')
+        shop_id = request.data.get('shopID')
+        if order_method == 0:
+            address_id = request.data.get('addressID')
+        else:
+            address_id = None
+        order_list = request.data.get('orderList')
+        wuser = Customer.objects.get(pk=user_id)
 
         # set orderDetail list & calculate total price
         details = []
-        totalNum = 0
-        totalPrice = 0
-        deliveryFee = 0
-        for order in orderList:
+        total_num = 0
+        total_price = 0
+        delivery_fee = 0
+        for order in order_list:
             merchandise = Merchandise.objects.get(id=order.get('id'))
             name = merchandise.name
-            priceOnSold = merchandise.originPrice
+            price_on_sold = merchandise.originPrice
             # set price for VIP customer
             # if userLevel == 1:
             #     priceOnSold = merchandise.clubPrice
             details.append({'merchandiseID': order.get('id'),
                             'merchandiseNum': order.get('num'),
-                            'priceOnSold': float('%.2f' % priceOnSold),
+                            'priceOnSold': float('%.2f' % price_on_sold),
                             })
-            totalPrice = totalPrice + order.get('num')*float('%.2f' % priceOnSold)
-            totalNum = totalNum + order.get('num')
+            total_price = total_price + order.get('num')*float('%.2f' % price_on_sold)
+            total_num = total_num + order.get('num')
 
         # prepare data for wechatPay
         timestamp = str(time.time())
-        tradeNo = timestamp.replace('.','0') + str(userID)
+        trade_no = timestamp.replace('.', '0') + str(user_id)
 
         # calculate the pay money
-        if totalPrice > wuser.balance:
-            payPrice = totalPrice - float('%.2f' %wuser.balance)
-            balanceUse = wuser.balance
+        if total_price > wuser.balance:
+            pay_price = total_price - float('%.2f' % wuser.balance)
+            available_balance = wuser.balance
 
         else:
-            payPrice = 0
-            balanceUse = totalPrice
+            pay_price = 0
+            available_balance = total_price
 
         # prepare data for serializer to create order
-        if orderMethod == 0:
-            orderdata = {'userID': userID,
-                         'shopID': shopID,
+        if order_method == 0:
+            orderdata = {'userID': user_id,
+                         'shopID': shop_id,
                          'status': 0,
                          'paymentMethod': 'WaitForPay',
-                         'tradeNo': tradeNo,
+                         'tradeNo': trade_no,
                          'discount': 0,
-                         'delivery': deliveryFee,
-                         'totalPrice': totalPrice,
-                         'balanceUse': balanceUse,
-                         'payPrice': payPrice,
+                         'delivery': delivery_fee,
+                         'totalPrice': total_price,
+                         'balanceUse': available_balance,
+                         'payPrice': pay_price,
                          'name': name,
-                         'totalNum': totalNum,
+                         'totalNum': total_num,
                          'comment': '',
-                         'addressID': addressID,
+                         'addressID': address_id,
                          'details': details,
                          }
 
         else:
-            orderdata = {'userID': userID,
-                         'shopID': shopID,
+            orderdata = {'userID': user_id,
+                         'shopID': shop_id,
                          'status': 5,
                          'paymentMethod': 'WaitForPay',
-                         'tradeNo': tradeNo,
+                         'tradeNo': trade_no,
                          'discount': 0,
                          'delivery': 0.00,
-                         'totalPrice': totalPrice,
-                         'balanceUse': balanceUse,
-                         'payPrice': payPrice,
+                         'totalPrice': total_price,
+                         'balanceUse': available_balance,
+                         'payPrice': pay_price,
                          'name': name,
-                         'totalNum': totalNum,
+                         'totalNum': total_num,
                          'comment': '',
                          'addressID': 1,
                          'details': details,
@@ -222,11 +219,11 @@ class CreateOrderView(APIView):
             serializer.save()
             res = {
                 'code': 200,
-                'tradeNo': tradeNo,
+                'tradeNo': trade_no,
             }
             return Response(res, status=status.HTTP_200_OK)
 
-        return Response('Order Create Error', status=status.HTTP_200_OK)
+        return Response('Order Create Error', status=status.HTTP_400_BAD_REQUEST)
 
 
 

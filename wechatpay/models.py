@@ -25,7 +25,7 @@ class Record(models.Model):
     total_fee = models.CharField(max_length=20)
     trade_type = models.CharField(max_length=10)
     sign = models.CharField(max_length=100, blank=True)
-    timestamp = models.DateTimeField(default=time.time())
+    timestamp = models.DateTimeField(auto_now_add=True)
     # information received from wechat, need to send to wechat mini app
     prepay_sign = models.CharField(max_length=100, blank=True)
     prepay_id = models.CharField(max_length=100, blank=True)
@@ -115,13 +115,13 @@ class Record(models.Model):
     def prepay_response_to_dict(self):
         package = "prepay_id=" + str(self.prepay_id)
         response_dict = {
+            'status': 'success',
             'timeStamp': str(self.timestamp),
             'nonceStr': str(self.nonce_str),
             'package': package,
             'signType': 'MD5',
             'paySign': self.pay_sign,
             'tradeNo': self.out_trade_no,
-            'status': 1
         }
         return response_dict
 

@@ -31,7 +31,7 @@ class Retry:
 # This will retry on 4xx failures only.
 class RetryOnAuthFailure(Retry):
     def is_valid(self, resp):
-        return not (resp.status_code >= 400 and resp.status_code < 500)
+        return not ((resp.status_code >= 400) and (resp.status_code < 500))
 
 
 # This will retry on *any* 5xx error, and do so up to 5 times.
