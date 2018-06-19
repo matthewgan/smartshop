@@ -136,8 +136,6 @@ class PayOrderPreProcess(APIView):
             return Response(res, status=status.HTTP_200_OK)
 
 
-
-
 class PaySuccessView(APIView):
     """
     When wechatPay success, request for this Api,it will renew the order and user info, also query the tencent server to ensure the payment

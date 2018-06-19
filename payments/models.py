@@ -227,7 +227,6 @@ def createWechatPayQRcode(fee, out_trade_no, openid):
         return 'ERROR'
 """
 
-
 def PayOrderOnline(tradeNo, openID):
     """
     :param orderID:
