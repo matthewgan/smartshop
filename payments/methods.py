@@ -87,5 +87,6 @@ def payment_with_balance(trade_no):
     # save database
     order.save()
     wuser.save()
+    serializer = CustomerPaymentResponseSerializer(wuser)
     res['balance'] = serializer.data.get('balance')
     return res
