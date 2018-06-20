@@ -112,9 +112,9 @@ class CancelOrderView(APIView):
 
 class CreateOrderView(APIView):
     """
-        :param orderMethod # 0 for online order, 1 for offline order
-        :param userID
-        :param shopID
+        :param order_method # 0 for online order, 1 for offline order
+        :param user_id
+        :param shop_id
         :param orderList(
             {'id':1, 'num':1),
             {'id':2, 'num':2)
@@ -133,12 +133,12 @@ class CreateOrderView(APIView):
     """
     def post(self, request):
         # get data from request
-        order_method = request.data.get('orderMethod')
+        order_method = request.data.get('order_method')
         # 0 for online order, 1 for offline order
-        user_id = request.data.get('userID')
-        shop_id = request.data.get('shopID')
+        user_id = request.data.get('user_id')
+        shop_id = request.data.get('shop_id')
         if order_method == 0:
-            address_id = request.data.get('addressID')
+            address_id = request.data.get('address_id')
         else:
             address_id = None
         order_list = request.data.get('orderList')
@@ -167,9 +167,11 @@ class CreateOrderView(APIView):
         timestamp = str(time.time())
         trade_no = timestamp.replace('.', '0') + str(user_id)
 
+        total_price = float('%.2f' % total_price)
         # calculate the pay money
         if total_price > wuser.balance:
             pay_price = total_price - float('%.2f' % wuser.balance)
+            pay_price = float('%.2f' % pay_price)
             available_balance = wuser.balance
 
         else:
@@ -222,6 +224,7 @@ class CreateOrderView(APIView):
                 'tradeNo': trade_no,
             }
             return Response(res, status=status.HTTP_200_OK)
+        print(serializer.errors)
 
         return Response('Order Create Error', status=status.HTTP_400_BAD_REQUEST)
 

@@ -6,6 +6,7 @@ from django.utils import timezone
 from orders.models import Order
 from customers.serializers import CustomerPaymentResponseSerializer
 from wechatpay.methods import wechat_pay, wechat_pay_qr_code
+from  customers.serializers import CustomerDetailSerializer
 
 
 def payment_with_wechat_online_order(trade_no, open_id):
@@ -31,7 +32,9 @@ def payment_with_wechat_online_order(trade_no, open_id):
     }
     """
     order = Order.objects.get(tradeNo=trade_no)
-    result = wechat_pay(order.payPrice, order.tradeNo, open_id)
+    fee = str(int(order.payPrice * 100))
+    result = wechat_pay(fee, order.tradeNo, open_id)
+
     return result
 
 
@@ -87,5 +90,6 @@ def payment_with_balance(trade_no):
     # save database
     order.save()
     wuser.save()
+    serializer = CustomerDetailSerializer(wuser)
     res['balance'] = serializer.data.get('balance')
     return res

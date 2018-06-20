@@ -23,7 +23,11 @@ def wechat_pay(bill, trace_no, open_id):
     :param open_id: user_wechat_id
     :return: return message from wechat
     """
-    record = Record(total_fee=bill, trade_no=trace_no, open_id=open_id, trade_type='JSAPI')
+    try:
+        record = Record.objects.get(out_trade_no=trace_no)
+    except:
+        record = Record(total_fee=bill, out_trade_no=trace_no, sub_open_id=open_id, trade_type='JSAPI')
+
     record.save()
     model_dict = record.model_to_dict()
     model_xml = trans_dict_to_xml(model_dict)
@@ -38,7 +42,7 @@ def wechat_pay(bill, trace_no, open_id):
         record.prepay_sign = res.get('sign')
         record.prepay_id = res.get('prepay_id')
         record.save_pay_sign()
-        return record.prepay_response_to_dict
+        return record.prepay_response_to_dict()
     else:
         return {
             'status': 'fail',

@@ -12,7 +12,7 @@ from rest_framework.permissions import AllowAny
 from customers.models import Customer
 from customers.serializers import CustomerPaymentResponseSerializer
 from orders.models import Order
-from .models import PayOrderOnline, PayOrderOffline, PayOrderWithBalance
+from .methods import payment_qr_code_with_offline_order, payment_with_balance, payment_with_wechat_online_order
 from wechatpay.methods import trans_xml_to_dict, trans_dict_to_xml
 from wechatpay.methods import wechat_pay_query
 
@@ -109,9 +109,9 @@ class PayOrderPreProcess(APIView):
     """
     def post(self, request):
         # get data from request
-        order_method = request.data.get('orderMethod')
-        user_id = request.data.get('userID')
-        trade_no = request.data.get('tradeNo')
+        order_method = request.data.get('order_method')
+        user_id = request.data.get('user_id')
+        trade_no = request.data.get('trade_no')
 
         # get userInfo from database
         wuser = Customer.objects.get(pk=user_id)
@@ -119,20 +119,22 @@ class PayOrderPreProcess(APIView):
 
         # get orderInfo from database
         order = Order.objects.get(tradeNo=trade_no)
-
         # calculate the pay money and determin the method of payments
         if order.payPrice > 0:  # user Alipay or WechatPay
             wuser.balance = 0
             wuser.save()
             if order_method == 0:  # user WechatPay within miniApp
-                res = PayOrderOnline(trade_no, open_id)
+                res = payment_with_wechat_online_order(trade_no, open_id)
+                res['pay_method'] = 1
+                print(res)
                 return Response(res, status=status.HTTP_200_OK)
             if order_method == 1:  # offline order
-                res = PayOrderOffline(trade_no, open_id)
+                res = payment_qr_code_with_offline_order(trade_no, open_id)
                 return Response(res, status=status.HTTP_200_OK)
         else:
             # complete pay if balance is enough to pay
-            res = PayOrderWithBalance(trade_no)
+            res = payment_with_balance(trade_no)
+            res['pay_method'] = 2
             return Response(res, status=status.HTTP_200_OK)
 
 
@@ -156,9 +158,9 @@ class PaySuccessView(APIView):
     Raises:
     """
     def post(self, request):
-        order = Order.objects.get(tradeNo=request.data.get('tradeNo'))
-        wuser = Customer.objects.get(id=request.data.get('id'))
-        querydata = wechat_pay_query(request.data.get('tradeNo'))
+        order = Order.objects.get(tradeNo=request.data.get('trade_no'))
+        wuser = Customer.objects.get(id=request.data.get('user_id'))
+        querydata = wechat_pay_query(request.data.get('trade_no'))
 
         if querydata.get('status') == 200:
             order.status = 1
