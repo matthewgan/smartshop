@@ -78,7 +78,7 @@ INSTALLED_APPS = [
     'tokens',
     'topups',
     'wechatpay',
-    'alipay',
+    'alipayment',
     'homepage',
 ]
 

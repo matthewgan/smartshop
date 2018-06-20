@@ -6,7 +6,7 @@ from django.utils import timezone
 from orders.models import Order
 from customers.serializers import CustomerPaymentResponseSerializer
 from wechatpay.methods import wechat_pay, wechat_pay_qr_code
-from alipay.methods import alipay_qr_code
+from alipayment.methods import alipay_qr_code
 
 
 def payment_with_wechat_online_order(trade_no, open_id):
