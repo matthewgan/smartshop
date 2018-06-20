@@ -3,54 +3,37 @@
 # Third-party app imports
 from alipay import AliPay, ISVAliPay
 # Imports from your apps
+from .models import Record
 
 
 def get_app_private_key_string():
-    app_private_key_string = """
-        -----BEGIN RSA PRIVATE KEY-----
-MIIEowIBAAKCAQEA2tnob+mj/sanq62Zum+ZW6gBTQCecvc0UVIpLb1mDYOeruoA
-qoWOlT9tojF8z5iwIh5McmDYOXWUw8njGsx49pbBiPAIVD419SYO4pPd2C3LfoQP
-KD5cAjFcJ1/9sIYzjueMguFlYL0X/1D5nngsLcfVygWPmAW3ytzZ1/C1UlqDQvnt
-oRmkhcVKGdnpRc5gafFGfeCL/zgED08WX8dXG3HKz5ffEidfAoW5ZHyLVz3RPOx3
-4gejyeXhivt4Yoc6A1G+0v0O+zbEDkDb6iUKJSvJfd0wu892g+JAfjdQ/n9pfmqV
-v9MvERZYsjGv3hQe10+Z8ABcF0x2WoMywjXD+QIDAQABAoIBAF4/H0EqrcwnQsfF
-EAHg03tMQ5sknBfIa4hlyIQBH3TMbMbI0RaeQ4P0d8M0apqAF8HpqGRNXnCIOVOD
-msDMs38F9zyAmiWlUNlM1XYv1YamWg8W0ewzxq3PEe+HABpIAOYWw0UNyfm6FR6H
-gagD+oqQl3nToT4HoFnFeC7tYzieI9L8ILUzbGyyiM9bUw/rATfiA256MqL4I3J6
-EfWw3mF2lPZLDHXsTR6Iv5H2AbGMHB+ppoQBjOx+bnApz9GGNidYwkPmD8iLPz30
-p/89Sgob2tJrzCoKA6YQon6GkOceDXl9O4jMqZ+zBN1s0sZ+FKbtgP7l2HPCXcjZ
-5kVh6oECgYEA+1R3CmSapTI13aDegpYI75rKSzkArw1quyoXZ4tDaEdJEzZhAE1n
-2UtJzQ0YuGV41kPHNmRF4WH/+jFBaib2irbzh5Qm++yCGRCmEw6aZYSFIxyfBsfF
-Juts/lPp46XICU917V+DNlku7q8KrT5W7qDRr0CbRykIP/13aoZEUzECgYEA3ury
-bDfAPua46HpcC3PAGMn4iYA8ZoRd8GyQhpFd/WlKFYjxCanrXoqP/3AJ5FiM5lSf
-7y2y8p2jY7ZaiHltL28QXcDZ+koG/FfZX03D50G1tTCOIlqEuxTlL05UlHiSnb/2
-EpDNV350M/4l8nm1DPkzRnw19z8GF4MnkHl5+0kCgYEAz9aFqr6PdFUVXnYODAdu
-1FY5PAOjoR+DR8wDFsl/sNhigdTSWqGoY3VzTnKqIrMnPmlGcKBzeXLFcG0TH2mh
-MA0jTtchdeubmoa+D7xfydvRDbw5di31x72goKFcJbmOtsRTTT1TELqnqRJvzdxj
-n2q2fCr9Pdeczu4YtqraDcECgYAx5Sq/2Da6nY/z0Td7BLyRj9uGg2KBm80e/F3Z
-EP6VsxR2/4DcJeFd9uvGRACi0MMw5u4pbfQo4+nnbrCS7YLn5BcotPrVT+6CWvN3
-poNb5tRSKv0VaWdeLI4j6Yd6+AXxMz9T5n9fvxkpbhB2VpGUxs6YT0MRBVVKu/uG
-FfqcqQKBgFCr+MH8UT3MEAWt4hDuOWIK6eUtNBujiGr64oF0qUkxdgFN4et1+fxH
-02D+XTLltN8lI/NxL1iiERGf6ePn67C5pm7Xxlz8lDDwdqK9Ds7be+GDstCxu/vG
-KVLedLd5/+OBm5AuS4ThYeMgZo9pzEW92nB831DYZlPTHu1ST3bN
-        -----END RSA PRIVATE KEY-----
-    """
-    return app_private_key_string
+    return '''-----BEGIN RSA PRIVATE KEY-----
+MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCrz/OU3b2Ncte4RKEGwGyBWu1ioQVn3qH/XTBoWcmlG2PrlrXXEhaLFTaXdqK1CDa7KjETOUAZ9hA8ZhuOic380+pmU5LvmoktwmOqrxGSaRJ54oIr6NFLnrIGK+KVpbEJ5J4IvU4OWm3FKX8mSzNR9e8Ziv9MrjoK2QNTDBulbs+v4B8sQTg4KjyLNOiIEEkA0pdlks70ruv8MrrGzhwlq5iQOzl+zfPJJ9CJ33TXnS1zgfgT7S01ifUguQu2NTv25l+/YxQExoxRwW33n6NbgYICNTtMYwBqVB7pS+wSenIihBRymbFu7eQejLYw53Fd88BjnzpThvFrQ7BZunWJAgMBAAECggEAXEcpPVhHGXSH9hkuH1E0NdmfS+zN2XbSrTPg7vrieYIXjY35hlTZtMOk+X6nbvHFa4sCpp+GFSt6luYEgO70qokrCOB0N6pZaTFRlHfIyUkTulD0tx6pYqMOXJAvd05xoq2eT3VVOhJJiK578xZKrweW7rIf4pBk7jSWO4FyS8wvrEO2DZVTOPr2vkEpsT7a1yHbTROmaRJmcyszhBBZwbokoMEfRygR5uh1vTKu0nb+Vv5mvq/l5gbu0jJ9Ptt/SuHQg3EbVWiAd+f2HNx4VJE4YxZTg/d7K4BUva+cQkeZWiHEuaJKRTW/ww19L6UBLMipSfMfuyL/LR72SplV8QKBgQDyZEszx+wKQD7QK3agnL1jPAxIOPORzeZ74XmVkxFtHA8KtUdvMAynte9x49xjRKM2uLVIyGpLZ4eyumASelNrU5HSU7tZgzVoQW3x5Fu0ZdxMcBhgCD0lCj5FjijgHVBhR+Uj6JG95ES9WGgYfO0XvxyjlhP/q1stdkGa3q44vQKBgQC1dUZPsrXcLpxYw7t1nLMNZ/777cUKQBCng0J3xu16qiIY3vJsNzXF1NhKIHLh8U7GXz4SWgfXcPthWjqEwV8TXUqI4zt1P98qckoWgLRIyYuo5xd98e9Fx0q6kc4T0g03fz4qv7Kra2qEZIRA3PHqL6VFQ9thEhazZU76Rpr6vQKBgC8NjROmMYnj4s2iQkr3YkRLOc8jTxT0tVNC98kzXWSi18CqZA2PdEVyKeMf6n5SqqRKwtY4IXo1xL/LMi8kE+F3vYzouCuuLsXoPaGBRNQGGfe0ouaxcr0n+eKisAihaCMaQ77uvKvyDe37pWlrhtLfRH30+jjdWLvAgwe/Rm65AoGBAKj/oU1mxsNbUdfF69g86fHJcoxVxRan1hr9P7FoPxLoUztQoP0yak1mz04ybGyMHm7Yk2nqGbWID0d7DldH9XGGiH13DJBFvWW97cyJb97+fqj/GTz+T3dwheO/GewRzKdsRYzw3smSEDFfoGD8pf4TA9y/txjwDN5lsymbCooNAoGAEpdcjuXYWmuZ5Sc1lwMBN/qmwlHpCPjeR0aG2IcBfMYXmxPnHADaH91EiyJhTEBr4S/UHTliS3rpcBuRIEreUu+l1bk0JO3oQoTqZGCANet1avL29UBHl4E7BC9G3Ud/AUUjd9H16WmFd3Mt0PdfvKrHTfh6lFdvl5R1xyVxDLg=
+-----END RSA PRIVATE KEY-----'''
 
 
 def get_alipay_public_key_string():
-    alipay_public_key_string = """
-        -----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAynoFVXyeU95UuaAvSCFp
-lVy1tcj5A4AOUw1WJUynu4thRZCpzLMjI4dEVJhxB5TKEBcsQuE/I064lfOeVKHf
-7B7jlxpF4qiTta7JRIqa5TXy8EprWK4wu10BB75mgCxsM60KFMiquF5I4hiu5RrQ
-jM2YQYPyfZtle0+HTKSmvnGNYZU78UcX/gMe12Ii04giYJvAPE58S1Gz5clUFD6p
-9PAd/J8gIldTKLQQ8Q9v/L0+2ED1jTqDduSVvNVjE4HVeTK8ViiGAS1OhVTO+Ywv
-QV+bgDLqx+wXWoHxyt+Lb1JHCiq2BJJQdCwl1MH5gXnfw7bTKZbmMEelRKTnWWlM
-4QIDAQAB
-        -----END PUBLIC KEY-----
-    """
-    return alipay_public_key_string
+    return '''-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAynoFVXyeU95UuaAvSCFplVy1tcj5A4AOUw1WJUynu4thRZCpzLMjI4dEVJhxB5TKEBcsQuE/I064lfOeVKHf7B7jlxpF4qiTta7JRIqa5TXy8EprWK4wu10BB75mgCxsM60KFMiquF5I4hiu5RrQjM2YQYPyfZtle0+HTKSmvnGNYZU78UcX/gMe12Ii04giYJvAPE58S1Gz5clUFD6p9PAd/J8gIldTKLQQ8Q9v/L0+2ED1jTqDduSVvNVjE4HVeTK8ViiGAS1OhVTO+YwvQV+bgDLqx+wXWoHxyt+Lb1JHCiq2BJJQdCwl1MH5gXnfw7bTKZbmMEelRKTnWWlM4QIDAQAB
+-----END PUBLIC KEY-----'''
+
+
+# def get_app_private_key_string():
+#     app_private_key_string = """
+#         -----BEGIN RSA PRIVATE KEY-----
+# MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCpUulzxadvBVXgAG5D5lrQct5JCkQFS+qyCfq7VOw516CwnxoX9XQF6VCN3gBzyR293BomP1gkSxRiZy3eH5F2N7ROPHvvZn8Mr2+hVfAwVIhEDogHGLIWJIbI0BpfHzo43JZL7Gn4b22sj6NFpOqxnxPBp8K+oxHW3RF/hsBJb1ngnjbs/O8ezSfmNqtcwTbbMArnkG3STs5649QuPpHItv98obD1Ew6lJ+i/7eyPcaXzMEUuJqdvPlY50O5hRjupA6EchL8G6V2o2cD3hoik7doH5+1RF8JGbK8iBJs9UMqMBw1OddwENxmFf2Ky5AqHrl3xknCUq6nWlLrnhigrAgMBAAECggEAApYSnMMTGJ4DPsWi6YSWNILcpE701QPg1NFUNBJK/WMuwCPd+Sm1mPWEVnZimWIkAydeeuESzpMa/5nF2JOw3BZjuaIw3mo5XI89bEBsx8AyyJ9UMo+NAMuUB3MuQ++tKvsrjINS5wmEqlMTUlf/gbEFUzrlvZWuCxMbVlBPlY+IdC8w5ktsT7HfvyAPxTJ0L2DR6zG3xDk3BFM2p7rH+UfjXQcR5hSA1R5bAbGrlpdMd0Fl3NXoQPRIq/ebqQZlzzS2tNdvFDMV6HNRwRbfH53Cg/vFoE9qVqjFJGCV7qMFDSJ1vcPaQaJWJeS5x2DsPlU8MoWjFrUVmexmEtpj8QKBgQDjtNnabgiJNM6j0pYUFjI4X02mbY49BgRe7kZF7cDsAMN7mcScriZKvuSp1Z4K999/SxFLnca6C3SRH1uZujMM+Ph7I8cK5IwIL9bqbavR5SubJbu4pejjbHCWFgT68m5py6eAg+XiTwemen/Dlyg4TRMhCLIQ3Ri7cD4MMfnYgwKBgQC+XPX0SKeFFa3X9gKRU8zJVQKKUreF+dFoQBbIk38Aje6/PYq/llvH1RRpnKX+rhr1qvgST7rzDTWIrvlj1dx+1kV6/hNl+GFl9YAZsdidDMSDfRSFdn031NeTxDQ69f1Pk741A3EGXtkQRFFJqb9/juEtHZokzs1q8fmXoLbROQKBgBlhijrvsuHgUfwut+3LP5PLA7O+WHFy3z/ZnVmkE7H6r89yJ1kzjC8esgxANFqSoIXmzym3j3QjXL3kWeh7ub8DbWcEaOZM7VLoSjNdQB6oRcEIZrFBRQE8kBwanjl+llISkjwf95rPJlInK2CY07Ha3Xv8JST+EAisjS380BWTAoGAO1zX4i7J9ql1BdSUpmcghGQ7H5F944ys7bqWoEPGphCctAxn+SjVRDLBY9HSveHjTFrdczBj1yl2WUJfSO/HC9Kb5ifXOsRC8z2kjd608vypR2u4+4mgsMlx1IWp1/0f2jHzbaq+E0N+oyD6zGLf8dJHi/8gM3w9+KyurccTW5kCgYBKHMA4ypraT82j611TVGO8tIfpiJscHe5iILrlzU0aNx4svXkN+X64UfW/9WjTdj2Qz5+OGj2hn/fnJLB0ONr8jOQc/Wau1eMcy/ewcGbs8Cqn/23EKEiTLOig8W8HLhafoIVyi2OlWR+/UzlQhYqRcorPFgobpk33/x7dQlSrBg==
+#         -----END RSA PRIVATE KEY-----
+#     """
+#     return app_private_key_string
+#
+#
+# def get_alipay_public_key_string():
+#     alipay_public_key_string = """
+#         -----BEGIN PUBLIC KEY-----
+# MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqVLpc8WnbwVV4ABuQ+Za0HLeSQpEBUvqsgn6u1TsOdegsJ8aF/V0BelQjd4Ac8kdvdwaJj9YJEsUYmct3h+Rdje0Tjx772Z/DK9voVXwMFSIRA6IBxiyFiSGyNAaXx86ONyWS+xp+G9trI+jRaTqsZ8TwafCvqMR1t0Rf4bASW9Z4J427PzvHs0n5jarXME22zAK55Bt0k7OeuPULj6RyLb/fKGw9RMOpSfov+3sj3Gl8zBFLianbz5WOdDuYUY7qQOhHIS/BuldqNnA94aIpO3aB+ftURfCRmyvIgSbPVDKjAcNTnXcBDcZhX9isuQKh65d8ZJwlKup1pS654YoKwIDAQAB
+#         -----END PUBLIC KEY-----
+#     """
+#     return alipay_public_key_string
 
 
 def get_alipay_app_id():
@@ -91,9 +74,9 @@ def alipay_pre_create(subject, out_trade_no, total_amount):
     """预创建支付，生成QRCODE"""
     client = create_alipay_client_using_isv()
     result = client.api_alipay_trade_precreate(
-        subject="test subject",
-        out_trade_no="out_trade_no",
-        total_amount=total_amount
+        subject=subject,
+        out_trade_no=out_trade_no,
+        total_amount=total_amount,
     )
     return result
 
@@ -139,3 +122,19 @@ def alipay_trade_refund(refund_amount, out_trade_no):
 
     )
     return result
+
+
+def alipay_qr_code(out_trade_no, total_amount):
+    subject = '物掌柜智慧便利'
+    msg = alipay_pre_create(subject=subject, out_trade_no=out_trade_no, total_amount=total_amount)
+    response = msg.get('alipay_trade_precreate_response')
+    if response.get('code') == "10000":
+        qr_code = response.get('qr_code')
+        out_trade_no = response.get('out_trade_no')
+        record = Record(out_trade_no=out_trade_no, total_amount=total_amount, operation='PRECREATE', qr_code=qr_code)
+        record.save()
+        return msg.get(['qr_code'])
+    else:
+        # TODO
+        return None
+

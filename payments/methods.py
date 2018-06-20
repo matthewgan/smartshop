@@ -6,6 +6,7 @@ from django.utils import timezone
 from orders.models import Order
 from customers.serializers import CustomerPaymentResponseSerializer
 from wechatpay.methods import wechat_pay, wechat_pay_qr_code
+from alipay.methods import alipay_qr_code
 
 
 def payment_with_wechat_online_order(trade_no, open_id):
@@ -51,15 +52,14 @@ def payment_qr_code_with_offline_order(trade_no, open_id):
     fee = float('%.2f' % order.payPrice)
 
     # generate the QRcode for Alipay and Wechat pay
-    # aliQRUrl = createAlipayQRcode(fee, tradeNo)
+    alipay_code_url = alipay_qr_code(subject='物掌柜智慧便利', out_trade_no=trade_no, total_amount=fee)
     wechat_pay_code_url = wechat_pay_qr_code(fee, trade_no, open_id)
 
     res = {
         'status': 'success',
-        #'AliPayQRcodeUrl': aliQRUrl,
+        'alipay_code_url': alipay_code_url,
         'wechat_pay_code_url': wechat_pay_code_url,
     }
-
     return res
 
 
