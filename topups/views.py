@@ -89,7 +89,7 @@ class TopUpSuccessView(APIView):
                 topup.userID.balance += topup.amountPay + topup.amountAdd
                 topup.userID.save()
                 topup.save()
-                output_serializer = (topup.userID)
+                output_serializer = CustomerPaymentResponseSerializer(topup.userID)
                 return Response(output_serializer.data, status=status.HTTP_200_OK)
             else:
                 return Response(querydata, status=status.HTTP_200_OK)

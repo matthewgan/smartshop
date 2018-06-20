@@ -2,7 +2,6 @@
 # Core Django imports
 # Third-party app imports
 import requests
-import hashlib
 # Imports from your apps
 from .models import Record
 from retry.methods import retry_on_500, retry_on_auth_failure, retry_on_server_error
