@@ -34,6 +34,7 @@ def payment_with_wechat_online_order(trade_no, open_id):
     order = Order.objects.get(tradeNo=trade_no)
     fee = str(int(order.payPrice * 100))
     result = wechat_pay(fee, order.tradeNo, open_id)
+    result['msg'] = 'Pay Success: MiniApp WechatPay'
 
     return result
 
@@ -52,10 +53,10 @@ def payment_qr_code_with_offline_order(trade_no, open_id):
     """
     order = Order.objects.get(tradeNo=trade_no)
     fee = float('%.2f' % order.payPrice)
-
+    wechatfee = str(int(order.payPrice * 100))
     # generate the QRcode for Alipay and Wechat pay
-    alipay_code_url = alipay_qr_code(subject='物掌柜智慧便利', out_trade_no=trade_no, total_amount=fee)
-    wechat_pay_code_url = wechat_pay_qr_code(fee, trade_no, open_id)
+    alipay_code_url = alipay_qr_code(out_trade_no=trade_no, total_amount=fee)
+    wechat_pay_code_url = wechat_pay_qr_code(wechatfee, trade_no, open_id)
 
     res = {
         'status': 'success',
@@ -66,7 +67,7 @@ def payment_qr_code_with_offline_order(trade_no, open_id):
     return res
 
 
-def payment_with_balance(trade_no):
+def payment_with_balance(trade_no, order_method):
     """
     :param trade_no:
     :return:
@@ -82,7 +83,10 @@ def payment_with_balance(trade_no):
     wuser = order.userID
 
     # edit the database of order and customer
-    order.status = 1
+    if order_method == 0:
+        order.status = 1
+    if order_method == 1:
+        order.status = 3
     order.payTime = timezone.now()
     order.paymentMethod = 'Balance'
     wuser.balance = wuser.balance - order.totalPrice
@@ -92,4 +96,6 @@ def payment_with_balance(trade_no):
     wuser.save()
     serializer = CustomerPaymentResponseSerializer(wuser)
     res['balance'] = serializer.data.get('balance')
+    res['msg'] = 'Pay Success: Balance'
+
     return res

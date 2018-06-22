@@ -71,12 +71,15 @@ def create_alipay_client():
 
 def alipay_pre_create(subject, out_trade_no, total_amount):
     """预创建支付，生成QRCODE"""
-    client = create_alipay_client_using_isv()
+    # client = create_alipay_client_using_isv()
+    client = create_alipay_client()
     result = client.api_alipay_trade_precreate(
         subject=subject,
         out_trade_no=out_trade_no,
         total_amount=total_amount,
     )
+    print('Alipay Response:')
+    print(result)
     return result
 
 
@@ -123,16 +126,68 @@ def alipay_trade_refund(refund_amount, out_trade_no):
     return result
 
 
+def alipay_trade_query(out_trade_no):
+    client = create_alipay_client()
+    result = client.api_alipay_trade_query(out_trade_no=out_trade_no)
+    print(result)
+    if result.get("trade_status") == "TRADE_SUCCESS":
+        resp_data = {
+            'status': 200,
+            'trade_state': result.get('trade_status'),
+            'trade_no': result.get('trade_no'),
+            'out_trade_no': result.get('out_trade_no'),
+            'cash_fee': result.get('total_amount'),
+        }
+
+        record = Record.objects.get(out_trade_no=out_trade_no)
+        record.trade_no = result.get('trade_no')
+        record.buyer_user_id = result.get('buyer_user_id')
+        record.buyer_logon_id = result.get('buyer_logon_id')
+        record.trade_status = result.get('trade_status')
+        record.invoice_amount = result.get('invoice_amount')
+        record.receipt_amount = result.get('receipt_amount')
+        record.save()
+
+    else:
+        resp_data = {
+            'status': 100,
+            'msg': result.get('msg'),
+            'sub_code': result.get('sub_code'),
+            'sub_msg': result.get('sub_msg'),
+        }
+    return resp_data
+
+
+def alipay_trade_cancel(out_trade_no):
+    client = create_alipay_client()
+    result = client.api_alipay_trade_cancel(out_trade_no=out_trade_no)
+    if result.get('code') == '10000':
+        resp_data = {
+            'status': 200,
+            'trade_no': result.get('trade_no'),
+        }
+    else:
+        resp_data = {
+            'status': 100,
+            'msg': result.get('msg'),
+            'sub_code': result.get('sub_code'),
+            'sub_msg': result.get('sub_msg'),
+        }
+    return resp_data
+
+
 def alipay_qr_code(out_trade_no, total_amount):
     subject = '物掌柜智慧便利'
-    msg = alipay_pre_create(subject=subject, out_trade_no=out_trade_no, total_amount=total_amount)
-    response = msg.get('alipay_trade_precreate_response')
+    response = alipay_pre_create(subject=subject, out_trade_no=out_trade_no, total_amount=total_amount)
     if response.get('code') == "10000":
         qr_code = response.get('qr_code')
         out_trade_no = response.get('out_trade_no')
-        record = Record(out_trade_no=out_trade_no, total_amount=total_amount, operation='PRECREATE', qr_code=qr_code)
+        try:
+            record = Record.objects.get(out_trade_no=out_trade_no)
+        except:
+            record = Record(out_trade_no=out_trade_no, total_amount=total_amount, operation='PRECREATE', qr_code=qr_code)
         record.save()
-        return msg.get(['qr_code'])
+        return response.get('qr_code')
     else:
         # TODO
         return None

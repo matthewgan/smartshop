@@ -221,6 +221,7 @@ class CreateOrderView(APIView):
             serializer.save()
             res = {
                 'code': 200,
+                'msg': 'Create Order Success',
                 'tradeNo': trade_no,
             }
             return Response(res, status=status.HTTP_200_OK)
