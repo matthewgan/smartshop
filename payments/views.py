@@ -14,7 +14,8 @@ from customers.serializers import CustomerPaymentResponseSerializer
 from orders.models import Order
 from .methods import payment_qr_code_with_offline_order, payment_with_balance, payment_with_wechat_online_order
 from wechatpay.methods import trans_xml_to_dict, trans_dict_to_xml
-from wechatpay.methods import wechat_pay_query
+from wechatpay.methods import wechat_pay_query, wechat_pay_cancel
+from alipayment.methods import alipay_trade_query, alipay_trade_cancel
 
 
 @permission_classes((AllowAny, ))
@@ -126,14 +127,13 @@ class PayOrderPreProcess(APIView):
             if order_method == 0:  # user WechatPay within miniApp
                 res = payment_with_wechat_online_order(trade_no, open_id)
                 res['pay_method'] = 1
-                print(res)
                 return Response(res, status=status.HTTP_200_OK)
             if order_method == 1:  # offline order
                 res = payment_qr_code_with_offline_order(trade_no, open_id)
                 return Response(res, status=status.HTTP_200_OK)
         else:
             # complete pay if balance is enough to pay
-            res = payment_with_balance(trade_no)
+            res = payment_with_balance(trade_no, order_method)
             res['pay_method'] = 2
             return Response(res, status=status.HTTP_200_OK)
 
@@ -175,3 +175,115 @@ class PaySuccessView(APIView):
         serializer = CustomerPaymentResponseSerializer(wuser)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class OfflinePayQueryView(APIView):
+    """
+    Request for this Api,it will query the tencent & alipay server to ensure the payment status(default request every 2s)
+
+    Parameters:
+        user_id - user uuid
+        trade_no - the trade no of payment
+
+
+    Returns:
+      id - user uuid
+      point -
+      level -
+      balance -
+
+    Raises:
+    """
+    def post(self, request):
+        out_trade_no = request.data.get('trade_no')
+        order = Order.objects.get(tradeNo=out_trade_no)
+        wuser = Customer.objects.get(id=request.data.get('user_id'))
+
+        # query data from alipay and wechat server
+        wechatquerydata = wechat_pay_query(out_trade_no)
+        alipayquerydata = alipay_trade_query(out_trade_no)
+
+        print(wechatquerydata)
+        print(alipayquerydata)
+
+        is_alipay_order_paid = False
+        is_wechatpay_order_paid = False
+
+        if wechatquerydata.get('status') == 200:
+            order.status = 3
+            wuser.point = wuser.point + order.payPrice*100
+            order.paymentSN = wechatquerydata.get('transaction_id')
+            order.payTime = timezone.now()
+            order.paymentMethod = 'Wechat Pay'
+            order.save()
+            is_wechatpay_order_paid = True
+
+        if alipayquerydata.get('status') == 200:
+            order.status = 3
+            wuser.point = wuser.point + order.payPrice*100
+            order.paymentSN = alipayquerydata.get('trade_no')
+            order.payTime = timezone.now()
+            order.paymentMethod = 'Alipay Pay'
+            order.save()
+            is_alipay_order_paid = True
+
+        wuser.save()
+        if is_wechatpay_order_paid:
+            serializer = CustomerPaymentResponseSerializer(wuser)
+            alipay_trade_cancel(out_trade_no)
+            res = serializer.data
+            res['msg'] = 'Pay Success: WechatPay'
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        if is_alipay_order_paid:
+            serializer = CustomerPaymentResponseSerializer(wuser)
+            wechat_pay_cancel(out_trade_no)
+            res = serializer.data
+            res['msg'] = 'Pay Success: Alipay'
+            return Response(res, status=status.HTTP_200_OK)
+        else:
+            res = {
+                'status' : 'Not paid or Close',
+                'Alipay' : alipayquerydata,
+                'Wechat' : wechatquerydata,
+            }
+            return Response(res, status=status.HTTP_204_NO_CONTENT)
+
+
+class OfflinePayCancelView(APIView):
+    """
+    Request for this Api,it will sent the request to the tencent & alipay server to cancel the payment which is timeout
+
+    Parameters:
+        trade_no - the trade no of payment
+        user_id - user uuid
+
+
+    Returns:
+      id - user uuid
+      point -
+      level -
+      balance -
+
+    Raises:
+    """
+    def post(self, request):
+        out_trade_no = request.data.get('trade_no')
+        order = Order.objects.get(tradeNo=out_trade_no)
+        wuser = Customer.objects.get(id=request.data.get('user_id'))
+
+        wechat_res = wechat_pay_cancel(out_trade_no)
+        alipay_res = alipay_trade_cancel(out_trade_no)
+
+        if wechat_res.get('status') == 200 & alipay_res.get('status') == 200:
+            order.status = 6
+            order.cancelTime = timezone.now()
+            order.paymentMethod = 'Cancel'
+            order.save()
+            wuser.balance = order.balanceUse
+            wuser.save()
+            serializer = CustomerPaymentResponseSerializer(wuser)
+            res = serializer.data
+            res['msg'] = 'Order Success Cancel '
+            return Response(res, status=status.HTTP_200_OK)
+        else:
+            return Response('Error', status=status.HTTP_409_CONFLICT)
