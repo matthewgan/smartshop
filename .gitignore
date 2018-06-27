@@ -5,6 +5,7 @@ __pycache__/
 *.py.bak
 media/*
 .DS_Store
+.jpg
 
 # C extensions
 *.so
