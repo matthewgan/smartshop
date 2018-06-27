@@ -1,6 +1,9 @@
 from django.shortcuts import render
 from django.http import HttpRequest
 from datetime import datetime
+from customers.models import Customer
+from merchandises.models import Merchandise
+from shops.models import Shop
 
 
 # Create your views here.
@@ -18,10 +21,10 @@ def home(request):
            'domain': 'www.wuzhanggui.shop',
            'year': datetime.now().year,
 
-           'shop_count': 2,
-           'merchandise_count': 200,
-           'area_count': 48000,
-           'customer_count': 500,
+           'shop_count': Shop.objects.count(),
+           'merchandise_count': Merchandise.objects.count(),
+           'area_count': 4800,
+           'customer_count': Customer.objects.count(),
        }
     )
 
