@@ -34,7 +34,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'ck#9960wa10!&12(0k=!xbxwv686=$=l*j6oadyfp^=$1h8zjc'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # Whether the framework should propagate raw exceptions rather than catching
 # them. This is useful under some testing situations and should never be used
@@ -77,6 +77,8 @@ INSTALLED_APPS = [
     'tags',
     'tokens',
     'topups',
+    'wechatpay',
+    'alipayment',
     'homepage',
 ]
 

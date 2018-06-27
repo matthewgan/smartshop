@@ -11,8 +11,17 @@ def home(request):
        request,
        'homepage/index.html',
        {
-           'title': 'Home Page',
+           'title': '物掌柜',
+           'phone_number': 4006633309,
+           'address': '北环西路15号, 金坛区 常州市 江苏省 213000',
+           'email': 'info@wuzhanggui.shop',
+           'domain': 'www.wuzhanggui.shop',
            'year': datetime.now().year,
+
+           'shop_count': 2,
+           'merchandise_count': 200,
+           'area_count': 48000,
+           'customer_count': 500,
        }
     )
 

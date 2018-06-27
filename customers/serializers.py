@@ -36,11 +36,19 @@ class LoginResponseSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'balance',)
 
 
-class DetailResponseSerializer(serializers.ModelSerializer):
+class CustomerDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = ('id', 'point', 'level', 'balance')
         read_only_fields = ('id', 'balance',)
+
+
+class CustomerPaymentResponseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        fields = ('id', 'point', 'level', 'balance')
+        read_only_fields = ('id', 'balance',)
+
 
 class CustomerListSerializer(serializers.ModelSerializer):
     class Meta:

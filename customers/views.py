@@ -16,7 +16,7 @@ from .models import Customer
 from .serializers import SignupRequestSerializer, SignupResponseSerializer
 from .serializers import LoginRequestSerializer, LoginResponseSerializer
 from .serializers import CustomerListSerializer
-from .serializers import DetailResponseSerializer
+from .serializers import CustomerDetailSerializer
 
 
 class CustomerSignupView(APIView):
@@ -110,6 +110,7 @@ class CustomerLoginView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class CustomerDetailView(APIView):
     """
     To renew user info when user into the user page
@@ -129,7 +130,7 @@ class CustomerDetailView(APIView):
     def post(self, request):
         pk = request.data['id']
         customer = get_object_or_404(Customer, pk=pk)
-        output_serializer = DetailResponseSerializer(customer)
+        output_serializer = CustomerDetailSerializer(customer)
 
         return Response(output_serializer.data, status=status.HTTP_200_OK)
 

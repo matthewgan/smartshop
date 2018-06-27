@@ -1,7 +1,7 @@
 from aip import AipFace
 
 
-def createapiface():
+def create_aip_client():
     APP_ID = '11211624'
     API_KEY = 'wo7nEAvyNrK30kWG38rTC1qg'
     SECRET_KEY = 'VcHeSeIARmfXI0TahrgtMyszMsljIKnB'
@@ -14,14 +14,28 @@ def createapiface():
     return client
 
 
-def detectface(image, imagetype, client):
+def check_occlusion(occlusion):
+    if float(occlusion.get('left_eye')) > 0.4 \
+            or float(occlusion.get('right_eye')) > 0.4 \
+            or float(occlusion.get('nose')) > 0.5 \
+            or float(occlusion.get('mouth')) > 0.5 \
+            or float(occlusion.get('left_cheek')) > 0.6 \
+            or float(occlusion.get('left_cheek')) > 0.6 \
+            or float(occlusion.get('right_cheek')) > 0.6 \
+            or float(occlusion.get('chin_contour')) > 0.4:
+        return True
+    else:
+        return False
+
+
+def detect_face(image, image_type, client):
 
     options = {}
     options['face_field'] = 'quality'
-    res = client.detect(image, imagetype, options)
+    res = client.detect(image, image_type, options)
 
-    errorcode = res.get('error_code')
-    if errorcode == 0:
+    error_code = res.get('error_code')
+    if error_code == 0:
         facelist = res.get('result').get('face_list')
         quality = facelist[0].get('quality')
         angle = facelist[0].get('angle')
@@ -32,10 +46,7 @@ def detectface(image, imagetype, client):
         blur = quality.get('blur')
         illumination = quality.get('illumination')
         completeness = quality.get('completeness')
-        if float(occlusion.get('left_eye')) > 0.4 or float(occlusion.get('right_eye')) > 0.4 or float(
-                occlusion.get('nose')) > 0.5 or float(occlusion.get('mouth')) > 0.5 or float(
-            occlusion.get('left_cheek')) > 0.6 or float(occlusion.get('left_cheek')) > 0.6 or float(
-            occlusion.get('right_cheek')) > 0.6 or float(occlusion.get('chin_contour')) > 0.4:
+        if check_occlusion(occlusion):
             print("occlusion error")
             return 100
         if float(blur) > 0.5:
@@ -49,31 +60,29 @@ def detectface(image, imagetype, client):
             return 103
         if float(yaw) > 20 or float(yaw) < -20 or float(pitch) > 20 or float(pitch) < -20 or float(roll) > 20 or float(roll) < -20:
             return 105
-    elif errorcode == 222202:
+    elif error_code == 222202:
         print("no face")
         return 104
-
     return 200
 
 
-def registerface(image, imagetype, userid, groupid, client):
+def register_face(image, image_type, userid, group_id, client):
 
     options = {}
     options["quality_control"] = "NORMAL"
     options["liveness_control"] = "LOW"
-    res = client.addUser(image, imagetype, groupid, userid, options)
+    res = client.addUser(image, image_type, group_id, userid, options)
 
     return res
 
 
-def searchface(image, imagetype, client):
+def search_face(image, image_type, client):
 
     options= {}
-    #options["group_id_list"] = "customer"
     options['group_id_list'] = 'group1'
-    res = client.search(image, imagetype, options)
-    errorcode = res.get('error_code')
-    if errorcode == 0:
+    res = client.search(image, image_type, options)
+    error_code = res.get('error_code')
+    if error_code == 0:
         userlist = res.get('result').get('user_list')[0]
         try:
             userid = userlist.get('user_id')
@@ -90,28 +99,25 @@ def searchface(image, imagetype, client):
             res['score'] = score
     else:
         res['status'] = 101
-        res['errorcode'] = errorcode
+        res['errorcode'] = error_code
     return res
 
 
-def verifyface(image, imagetype, client):
+def verify_face(image, image_type, client):
 
     options = {}
     options['face_field'] = 'qualities'
-    res = client.faceverify(image, imagetype, options)
+    res = client.faceverify(image, image_type, options)
     print(res)
-    errorcode = res.get('error_code')
-    if errorcode == 0:
+    error_code = res.get('error_code')
+    if error_code == 0:
         facelist = res.get('result').get('face_list')
         quality = facelist[0].get('quality')
         occlusion = quality.get('occlusion')
         blur = quality.get('blur')
         illumination = quality.get('illumination')
         completeness = quality.get('completeness')
-        if float(occlusion.get('left_eye')) > 0.4 or float(occlusion.get('right_eye')) > 0.4 or float(
-                occlusion.get('nose')) > 0.5 or float(occlusion.get('mouth')) > 0.5 or float(
-            occlusion.get('left_cheek')) > 0.6 or float(occlusion.get('left_cheek')) > 0.6 or float(
-            occlusion.get('right_cheek')) > 0.6 or float(occlusion.get('chin_contour')) > 0.4:
+        if check_occlusion(occlusion):
             print("occlusion error")
             return 100
         if float(blur) > 0.5:
@@ -123,7 +129,7 @@ def verifyface(image, imagetype, client):
         if float(completeness) < 0.3:
             print("completeness error")
             return 103
-    elif errorcode == 222202:
+    elif error_code == 222202:
         print("no face")
         return 104
     return 200

@@ -1,15 +1,13 @@
 # Stdlib imports
-
 # Core Django imports
 from django.db import models
-
 # Third-party app imports
-
 # Imports from your apps
 from customers.models import Customer
 
 
 class Address(models.Model):
+    id = models.AutoField(primary_key=True)
     who = models.ForeignKey(Customer, on_delete=models.CASCADE)
     name = models.CharField(max_length=20)
     telephone = models.DecimalField(max_digits=11, decimal_places=0)
