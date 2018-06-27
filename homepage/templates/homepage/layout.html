@@ -2,47 +2,160 @@
 <html>
 <head>
     <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }} - My Django Application</title>
+    <meta name="description" content="Official Website of Master WU Shops" />
+    <meta name="keywords" content="Eshop" />
+    <meta name="author" content="Matthew Gan" />
+    <title>{{ title }}</title>
     {% load staticfiles %}
+    <!-- Animate.css -->
+    <link rel="stylesheet" type="text/css" href="{% static 'homepage/content/animate.css' %}" />
+    <!-- Icomoon Icon Fonts-->
+    <link rel="stylesheet" type="text/css" href="{% static 'homepage/content/icomoon.css' %}" />
+    <!-- Bootstrap  -->
     <link rel="stylesheet" type="text/css" href="{% static 'homepage/content/bootstrap.min.css' %}" />
-    <link rel="stylesheet" type="text/css" href="{% static 'homepage/content/site.css' %}" />
+    <!--link rel="stylesheet" type="text/css" href="{% static 'homepage/content/bootstrap.css' %}" />
+    <!-- Magnific Popup -->
+    <link rel="stylesheet" type="text/css" href="{% static 'homepage/content/magnific-popup.css' %}" />
+    <!-- Owl Carousel  -->
+    <link rel="stylesheet" type="text/css" href="{% static 'homepage/content/owl.carousel.min.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'homepage/content/owl.theme.default.min.css' %}" />
+    <!-- Theme style  -->
+    <link rel="stylesheet" type="text/css" href="{% static 'homepage/content/style.css' %}" />
+    <!-- Modernizr JS -->
     <script src="{% static 'homepage/scripts/modernizr-2.6.2.js' %}"></script>
+    <!-- FOR IE9 below -->
+    <!--[if lt IE 9]><script src="js/respond.min.js"></script><![endif]-->
 </head>
-
 <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a href="/" class="navbar-brand">物掌柜智慧便利店</a>
+    {% load staticfiles %}
+    <div class="fh5co-loader"></div>
+    <div id="page">
+    <nav class="fh5co-nav" role="navigation">
+        <div class="top">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xs-12 text-right">
+                        <p class="num">联系我们: {{ phone_number }}</p>
+                        <ul class="fh5co-social">
+                            <li><a href="#"><i class="icon-sina-weibo"></i></a></li>
+                            <li><a href="#"><i class="icon-qq"></i></a></li>
+                            <li><a href="#"><i class="icon-twitter"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li><a href="{% url 'home' %}">Home</a></li>
-                    <li><a href="{% url 'about' %}">About</a></li>
-                    <li><a href="{% url 'contact' %}">Contact</a></li>
-                </ul>
-                {% include 'homepage/loginpartial.html' %}
+        </div>
+        <div class="top-menu">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xs-1">
+                        <div id="fh5co-logo"><a href="index.html">MasterWu<span>.</span></a></div>
+                    </div>
+                    <div class="col-xs-11 text-right menu-1">
+                        <ul>
+                            <li class="active"><a href="{% url 'home' %}">首页</a></li>
+                            <li><a href="{% url 'about' %}">加盟</a></li>
+                            <li><a href="{% url 'contact' %}">取得联系</a></li>
+                            <li><a href="{% url 'contact' %}">加入我们</a></li>
+                            {% include 'homepage/loginpartial.html' %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header id="fh5co-header" class="fh5co-cover" role="banner" style="background-image:url({% static 'homepage/images/banner.png' %});" data-stellar-background-ratio="0.5">
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2 text-center">
+                <div class="display-t">
+                    <div class="display-tc animate-box" data-animate-effect="fadeIn">
+                        <h1></h1>
+                        <h2></h2>
+                        <p></p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+    </header>
 
-    <div class="container body-content">
-{% block content %}{% endblock %}
-        <hr/>
-        <footer>
-            <p>&copy; {{ year }} - 物掌柜智慧便利店</p>
-        </footer>
+    {% block content %}{% endblock %}
+
+    <footer id="fh5co-footer" role="contentinfo">
+		<div class="container">
+			<div class="row row-pb-md">
+				<div class="col-md-3 fh5co-widget">
+					<h4>关于 物掌柜</h4>
+					<p>深耕新零售领域，致力于将各种新兴技术融入生活，为消费者提供更方便，更快捷，更智能的消费购物体验。</p>
+					<img src="{% static 'homepage/images/logo.png' %}" />
+				</div>
+				<div class="col-md-4 col-sm-4 col-xs-6 col-md-push-1">
+					<div class="fh5co-contact-info">
+						<h3>联系我们</h3>
+						<ul>
+							<li class="address">{{ address }}</li>
+							<li class="phone"><a href="tel://{{ phone_number }}">{{ phone_number }}</a></li>
+							<li class="email"><a href="mailto:{{ email }}">{{ email }}</a></li>
+							<li class="url"><a href="https://{{ domain }}">{{ domain }}</a></li>
+						</ul>
+					</div>
+				</div>
+				<div class="col-md-2 col-sm-4 col-xs-6 col-md-push-2">
+					<h3>小程序码</h3>
+					<img src="{% static 'homepage/images/miniApp.png' %}" />
+				</div>
+			</div>
+
+			<div class="row copyright">
+				<div class="col-md-12 text-center">
+					<p>
+						<small class="block">Copyright &copy; {{ year }}. 物掌柜超市管理有限公司 All rights reserved.</small>
+					</p>
+                    <ul class="fh5co-social-icons">
+                        <li><a href="#"><i class="icon-qq"></i></a></li>
+                        <li><a href="#"><i class="icon-sina-weibo"></i></a></li>
+                        <li><a href="#"><i class="icon-twitter"></i></a></li>
+                        <li><a href="#"><i class="icon-facebook"></i></a></li>
+                    </ul>
+				</div>
+			</div>
+
+		</div>
+	    </footer>
     </div>
 
-    <script src="{% static 'homepage/scripts/jquery-1.10.2.js' %}"></script>
-    <script src="{% static 'homepage/scripts/bootstrap.js' %}"></script>
-    <script src="{% static 'homepage/scripts/respond.js' %}"></script>
+    <div class="gototop js-top">
+		<a href="#" class="js-gotop"><i class="icon-arrow-up"></i></a>
+	</div>
+
+    <!--script src="{% static 'homepage/scripts/jquery-1.10.2.js' %}"></script>
+    <!--script src="{% static 'homepage/scripts/bootstrap.js' %}"></script>
+    <!--script src="{% static 'homepage/scripts/respond.js' %}"></script>
+
+    <!-- jQuery -->
+    <script src="{% static 'homepage/scripts/jquery.min.js' %}"></script>
+	<!-- jQuery Easing -->
+	<script src="{% static 'homepage/scripts/jquery.easing.1.3.js' %}"></script>
+	<!-- Bootstrap -->
+	<script src="{% static 'homepage/scripts/bootstrap.min.js' %}"></script>
+	<!-- Waypoints -->
+	<script src="{% static 'homepage/scripts/jquery.waypoints.min.js' %}"></script>
+	<!-- Stellar Parallax -->
+	<script src="{% static 'homepage/scripts/jquery.stellar.min.js' %}"></script>
+	<!-- Carousel -->
+	<script src="{% static 'homepage/scripts/owl.carousel.min.js' %}"></script>
+	<!-- countTo -->
+	<script src="{% static 'homepage/scripts/jquery.countTo.js' %}"></script>
+	<!-- Magnific Popup -->
+	<script src="{% static 'homepage/scripts/jquery.magnific-popup.min.js' %}"></script>
+	<script src="{% static 'homepage/scripts/magnific-popup-options.js' %}"></script>
+	<!-- Main -->
+	<script src="{% static 'homepage/scripts/main.js' %}"></script>
 {% block scripts %}{% endblock %}
 
 </body>
