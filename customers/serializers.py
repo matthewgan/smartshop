@@ -1,10 +1,7 @@
 # Stdlib imports
-
 # Core Django imports
-
 # Third-party app imports
 from rest_framework import serializers
-
 # Imports from your apps
 from .models import Customer
 
@@ -56,13 +53,13 @@ class CustomerListSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class EntranceGetInfoRequestSerializer(serializers.HyperlinkedModelSerializer):
+class EntranceGetInfoRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = ('code',)
 
 
-class EntranceGetInfoResponseSerializer(serializers.HyperlinkedModelSerializer):
+class EntranceGetInfoResponseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
-        fields = ('avatarUrl', 'nickName', 'level')
+        fields = ('id', 'avatarUrl', 'nickName', 'level')

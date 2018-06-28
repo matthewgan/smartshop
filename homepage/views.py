@@ -38,8 +38,11 @@ def contact(request):
        request,
        'homepage/contact.html',
        {
-           'title': 'Contact',
-           'message': 'Your contact page.',
+           'title': '物掌柜',
+           'phone_number': 4006633309,
+           'address': '北环西路15号, 金坛区 常州市 江苏省 213000',
+           'email': 'info@wuzhanggui.shop',
+           'domain': 'www.wuzhanggui.shop',
            'year': datetime.now().year,
        }
     )
@@ -52,8 +55,11 @@ def about(request):
        request,
        'homepage/about.html',
        {
-           'title': 'About',
-           'message': 'Your application description page.',
+           'title': '物掌柜',
+           'phone_number': 4006633309,
+           'address': '北环西路15号, 金坛区 常州市 江苏省 213000',
+           'email': 'info@wuzhanggui.shop',
+           'domain': 'www.wuzhanggui.shop',
            'year': datetime.now().year,
        }
     )

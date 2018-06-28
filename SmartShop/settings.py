@@ -80,6 +80,7 @@ INSTALLED_APPS = [
     'wechatpay',
     'alipayment',
     'homepage',
+    'gates',
 ]
 
 MIDDLEWARE = [

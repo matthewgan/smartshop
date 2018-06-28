@@ -11,3 +11,6 @@ class EntranceLog(models.Model):
     who = models.ForeignKey(Customer, on_delete=models.DO_NOTHING)
     where = models.ForeignKey(Shop, on_delete=models.DO_NOTHING)
     when = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return "{} visit {} @ {}".format(self.who, self.where, self.when)
