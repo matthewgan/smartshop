@@ -4,6 +4,7 @@ from datetime import datetime
 from customers.models import Customer
 from merchandises.models import Merchandise
 from shops.models import Shop
+from .models import Stuff
 
 
 # Create your views here.
@@ -25,6 +26,7 @@ def home(request):
            'merchandise_count': Merchandise.objects.count(),
            'area_count': 4800,
            'customer_count': Customer.objects.count(),
+           'stuffs': Stuff.objects.all(),
        }
     )
 

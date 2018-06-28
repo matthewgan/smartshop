@@ -141,72 +141,20 @@
             <div class="col-md-10 col-md-offset-1">
                 <div class="row animate-box">
                     <div class="owl-carousel owl-carousel-fullwidth">
+                        {% for stuff in stuffs %}
                         <div class="item">
                             <div class="testimony-slide active text-center">
                                 <figure>
-                                    <img src="{% static 'homepage/images/person_1.jpg'%}" alt="static file cant access">
+                                    <img src="{{ stuff.image }}" alt="static file cant access">
                                 </figure>
-                                <span>Seven, via <a href="#" class="twitter">Wechat</a></span>
+                                <span>{{ stuff.name}} via<a href="{{ stuff.wechat }}" class="twitter">Wechat</a></span>
                                 <blockquote>
-                                    <p>&ldquo;捷大智信创始人&CEO，毕业于上海华东政法学院。曾于金坛质量技术监督局法制科任要职。后担任雪花啤酒金坛一级经销商。深诣供应链管理之道。2015年起涉足互联网领域，成为金坛溧阳地区支付宝微信官方合作优秀服务商，与超过3000商户有着紧密合作，渠道资源丰富。在物掌柜项目中负责整个项目的统筹运作以及供应链搭建及优化。&rdquo;</p>
+                                    <p>{{ stuff.title }}</p>>
+                                    <p>{{ stuff.profile }}</p>
                                 </blockquote>
                             </div>
                         </div>
-                        <div class="item">
-                            <div class="testimony-slide active text-center">
-                                <figure>
-                                    <img src="{% static 'homepage/images/person_2.jpg'%}" alt="static file cant access">
-                                </figure>
-                                <span>Lin, via <a href="#" class="twitter">Wechat</a></span>
-                                <blockquote>
-                                    <p>&ldquo;捷大智信COO，毕业于淮海信息学院。曾就职于中国沙钢集团。后进入捷大智信，负责线下支付宝微信商户的拓展与关系维护。商务洽谈能力极强，客户资源相当丰富，客户关系维护能力首屈一指。在物掌柜项目中负责项目的运维管理，同时负责对外的各项项目洽谈与用户拓展。&rdquo;</p>
-                                </blockquote>
-                            </div>
-                        </div>
-                        <div class="item">
-                            <div class="testimony-slide active text-center">
-                                <figure>
-                                    <img src="{% static 'homepage/images/person_3.jpg'%}" alt="static file cant access">
-                                </figure>
-                                <span>Tao, via <a href="#" class="twitter">Wechat</a></span>
-                                <blockquote>
-                                    <p>&ldquo;捷大智信新媒体运行总监，毕业于江苏大学，曾在中国移动通信集团江苏有限公司任职，担任金坛区东城区督导，屡次得到公司嘉奖。后进入捷大智信，专攻新媒体运营。文采突出，商业嗅觉灵敏，主导策划了多次火爆全城的新媒体营销事件。在物掌柜项目中负责策划所有营销活动，各个新媒体平台的运营及宣传工作。&rdquo;</p>
-                                </blockquote>
-                            </div>
-                        </div>
-                        <div class="item">
-                            <div class="testimony-slide active text-center">
-                                <figure>
-                                    <img src="{% static 'homepage/images/person_4.jpg'%}" alt="static file cant access">
-                                </figure>
-                                <span>Matthew, via <a href="#" class="twitter">Wechat</a></span>
-                                <blockquote>
-                                    <p>&ldquo;捷大智信CTO。上海交通大学电子信息硕士，先后任职上海航天电子技术研究所主管设计师及华为通信技术高级工程。全栈开发工程师，高级系统架构师，有着多年软硬件开发经验，在人工智能，图像识别领域都有相当的研究。在物掌柜项目中负责图像识别及人工智能的算法开发，以及整个无人系统的架构研发。&rdquo;</p>
-                                </blockquote>
-                            </div>
-                        </div>
-                        <div class="item">
-                            <div class="testimony-slide active text-center">
-                                <figure>
-                                    <img src="{% static 'homepage/images/person_5.jpg'%}" alt="static file cant access">
-                                </figure>
-                                <span>Jerry, via <a href="#" class="twitter">Wechat</a></span>
-                                <blockquote>
-                                    <p>&ldquo;捷大智信首席科学家。上海大学国际金融本科，后留学澳洲科廷大学机器人工程技术专业。具有机器人商业项目执行经验。技术能力极强，项目经验异常丰富，拥有独立实验工作室，有着十分广泛的国内外创客资源。在物掌柜项目中负责全部工业级建模及机械结构设计。&rdquo;</p>
-                                </blockquote>
-                            </div>
-                        </div>
-                        <div class="item">
-                            <div class="testimony-slide active text-center">
-                                <figure>
-                                    <img src="{% static 'homepage/images/person_6.jpg'%}" alt="static file cant access">
-                                </figure>
-                                <span>Roxas, via <a href="#" class="twitter">Wechat</a></span>
-                                <blockquote>
-                                    <p>&ldquo;捷达智信CPO。英国利物浦大学信息管理与信息系统本科毕业，英国爱丁堡大学设计信息学硕士。曾在多家创业公司主导产品研发工作，跨界项目经验丰富，善于从用户体验来进行产品开发。在物掌柜项目中负责全部的用户界面与体验设计，系统运行业务逻辑的开发与优化。&rdquo;</p>
-                                </blockquote>
-                            </div>
-                        </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
