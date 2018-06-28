@@ -15,7 +15,7 @@ schema_view = get_schema_view(title=API_TITLE)
 urlpatterns = [
     # url(r'^schema/$', schema_view),
     url(r'^docs/', include_docs_urls(title=API_TITLE, description=API_DESCRIPTION,
-                                     authentication_classes=[], permission_classes=[IsAuthenticated, ],
+                                     authentication_classes=[], permission_classes=[],
                                      ),
         ),
     url(r'^token/', include('tokens.urls')),
