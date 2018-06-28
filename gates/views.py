@@ -8,6 +8,7 @@ from rest_framework.viewsets import ViewSet
 # Imports from your apps
 from customers.models import Customer
 from customers.serializers import EntranceGetInfoRequestSerializer, EntranceGetInfoResponseSerializer
+from .serializers import EntranceLogSerializer
 
 
 class EntranceGetUserInfoView(APIView):
@@ -21,3 +22,11 @@ class EntranceGetUserInfoView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class EntranceLogView(APIView):
+    def post(self, request):
+        serializer = EntranceLogSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

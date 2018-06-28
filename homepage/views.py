@@ -1,6 +1,10 @@
 from django.shortcuts import render
 from django.http import HttpRequest
 from datetime import datetime
+from customers.models import Customer
+from merchandises.models import Merchandise
+from shops.models import Shop
+from .models import Stuff
 
 
 # Create your views here.
@@ -11,8 +15,18 @@ def home(request):
        request,
        'homepage/index.html',
        {
-           'title': 'Home Page',
+           'title': '物掌柜',
+           'phone_number': 4006633309,
+           'address': '北环西路15号, 金坛区 常州市 江苏省 213000',
+           'email': 'info@wuzhanggui.shop',
+           'domain': 'www.wuzhanggui.shop',
            'year': datetime.now().year,
+
+           'shop_count': Shop.objects.count(),
+           'merchandise_count': Merchandise.objects.count(),
+           'area_count': 4800,
+           'customer_count': Customer.objects.count(),
+           'stuffs': Stuff.objects.all(),
        }
     )
 
@@ -24,8 +38,11 @@ def contact(request):
        request,
        'homepage/contact.html',
        {
-           'title': 'Contact',
-           'message': 'Your contact page.',
+           'title': '物掌柜',
+           'phone_number': 4006633309,
+           'address': '北环西路15号, 金坛区 常州市 江苏省 213000',
+           'email': 'info@wuzhanggui.shop',
+           'domain': 'www.wuzhanggui.shop',
            'year': datetime.now().year,
        }
     )
@@ -38,8 +55,11 @@ def about(request):
        request,
        'homepage/about.html',
        {
-           'title': 'About',
-           'message': 'Your application description page.',
+           'title': '物掌柜',
+           'phone_number': 4006633309,
+           'address': '北环西路15号, 金坛区 常州市 江苏省 213000',
+           'email': 'info@wuzhanggui.shop',
+           'domain': 'www.wuzhanggui.shop',
            'year': datetime.now().year,
        }
     )

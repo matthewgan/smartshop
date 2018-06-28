@@ -1,31 +1,184 @@
 {% extends "homepage/layout.html" %}
-
 {% block content %}
+{% load static %}
 
-<div class="jumbotron">
-    <h1>物掌柜</h1>
-    <p class="lead">物掌柜介绍</p>
-    <p><a href="https://www.wuzhanggui.shop/" class="btn btn-primary btn-large">Learn more &raquo;</a></p>
-</div>
-
-<div class="row">
-    <div class="col-md-4">
-        <h2>优势特点1</h2>
-        <p>
-            突出特点介绍
-        </p>
-        <p><a class="btn btn-default" href="http://www.djangobook.com/en/2.0/index.html">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>优势特点2</h2>
-        <p>突出特点介绍</p>
-        <p><a class="btn btn-default" href="https://pypi.org/">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>优势特点3</h2>
-        <p>突出特点介绍</p>
-        <p><a class="btn btn-default" href="http://azure.microsoft.com">Learn more &raquo;</a></p>
+<div id="fh5co-counter" class="fh5co-counters">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 text-center animate-box">
+                <span class="fh5co-counter js-counter" data-from="0" data-to="{{ shop_count }}" data-speed="5000" data-refresh-interval="50"></span>
+                <span class="fh5co-counter-label">家门店</span>
+            </div>
+            <div class="col-md-3 text-center animate-box">
+                <span class="fh5co-counter js-counter" data-from="0" data-to="{{ merchandise_count }}" data-speed="5000" data-refresh-interval="50"></span>
+                <span class="fh5co-counter-label">种商品</span>
+            </div>
+            <div class="col-md-3 text-center animate-box">
+                <span class="fh5co-counter js-counter" data-from="0" data-to="{{ area_count }}" data-speed="5000" data-refresh-interval="50"></span>
+                <span class="fh5co-counter-label">覆盖范围(平方千米)</span>
+            </div>
+            <div class="col-md-3 text-center animate-box">
+                <span class="fh5co-counter js-counter" data-from="0" data-to="{{ customer_count }}" data-speed="5000" data-refresh-interval="50"></span>
+                <span class="fh5co-counter-label">服务人数</span>
+            </div>
+        </div>
     </div>
 </div>
 
+<div id="fh5co-explore" class="fh5co-bg-section">
+    <div class="container">
+        <div class="row animate-box">
+            <div class="col-md-6 col-md-offset-3 text-center fh5co-heading">
+                <h2>全面进军新零售</h2>
+                <p>倡导以人为中心依托云端大数据、人工智能、物联网等技术驱动对商品生产、销售、物流等过程进行升级优化和改造，进而重构零售业态及生态圈，并融合线上，线下服务体验，以满足人的消费升级需求。</p>
+            </div>
+        </div>
+    </div>
+    <div class="fh5co-explore fh5co-explore1">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 col-md-push-5 animate-box">
+                    <img class="img-responsive" src="{% static 'homepage/images/index_01.png'%}" alt="static file cant access">
+                </div>
+                <div class="col-md-4 col-md-pull-8 animate-box">
+                    <div class="mt">
+                        <h3>物掌柜，一切为您</h3>
+                        <p>以极具发展潜力的便利店业态为载体布局新零售，以便利店的特点深入融合新零售的发展理念，同时以新零售的优势助力便利店业态的进一步推进。通过技术和互联网优化线下实体店的销售模式。</p>
+                        <ul class="list-nav">
+                            <li><i class="icon-check2"></i>为您，打造想您所想的物资掌柜。</li>
+                            <li><i class="icon-check2"></i>为您，提供度身定制的智慧生活。</li>
+                            <li><i class="icon-check2"></i>为您，创造触手可及的未来愿景。</li>
+                        </ul>
+                        <p><a class="btn btn-primary btn-lg popup-vimeo btn-video" href=""><i class="icon-play"></i> 了解详情 </a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fh5co-explore">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 col-md-pull-1 animate-box">
+                    <img class="img-responsive" src="{% static 'homepage/images/index_02.png'%}" alt="static file cant access">
+                </div>
+                <div class="col-md-4 animate-box">
+                    <div class="mt">
+                        <div>
+                            <h4><i class="icon-user"></i>无人收银 </h4>
+                            <p>通过RFID标签实现自助，无人的流畅结账体验。消费者在自由选购商品后进入圆形结账区域，系统会自动进行结账扣款操作，并在显示器上显示结账明细。</p>
+                        </div>
+                        <div>
+                            <h4><i class="icon-box"></i>智能货架</h4>
+                            <p>货架搭载多广角摄像头，重力感应系统，动态智能价格标签等一系列先进系统。货架可以对用户行为和货品变化进行精准识别，同时与用户进行实时动态交互。 </p>
+                        </div>
+                        <div>
+                            <h4><i class="icon-icloud"></i>人脸识别</h4>
+                            <p>在入口，货架，出口等地方都装载广角多物体追踪摄像头。对店内的用户行为进行识别与追踪。从而完成用户身份的确认，从而在认证，购买，支付等流程实现无人化。 </p>
+                        </div>
+                        <div>
+                            <h4><i class="icon-shield"></i>智能安防</h4>
+                            <p>店铺采用全动态智能追踪安防摄像头，配合店内的人脸识别摄像头形成了无死角的监控体系。并且进出店铺都需进行身份验证通过闸机或转门。</p>
+                        </div>
+                        <div>
+                            <h4><i class="icon-pencil"></i>体验交互</h4>
+                            <p>无人店十分重视用户在店的购物与交互体验。微信小程序，动态标签，定位音箱，LED阵列等等为用户提供了丰富且高质量的交互体验媒介，令用户购物流程更为顺畅。 </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="fh5co-project">
+    <div class="container">
+        <div class="row animate-box">
+            <div class="col-md-8 col-md-offset-2 text-center fh5co-heading">
+                <h2>支持线上线下两种智慧购物方式</h2>
+                <p>线下依托强大的人脸及商品识别技术，依托创新的无人收银结算系统和后台云数据的支持。让消费者可以在无人的环境下实现流畅，便捷的购物体验。线上通过物掌柜官方小程序为入口，令消费者可以享受极速的线上下单。同时30分钟必达的配送也将重新定义线上销售体验。</p>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid proj-bottom">
+        <div class="row">
+            <div class="col-md-4 col-sm-6 fh5co-project animate-box" data-animate-effect="fadeIn">
+                <a href="#"><img src="{% static 'homepage/images/project-1.png'%}" alt="static file cant access" class="img-responsive">
+                </a>
+            </div>
+            <div class="col-md-4 col-sm-6 fh5co-project animate-box" data-animate-effect="fadeIn">
+                <a href="#"><img src="{% static 'homepage/images/project-2.png'%}" alt="static file cant access" class="img-responsive">
+                </a>
+            </div>
+            <div class="col-md-4 col-sm-6 fh5co-project animate-box" data-animate-effect="fadeIn">
+                <a href="#"><img src="{% static 'homepage/images/project-3.png'%}" alt="static file cant access" class="img-responsive">
+                </a>
+            </div>
+            <div class="col-md-4 col-sm-6 fh5co-project animate-box" data-animate-effect="fadeIn">
+                <a href="#"><img src="{% static 'homepage/images/project-4.png'%}" alt="static file cant access" class="img-responsive">
+                </a>
+            </div>
+            <div class="col-md-4 col-sm-6 fh5co-project animate-box" data-animate-effect="fadeIn">
+                <a href="#"><img src="{% static 'homepage/images/project-5.png'%}" alt="static file cant access" class="img-responsive">
+                </a>
+            </div>
+            <div class="col-md-4 col-sm-6 fh5co-project animate-box" data-animate-effect="fadeIn">
+                <a href="#"><img src="{% static 'homepage/images/project-6.png'%}" alt="static file cant access" class="img-responsive">
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="fh5co-testimonial" class="fh5co-bg-section">
+    <div class="container">
+        <div class="row animate-box">
+            <div class="col-md-6 col-md-offset-3 text-center fh5co-heading">
+                <h2>物掌柜团队</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-10 col-md-offset-1">
+                <div class="row animate-box">
+                    <div class="owl-carousel owl-carousel-fullwidth">
+                        {% for stuff in stuffs %}
+                        <div class="item">
+                            <div class="testimony-slide active text-center">
+                                <figure>
+                                    <img src="{{ stuff.image }}" alt="static file cant access">
+                                </figure>
+                                <span>{{ stuff.name}} via<a href="{{ stuff.wechat }}" class="twitter">Wechat</a></span>
+                                <blockquote>
+                                    <p>{{ stuff.title }}</p>>
+                                    <p>{{ stuff.profile }}</p>
+                                </blockquote>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="fh5co-started" style="background-image:url({% static 'homepage/images/img_bg_1.png'%});">
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="row animate-box">
+            <div class="col-md-8 col-md-offset-2 text-center fh5co-heading">
+                <h2>开启智慧零售之旅</h2>
+                <p>未来购物体验，现已降临，关注物掌柜官方小程序或前往距离您最近的线下智慧便利。</p>
+            </div>
+        </div>
+        <div class="row animate-box">
+            <div class="col-md-8 col-md-offset-2 text-center">
+                <p><a href="#" class="btn btn-default btn-lg">查找我们的线下门店</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
 {% endblock %}
