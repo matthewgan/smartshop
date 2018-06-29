@@ -13,7 +13,7 @@ class UploadedFaceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UploadedFace
-        fields = ('uuid', 'image', 'filename')
+        fields = ('uuid', 'image', )
 
 
 class SearchFaceUploadSerializer(serializers.ModelSerializer):

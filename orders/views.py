@@ -122,13 +122,13 @@ class CreateOrderView(APIView):
         :return:
         SUCCESS:
         {
-            'code': 200,
+            'code': 201,
             'tradeNo': tradeNo,
         }
         FAIL:
         {
-            'code': 201,
-            'Order Create Error'
+            'code': 400,
+            error_details
         {
     """
     def post(self, request):
@@ -224,10 +224,9 @@ class CreateOrderView(APIView):
                 'msg': 'Create Order Success',
                 'tradeNo': trade_no,
             }
-            return Response(res, status=status.HTTP_200_OK)
-        print(serializer.errors)
-
-        return Response('Order Create Error', status=status.HTTP_400_BAD_REQUEST)
+            return Response(res, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
