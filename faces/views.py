@@ -59,7 +59,7 @@ class RegisterFaceView(APIView):
                 userid = serializer.data.get('uuid')
                 register_res = register_face(img64, 'BASE64', userid, group_id, client)
                 # return Response(detect_res, status=status.HTTP_200_OK)
-                return Response(register_res, status=status.HTTP_200_OK)
+                return Response(detect_res, status=status.HTTP_200_OK)
 
         else:
             return Response(400, status=status.HTTP_400_BAD_REQUEST)
