@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'api',
     'addresses',
+    'baiduaip',
     'categories',
     'customers',
     'events',
