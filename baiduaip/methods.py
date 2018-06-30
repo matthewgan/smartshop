@@ -134,7 +134,7 @@ def register_face(image, image_type, user_id, user_info, group_id, client):
     options["user_info"] = user_info
     options["quality_control"] = "NORMAL"
     options["liveness_control"] = "LOW"
-    result = client.addUser(image, image_type, group_id, user_id, user_info, options)
+    result = client.addUser(image, image_type, group_id, user_id, options)
 
     face_token = result.get('face_token')
     face = FaceRecord(token=face_token, user_id=user_id, group_id=group_id, operation='register')
