@@ -60,7 +60,7 @@ class FaceSearchView(APIView):
             file_path = os.path.join(MEDIA_ROOT, os.path.basename(image))
             img64 = load_image_to_base64(file_path)
             if img64 == "DoesNotExist":
-                return img64
+                return Response(img64, status=status.HTTP_204_NO_CONTENT)
 
             # connect to baidu face api
             client = create_aip_client()
@@ -70,6 +70,7 @@ class FaceSearchView(APIView):
             error_code = result.get('error_code')
             if error_code == 0:
                 user_id = result.get('user_id')
+
                 customer = Customer.objects.get(pk=user_id)
                 output_serializer = EntranceGetInfoResponseSerializer(customer)
                 return Response(output_serializer.data, status=status.HTTP_200_OK)
