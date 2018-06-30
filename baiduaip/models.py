@@ -5,7 +5,7 @@ from customers.models import Customer
 # Create your models here.
 class FaceRecord(models.Model):
     id = models.AutoField(primary_key=True);
-    token = models.CharField(max_length=100, blank=True)
+    token = models.CharField(max_length=100, default="null")
     score = models.FloatField(default=0.0)
     user_id = models.CharField(max_length=20)
     user_info = models.CharField(max_length=100, blank=True)
