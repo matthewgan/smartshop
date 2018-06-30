@@ -247,7 +247,7 @@ def search_face(image, imageType, group_id_list, client):
     options["liveness_control"] = "LOW"
     # options["user_id"] = "233451" # fill user_id to make search to identify
     options["max_user_num"] = 1
-    result = client.search(image, imageType, group_id_list)
+    result = client.search(image, imageType, group_id_list, options)
     error_code = result.get('error_code')
     if error_code == 0:
         try:
