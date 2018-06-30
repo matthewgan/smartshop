@@ -10,18 +10,6 @@ from django.db import models
 from customers.models import Customer
 
 
-class Face(models.Model):
-    who = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    # identify ids from baidu
-    baidu_appid = models.CharField(max_length=128)
-    baidu_group_id = models.CharField(max_length=128)
-    baidu_uid = models.CharField(max_length=128)
-    baidu_faceid = models.CharField(max_length=128)
-
-    def __str__(self):
-        return self.who
-
-
 def scramble_uploaded_filename(instance, filename):
     """
     Scramble / uglify the filename of the uploaded file, but keep the files extension (e.g., .jpg or .png)
@@ -41,7 +29,7 @@ class UploadedFace(models.Model):
     # timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.image.name
+        return "{}.{}".format(self.uuid, self.image.name)
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):

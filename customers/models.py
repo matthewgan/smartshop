@@ -28,7 +28,7 @@ class Customer(models.Model):
     updateTime = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.nickName
+        return "{} {}".format(self.id, self.nickName)
 
     def save(self, *args, **kwargs):
         super(Customer, self).save(*args, **kwargs)

@@ -11,9 +11,40 @@ from rest_framework import status
 # Imports from your apps
 from SmartShop.settings import MEDIA_ROOT
 from .serializers import UploadedFaceSerializer, SearchFaceUploadSerializer
-from baidu.methods import register_face, create_aip_client, detect_face, search_face
+# from baidu.methods import register_face, create_aip_client, detect_face, search_face
+from baiduaip.methods import register_face, create_aip_client, detect_face, search_face, load_image_to_base64
 from customers.models import Customer
 from customers.serializers import EntranceGetInfoResponseSerializer
+
+
+class FaceRegisterView(APIView):
+    def post(self, request):
+        serializer = UploadedFaceSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            image = serializer.data.get('image')
+            file_path = os.path.join(MEDIA_ROOT, os.path.basename(image))
+            img64 = load_image_to_base64(file_path)
+
+            # connect to baidu face api
+            client = create_aip_client()
+            result = detect_face(img64, 'BASE64', client)
+            error_code = result.get('error_code')
+            if error_code == 0:
+                face_token = result.get('face_token')
+                group_id = 'customer'
+                user_id = serializer.data.get('uuid')
+                customer = Customer.objects.get(pk=user_id)
+                return register_face(image=face_token,
+                                     image_type='FACE_TOKEN',
+                                     user_id=user_id,
+                                     user_info=customer.nickName,
+                                     group_id=group_id,
+                                     client=client)
+            else:
+                return Response(result, status=status.HTTP_406_NOT_ACCEPTABLE)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class RegisterFaceView(APIView):
@@ -34,18 +65,18 @@ class RegisterFaceView(APIView):
     """
     def post(self, request):
         serializer = UploadedFaceSerializer(data=request.data)
-        # print(serializer.initial_data)
         if serializer.is_valid():
-            serializer.save()
-            # output_serializer = UploadedFaceSerializer(uploadedface)
-            imageUrl = serializer.data.get('image')
+            uploadedface = serializer.save()
+            output_serializer = UploadedFaceSerializer(uploadedface)
+            imageUrl = output_serializer.data.get('image')
             # imageRoot = Path(BASE_DIR+imageUrl)
 
             # encode img to base64
             # file = open(imageRoot, 'rb')
             name = os.path.basename(imageUrl)
+            print(name)
             filepath = os.path.join(MEDIA_ROOT, name)
-            # print(filepath)
+            print(filepath)
             file = open(filepath, 'rb')
             img64 = base64.b64encode(file.read()).decode('UTF-8')
 
@@ -90,9 +121,11 @@ class SearchUserFaceView(APIView):
                 if search_res.get('status') == 200:
                     wuser = Customer.objects.get(pk=search_res.get('userid'))
                     output_serializer = EntranceGetInfoResponseSerializer(wuser)
+                    print(output_serializer)
                     return Response(output_serializer.data, status=status.HTTP_200_OK)
 
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
