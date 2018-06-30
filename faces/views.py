@@ -1,6 +1,7 @@
 # Stdlib imports
 import base64
 import os
+import json
 # from pathlib import Path
 # Core Django imports
 # Third-party app imports
@@ -37,14 +38,15 @@ class FaceRegisterView(APIView):
                 group_id = 'customer'
                 user_id = serializer.data.get('uuid')
                 customer = Customer.objects.get(pk=user_id)
-                return register_face(image=face_token,
-                                     image_type='FACE_TOKEN',
-                                     user_id=user_id,
-                                     user_info=customer.nickName,
-                                     group_id=group_id,
-                                     client=client)
+                result = register_face(image=face_token,
+                                       image_type='FACE_TOKEN',
+                                       user_id=user_id,
+                                       user_info=customer.nickName,
+                                       group_id=group_id,
+                                       client=client)
+                return Response(json.dumps(result), status=status.HTTP_200_OK)
             else:
-                return Response(result, status=status.HTTP_406_NOT_ACCEPTABLE)
+                return Response(json.dumps(result), status=status.HTTP_406_NOT_ACCEPTABLE)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
