@@ -7,7 +7,7 @@ class FaceRecord(models.Model):
     id = models.AutoField(primary_key=True);
     token = models.CharField(max_length=100, blank=True)
     score = models.FloatField(default=0.0)
-    user_id = models.ForeignKey(Customer, on_delete=models.DO_NOTHING)
+    user_id = models.CharField(max_length=20)
     user_info = models.CharField(max_length=100, blank=True)
     group_id = models.CharField(max_length=20, default="customers")
     operation = models.CharField(max_length=20)
