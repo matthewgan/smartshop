@@ -136,7 +136,7 @@ def register_face(image, image_type, user_id, user_info, group_id, client):
     options["liveness_control"] = "LOW"
     result = client.addUser(image, image_type, group_id, user_id, options)
 
-    face_token = result.get('face_token')
+    # face_token = result.get('face_token')
     # face = FaceRecord(token=face_token, user_id=user_id, group_id=group_id, operation='register')
     face = FaceRecord(user_id=user_id, group_id=group_id, operation='register')
     face.save()
@@ -258,7 +258,7 @@ def search_face(image, imageType, group_id_list, client):
             user_id = '0'
             score = 0
         if float(score) > 90:
-            return {'success_code': 200,
+            return {'error_code': 0,
                     'user_id': user_id,
                     'score': score}
         else:

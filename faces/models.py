@@ -23,7 +23,7 @@ def scramble_uploaded_filename(instance, filename):
 
 class UploadedFace(models.Model):
     id = models.AutoField(primary_key=True)
-    uuid = models.ForeignKey(Customer, on_delete=models.DO_NOTHING)
+    uuid = models.CharField(max_length=20, blank=True)
     image = models.ImageField("Uploaded image", upload_to=scramble_uploaded_filename)
     filename = models.CharField(max_length=100, blank=True)
     # timestamp = models.DateTimeField(auto_now_add=True)

@@ -51,6 +51,34 @@ class FaceRegisterView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class FaceSearchView(APIView):
+    def post(self, request):
+        serializer = SearchFaceUploadSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            image = serializer.data.get('image')
+            file_path = os.path.join(MEDIA_ROOT, os.path.basename(image))
+            img64 = load_image_to_base64(file_path)
+            if img64 == "DoesNotExist":
+                return img64
+
+            # connect to baidu face api
+            client = create_aip_client()
+            # fix id list for now
+            group_id_list = "customer"
+            result = search_face(img64, 'BASE64', group_id_list, client)
+            error_code = result.get('error_code')
+            if error_code == 0:
+                user_id = result.get('user_id')
+                customer = Customer.objects.get(pk=user_id)
+                output_serializer = EntranceGetInfoResponseSerializer(customer)
+                return Response(output_serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(json.dumps(result), status=status.HTTP_406_NOT_ACCEPTABLE)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class RegisterFaceView(APIView):
     """
     Register user face info for the first time login the miniApp
