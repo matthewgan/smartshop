@@ -9,9 +9,9 @@ class FaceRecord(models.Model):
     score = models.FloatField(default=0.0)
     user_id = models.CharField(max_length=20)
     user_info = models.CharField(max_length=100, blank=True)
-    group_id = models.CharField(max_length=20, default="customers")
+    group_id = models.CharField(max_length=20, default="customer")
     operation = models.CharField(max_length=20)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return "{}.{}".format(self.user_id, self.token)
+        return "{}.{}".format(self.user_id, self.operation)
