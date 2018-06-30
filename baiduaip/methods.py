@@ -141,7 +141,7 @@ def register_face(image, image_type, user_id, user_info, group_id, client):
     face = FaceRecord(user_id=user_id, group_id=group_id, operation='register')
     face.save()
 
-    return {'success_code': 200}
+    return {'error_code': 0}
 
 
 def update_face(image, image_type, user_id, user_info, group_id, client):
@@ -154,7 +154,7 @@ def update_face(image, image_type, user_id, user_info, group_id, client):
     face = FaceRecord(token=face_token, user_id=user_id, user_info=user_info, group_id=group_id, operation='update')
     face.save()
 
-    return {'success_code': 200}
+    return {'error_code': 0}
 
 
 def delete_face(user_id, group_id, face_token, client):
@@ -164,7 +164,7 @@ def delete_face(user_id, group_id, face_token, client):
 
     error_code = result.get('error_code')
     if error_code == 0:
-        return {'success_code': 200}
+        return {'error_code': 0}
     else:
         return result
 
@@ -200,7 +200,7 @@ def copy_user_between_group(user_id, src_group_id, dst_group_id, client):
         face = FaceRecord(user_id=user_id, group_id=(src_group_id + ' to ' + dst_group_id),
                           operation='copy')
         face.save()
-        return {'success_code': 200}
+        return {'error_code': 0}
     else:
         return result
 
@@ -212,7 +212,7 @@ def delete_user(group_id, user_id, client):
         face = FaceRecord(user_id=user_id, group_id=group_id,
                           operation='deleteUser')
         face.save()
-        return {'success_code': 200}
+        return {'error_code': 0}
     else:
         return result
 
@@ -221,7 +221,7 @@ def add_group(group_id, client):
     result = client.groupAdd(group_id)
     error_code = result.get('error_code')
     if error_code == 0:
-        return {'success_code': 200}
+        return {'error_code': 0}
     else:
         return result
 
@@ -230,7 +230,7 @@ def delete_group(group_id, client):
     result = client.groupDelete(group_id)
     error_code = result.get('error_code')
     if error_code == 0:
-        return {'success_code': 200}
+        return {'error_code': 0}
     else:
         return
 
@@ -241,13 +241,13 @@ def query_group_list(client):
     return group_id_list
 
 
-def search_face(image, imageType, group_id_list, client):
+def search_face(image, image_type, group_id_list, client):
     options = {}
     options["quality_control"] = "NORMAL"
     options["liveness_control"] = "LOW"
     # options["user_id"] = "233451" # fill user_id to make search to identify
-    options["max_user_num"] = 1
-    result = client.search(image, imageType, group_id_list, options)
+    # options["max_user_num"] = 1
+    result = client.search(image, image_type, group_id_list, options)
     error_code = result.get('error_code')
     if error_code == 0:
         try:
@@ -305,5 +305,5 @@ def verify_face(image, image_type, client):
     elif check_liveness_error(face_liveness, thresholds):
         return {'error_code': 107, 'error_msg': "liveness error"}
     else:
-        return {'success_code': 200}
+        return {'error_code': 0}
 
