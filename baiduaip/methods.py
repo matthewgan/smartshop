@@ -137,7 +137,8 @@ def register_face(image, image_type, user_id, user_info, group_id, client):
     result = client.addUser(image, image_type, group_id, user_id, options)
 
     face_token = result.get('face_token')
-    face = FaceRecord(token=face_token, user_id=user_id, group_id=group_id, operation='register')
+    # face = FaceRecord(token=face_token, user_id=user_id, group_id=group_id, operation='register')
+    face = FaceRecord(user_id=user_id, group_id=group_id, operation='register')
     face.save()
 
     return {'success_code': 200}
