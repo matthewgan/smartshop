@@ -2,7 +2,6 @@ from aip import AipFace
 from .models import FaceRecord
 import os.path
 import base64
-from customers.models import Customer
 
 
 def create_aip_client():

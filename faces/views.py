@@ -25,6 +25,8 @@ class FaceRegisterView(APIView):
             image = serializer.data.get('image')
             file_path = os.path.join(MEDIA_ROOT, os.path.basename(image))
             img64 = load_image_to_base64(file_path)
+            if img64 == "DoesNotExist":
+                return img64
 
             # connect to baidu face api
             client = create_aip_client()
