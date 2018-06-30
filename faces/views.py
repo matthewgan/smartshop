@@ -12,7 +12,6 @@ from rest_framework import status
 # Imports from your apps
 from SmartShop.settings import MEDIA_ROOT
 from .serializers import UploadedFaceSerializer, SearchFaceUploadSerializer
-# from baidu.methods import register_face, create_aip_client, detect_face, search_face
 from baiduaip.methods import register_face, create_aip_client, detect_face, search_face, load_image_to_base64
 from customers.models import Customer
 from customers.serializers import EntranceGetInfoResponseSerializer
