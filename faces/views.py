@@ -43,9 +43,9 @@ class FaceRegisterView(APIView):
                                        user_info=customer.nickName,
                                        group_id=group_id,
                                        client=client)
-                return Response(json.dumps(result), status=status.HTTP_200_OK)
+                return Response(json.dumps(result).replace('\"', '"'), status=status.HTTP_200_OK)
             else:
-                return Response(json.dumps(result), status=status.HTTP_406_NOT_ACCEPTABLE)
+                return Response(json.dumps(result).replace('\"', '"'), status=status.HTTP_406_NOT_ACCEPTABLE)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -64,8 +64,9 @@ class FaceSearchView(APIView):
             # connect to baidu face api
             client = create_aip_client()
             # fix id list for now
-            group_id_list = "customer"
+            group_id_list = 'customer'
             result = search_face(img64, 'BASE64', group_id_list, client)
+            print(result)
             error_code = result.get('error_code')
             if error_code == 0:
                 user_id = result.get('user_id')
