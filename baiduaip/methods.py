@@ -242,12 +242,12 @@ def query_group_list(client):
 
 
 def search_face(image, image_type, group_id_list, client):
-    # options = {}
-    # options["quality_control"] = "NORMAL"
-    # options["liveness_control"] = "LOW"
+    options = {}
+    options["quality_control"] = "NORMAL"
+    options["liveness_control"] = "LOW"
     # options["user_id"] = "233451" # fill user_id to make search to identify
     # options["max_user_num"] = 1
-    result = client.search(image, 'BASE64', 'customer')
+    result = client.search(image, 'BASE64', 'customer', options)
     error_code = result.get('error_code')
     if error_code == 0:
         try:
