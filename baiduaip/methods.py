@@ -252,9 +252,9 @@ def search_face(image, image_type, group_id_list, client):
     error_code = result.get('error_code')
     if error_code == 0:
         try:
-            user_list = result.get('user_list')
-            user_id = user_list[0].get('user_id')
-            score = user_list[0].get('score')
+            user_list = result.get('result').get('user_list')[0]
+            user_id = user_list.get('user_id')
+            score = user_list.get('score')
         except:
             user_id = '0'
             score = 0
