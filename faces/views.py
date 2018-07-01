@@ -75,6 +75,6 @@ class FaceSearchView(APIView):
                 output_serializer = EntranceGetInfoResponseSerializer(customer)
                 return Response(output_serializer.data, status=status.HTTP_200_OK)
             else:
-                return Response(json.dumps(result), status=status.HTTP_406_NOT_ACCEPTABLE)
+                return Response(result, status=status.HTTP_406_NOT_ACCEPTABLE)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

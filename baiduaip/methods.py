@@ -258,7 +258,7 @@ def search_face(image, image_type, group_id_list, client):
         except:
             user_id = '0'
             score = 0
-        if float(score) > 90:
+        if float(score) > 80:
             return {'error_code': 0,
                     'user_id': user_id,
                     'score': score}
