@@ -63,3 +63,9 @@ class EntranceGetInfoResponseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = ('id', 'avatarUrl', 'nickName', 'level')
+
+
+class CustomerDetailGetInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        fields = ('id', 'avatarUrl', 'nickName', 'level')

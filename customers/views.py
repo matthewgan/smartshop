@@ -16,7 +16,7 @@ from .models import Customer
 from .serializers import SignupRequestSerializer, SignupResponseSerializer
 from .serializers import LoginRequestSerializer, LoginResponseSerializer
 from .serializers import CustomerListSerializer
-from .serializers import CustomerDetailSerializer
+from .serializers import CustomerDetailSerializer, CustomerDetailGetInfoSerializer
 
 
 class CustomerSignupView(APIView):
@@ -131,6 +131,15 @@ class CustomerDetailView(APIView):
         pk = request.data['id']
         customer = get_object_or_404(Customer, pk=pk)
         output_serializer = CustomerDetailSerializer(customer)
+
+        return Response(output_serializer.data, status=status.HTTP_200_OK)
+
+
+class CustomerInfoView(APIView):
+    def post(self, request):
+        pk = request.data.get('id')
+        customer = get_object_or_404(Customer, pk=pk)
+        output_serializer = CustomerDetailGetInfoSerializer(customer)
 
         return Response(output_serializer.data, status=status.HTTP_200_OK)
 
