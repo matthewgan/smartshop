@@ -43,9 +43,9 @@ class FaceRegisterView(APIView):
                                        user_info=customer.nickName,
                                        group_id=group_id,
                                        client=client)
-                return Response(json.dumps(result).replace('{\"', '{"'), status=status.HTTP_200_OK)
+                return Response(json.dumps(result), status=status.HTTP_200_OK)
             else:
-                return Response(json.dumps(result).replace('\\"', '"'), status=status.HTTP_406_NOT_ACCEPTABLE)
+                return Response(json.dumps(result), status=status.HTTP_406_NOT_ACCEPTABLE)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
