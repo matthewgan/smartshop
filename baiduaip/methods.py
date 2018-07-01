@@ -243,17 +243,18 @@ def query_group_list(client):
 
 def search_face(image, image_type, group_id_list, client):
     options = {}
-    options["quality_control"] = "NORMAL"
-    options["liveness_control"] = "LOW"
+    # options["quality_control"] = "NORMAL"
+    # options["liveness_control"] = "LOW"
+    options['group_id_list'] = group_id_list
     # options["user_id"] = "233451" # fill user_id to make search to identify
     # options["max_user_num"] = 1
-    result = client.search(image, image_type, group_id_list, options)
+    result = client.search(image, image_type, options)
     error_code = result.get('error_code')
     if error_code == 0:
         try:
-            user_list = result.get('user_list')
-            user_id = user_list[0].get('user_id')
-            score = user_list[0].get('score')
+            user_list = result.get('result').get('user_list')[0]
+            user_id = user_list.get('user_id')
+            score = user_list.get('score')
         except:
             user_id = '0'
             score = 0
