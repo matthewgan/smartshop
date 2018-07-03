@@ -52,7 +52,7 @@ def payment_qr_code_with_offline_order(trade_no, open_id):
     """
     order = Order.objects.get(tradeNo=trade_no)
     fee = float('%.2f' % order.payPrice)
-    wechatfee = str(int(order.payPrice * 100))
+    # wechatfee = str(int(order.payPrice * 100))
     # generate the QRcode for Alipay and Wechat pay
     alipay_code_url = alipay_qr_code(out_trade_no=trade_no, total_amount=fee)
     wechat_pay_code_url = wechat_pay_qr_code(order.payPrice, trade_no, open_id)
