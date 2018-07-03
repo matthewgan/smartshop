@@ -32,8 +32,7 @@ def payment_with_wechat_online_order(trade_no, open_id):
     }
     """
     order = Order.objects.get(tradeNo=trade_no)
-    fee = str(int(order.payPrice * 100))
-    result = wechat_pay(fee, order.tradeNo, open_id)
+    result = wechat_pay(order.payPrice, order.tradeNo, open_id)
     result['msg'] = 'Pay Success: MiniApp WechatPay'
 
     return result
@@ -56,7 +55,7 @@ def payment_qr_code_with_offline_order(trade_no, open_id):
     wechatfee = str(int(order.payPrice * 100))
     # generate the QRcode for Alipay and Wechat pay
     alipay_code_url = alipay_qr_code(out_trade_no=trade_no, total_amount=fee)
-    wechat_pay_code_url = wechat_pay_qr_code(wechatfee, trade_no, open_id)
+    wechat_pay_code_url = wechat_pay_qr_code(order.payPrice, trade_no, open_id)
 
     res = {
         'status': 'success',

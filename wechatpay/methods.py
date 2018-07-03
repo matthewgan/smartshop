@@ -25,7 +25,8 @@ def wechat_pay(bill, trace_no, open_id):
     try:
         record = Record.objects.get(out_trade_no=trace_no)
     except:
-        record = Record(total_fee=bill, out_trade_no=trace_no, sub_open_id=open_id, trade_type='JSAPI')
+        total_amount = str(int(bill * 100))
+        record = Record(total_fee=total_amount, out_trade_no=trace_no, sub_open_id=open_id, trade_type='JSAPI')
 
     record.save()
     model_dict = record.model_to_dict()
@@ -97,7 +98,8 @@ def wechat_pay_qr_code(bill, trace_no, open_id):
     try:
         record = Record.objects.get(out_trade_no=trace_no)
     except:
-        record = Record(total_fee=bill, out_trade_no=trace_no, sub_open_id=open_id, trade_type='NATIVE')
+        total_amount = str(int(bill * 100))
+        record = Record(total_fee=total_amount, out_trade_no=trace_no, sub_open_id=open_id, trade_type='NATIVE')
     record.save()
     model_dict = record.model_to_dict()
     model_xml = trans_dict_to_xml(model_dict)
