@@ -53,7 +53,8 @@ class TopupCreateView(APIView):
             topup.tradeNo = timestamp.replace('.', '0') + str(topup.id)
             topup.amountAdd = calculate_gift(topup.amountPay)
             topup.save()
-            result = wechat_pay(topup.amountPay, topup.tradeNo, topup.userID.openid)
+            totalfee = str(int(topup.amountPay * 100))
+            result = wechat_pay(totalfee, topup.tradeNo, topup.userID.openid)
             return Response(result, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
