@@ -5,8 +5,8 @@ from django.utils import timezone
 # Imports from your apps
 from orders.models import Order
 from customers.serializers import CustomerPaymentResponseSerializer
-from wechatpay.methods import wechat_pay, wechat_pay_qr_code
-from alipayment.methods import alipay_qr_code
+from wechatpay.methods import wechat_pay
+from qfpayment.methods import qfpay_pay_qr_code
 
 
 def payment_with_wechat_online_order(trade_no, open_id):
@@ -38,30 +38,49 @@ def payment_with_wechat_online_order(trade_no, open_id):
     return result
 
 
-def payment_qr_code_with_offline_order(trade_no, open_id):
+# def payment_qr_code_with_offline_order(trade_no, open_id):
+#     """
+#         :param trade_no:
+#         :param open_id:
+#         :return:
+#         SUCCESS
+#         {
+#             'status': 'success',
+#             'AliPayQRcodeUrl':
+#             'WechatPayQRcodeUrl':
+#         }
+#     """
+#     order = Order.objects.get(tradeNo=trade_no)
+#     fee = float('%.2f' % order.payPrice)
+#     # wechatfee = str(int(order.payPrice * 100))
+#     # generate the QRcode for Alipay and Wechat pay
+#     alipay_code_url = alipay_qr_code(out_trade_no=trade_no, total_amount=fee)
+#     wechat_pay_code_url = wechat_pay_qr_code(order.payPrice, trade_no, open_id)
+#
+#     res = {
+#         'status': 'success',
+#         'alipay_code_url': alipay_code_url,
+#         'wechat_pay_code_url': wechat_pay_code_url,
+#     }
+#
+#     return res
+
+
+
+def payment_qr_code_with_offline_order(trade_no):
     """
         :param trade_no:
-        :param open_id:
         :return:
         SUCCESS
         {
             'status': 'success',
-            'AliPayQRcodeUrl':
-            'WechatPayQRcodeUrl':
+            'QF_AliPayQRcodeUrl':
+            'QF_WechatPayQRcodeUrl':
         }
     """
     order = Order.objects.get(tradeNo=trade_no)
     fee = float('%.2f' % order.payPrice)
-    # wechatfee = str(int(order.payPrice * 100))
-    # generate the QRcode for Alipay and Wechat pay
-    alipay_code_url = alipay_qr_code(out_trade_no=trade_no, total_amount=fee)
-    wechat_pay_code_url = wechat_pay_qr_code(order.payPrice, trade_no, open_id)
-
-    res = {
-        'status': 'success',
-        'alipay_code_url': alipay_code_url,
-        'wechat_pay_code_url': wechat_pay_code_url,
-    }
+    res = qfpay_pay_qr_code(fee, trade_no)
 
     return res
 

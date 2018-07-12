@@ -191,4 +191,3 @@ def alipay_qr_code(out_trade_no, total_amount):
     else:
         # TODO
         return None
-
