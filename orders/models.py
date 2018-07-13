@@ -35,7 +35,8 @@ class Order(models.Model):
     dispatchTime = models.DateTimeField(default=timezone.now)
     receivedTime = models.DateTimeField(default=timezone.now)
     cancelTime = models.DateTimeField(default=timezone.now)
-    addressID = models.ForeignKey(Address, on_delete=models.DO_NOTHING, blank=True)
+    #addressID = models.ForeignKey(Address, on_delete=models.DO_NOTHING, blank=True)
+    addressID = models.IntegerField(blank=True)
 
     def __str__(self):
         return self.tradeNo

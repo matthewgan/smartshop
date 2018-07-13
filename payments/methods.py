@@ -57,12 +57,18 @@ def payment_qr_code_with_offline_order(trade_no, open_id):
     alipay_code_url = alipay_qr_code(out_trade_no=trade_no, total_amount=fee)
     wechat_pay_code_url = wechat_pay_qr_code(order.payPrice, trade_no, open_id)
 
-    res = {
-        'status': 'success',
-        'alipay_code_url': alipay_code_url,
-        'wechat_pay_code_url': wechat_pay_code_url,
-    }
-
+    if wechat_pay_code_url != 'ERROR' and alipay_code_url != 'ERROR':
+        res = {
+            'status': 'success',
+            'alipay_code_url': alipay_code_url,
+            'wechat_pay_code_url': wechat_pay_code_url,
+        }
+    else:
+        res = {
+            'status': 'failure',
+            'alipay_code_url': 'ERROR',
+            'wechat_pay_code_url': 'ERROR',
+        }
     return res
 
 
@@ -82,9 +88,9 @@ def payment_with_balance(trade_no, order_method):
     wuser = order.userID
 
     # edit the database of order and customer
-    if order_method == 0:
+    if order_method == 0:#online
         order.status = 1
-    if order_method == 1:
+    if order_method == 1:#offline
         order.status = 3
     order.payTime = timezone.now()
     order.paymentMethod = 'Balance'

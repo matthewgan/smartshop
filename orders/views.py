@@ -166,6 +166,7 @@ class CreateOrderView(APIView):
         # prepare data for wechatPay
         timestamp = str(time.time())
         trade_no = timestamp.replace('.', '0') + str(user_id)
+        print(trade_no)
 
         total_price = float('%.2f' % total_price)
         # calculate the pay money
@@ -226,6 +227,7 @@ class CreateOrderView(APIView):
             }
             return Response(res, status=status.HTTP_201_CREATED)
         else:
+            print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

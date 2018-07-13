@@ -105,8 +105,8 @@ def wechat_pay_qr_code(bill, trace_no, open_id):
     model_xml = trans_dict_to_xml(model_dict)
     # send to wechat with retry
     response_msg = requests.post(url=get_tencent_unified_order_api(),
-                                           data=model_xml.encode('utf-8'),
-                                           headers={'Content-Type': 'text/xml'})
+                                 data=model_xml.encode('utf-8'),
+                                 headers={'Content-Type': 'text/xml'})
     # get the data for wx.payment
     response_msg = response_msg.text.encode('ISO-8859-1').decode('utf-8')
 

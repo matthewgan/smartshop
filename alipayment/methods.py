@@ -189,6 +189,5 @@ def alipay_qr_code(out_trade_no, total_amount):
         record.save()
         return response.get('qr_code')
     else:
-        # TODO
-        return None
+        return 'ERROR'
 
