@@ -3,7 +3,8 @@
 from django.conf.urls import url
 # Third-party app imports
 # Imports from your apps
-from .views import GetTencentNotifyView, PayOrderPreProcess, PaySuccessView, GetAlipayNotifyView, OfflinePayQueryView, OfflinePayCancelView
+from .views import GetTencentNotifyView, PayOrderPreProcess, PaySuccessView, GetAlipayNotifyView, OfflinePayQueryView, \
+    OfflinePayCancelView
 
 
 urlpatterns = [

@@ -7,6 +7,7 @@ from orders.models import Order
 from customers.serializers import CustomerPaymentResponseSerializer
 from wechatpay.methods import wechat_pay, wechat_pay_qr_code
 from alipayment.methods import alipay_qr_code
+from qfpayment.methods import qfpay_pay_qr_code
 
 
 def payment_with_wechat_online_order(trade_no, open_id):
@@ -52,23 +53,17 @@ def payment_qr_code_with_offline_order(trade_no, open_id):
     """
     order = Order.objects.get(tradeNo=trade_no)
     fee = float('%.2f' % order.payPrice)
-    # wechatfee = str(int(order.payPrice * 100))
     # generate the QRcode for Alipay and Wechat pay
     alipay_code_url = alipay_qr_code(out_trade_no=trade_no, total_amount=fee)
     wechat_pay_code_url = wechat_pay_qr_code(order.payPrice, trade_no, open_id)
+    # replace with QR code, but qfpayment is still test server
+    #res = qfpay_pay_qr_code(fee, trade_no)
+    res = {
+       'status': 'success',
+       'alipay_code_url': alipay_code_url,
+       'wechat_pay_code_url': wechat_pay_code_url,
+    }
 
-    if wechat_pay_code_url != 'ERROR' and alipay_code_url != 'ERROR':
-        res = {
-            'status': 'success',
-            'alipay_code_url': alipay_code_url,
-            'wechat_pay_code_url': wechat_pay_code_url,
-        }
-    else:
-        res = {
-            'status': 'failure',
-            'alipay_code_url': 'ERROR',
-            'wechat_pay_code_url': 'ERROR',
-        }
     return res
 
 

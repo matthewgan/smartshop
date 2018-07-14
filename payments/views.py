@@ -17,6 +17,7 @@ from wechatpay.methods import trans_xml_to_dict, trans_dict_to_xml
 from wechatpay.methods import wechat_pay_query, wechat_pay_cancel
 from alipayment.methods import alipay_trade_query, alipay_trade_cancel
 from .serializers import PaymentRequestSerializer, PaymentResponseSerializer
+from qfpayment.methods import qfpay_pay_quary, qfpay_pay_cancel
 
 
 @permission_classes((AllowAny, ))
@@ -179,6 +180,22 @@ class PaySuccessView(APIView):
 
 
 class OfflinePayQueryView(APIView):
+    """
+    Request for this Api,it will query the tencent & alipay server to ensure the payment status(default request every 2s)
+
+    Parameters:
+        user_id - user uuid
+        trade_no - the trade no of payment
+
+
+    Returns:
+      id - user uuid
+      point -
+      level -
+      balance -
+
+    Raises:
+    """
     def post(self, request):
         out_trade_no = request.data.get('trade_no')
         order = Order.objects.get(tradeNo=out_trade_no)
@@ -193,43 +210,37 @@ class OfflinePayQueryView(APIView):
 
         is_alipay_order_paid = False
         is_wechatpay_order_paid = False
+        res = qfpay_pay_quary(out_trade_no)
 
-        if wechatquerydata.get('status') == 200:
+        if res['status'] == 'success':
             order.status = 3
             wuser.point = wuser.point + order.payPrice*100
-            order.paymentSN = wechatquerydata.get('transaction_id')
+            order.paymentSN = res.get('paymentSN')
             order.payTime = timezone.now()
-            order.paymentMethod = 'Wechat Pay'
+            if res['pay_type'] == 'Wechat':
+                order.paymentMethod = 'Wechat Pay'
+                is_wechatpay_order_paid = True
+            if res['pay_type'] == 'Alipay':
+                order.paymentMethod = 'Alipay Pay'
+                is_alipay_order_paid = True
             order.save()
-            is_wechatpay_order_paid = True
-
-        if alipayquerydata.get('status') == 200:
-            order.status = 3
-            wuser.point = wuser.point + order.payPrice*100
-            order.paymentSN = alipayquerydata.get('trade_no')
-            order.payTime = timezone.now()
-            order.paymentMethod = 'Alipay Pay'
-            order.save()
-            is_alipay_order_paid = True
 
         wuser.save()
         if is_wechatpay_order_paid:
             serializer = CustomerPaymentResponseSerializer(wuser)
-            alipay_trade_cancel(out_trade_no)
+            qfpay_pay_cancel(out_trade_no, 'Alipay')
             res = serializer.data
             res['msg'] = 'Pay Success: WechatPay'
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(res, status=status.HTTP_200_OK)
         if is_alipay_order_paid:
             serializer = CustomerPaymentResponseSerializer(wuser)
-            wechat_pay_cancel(out_trade_no)
+            qfpay_pay_cancel(out_trade_no, 'Wechat')
             res = serializer.data
             res['msg'] = 'Pay Success: Alipay'
             return Response(res, status=status.HTTP_200_OK)
         else:
             res = {
                 'msg': 'Not paid or Close',
-                'Alipay': alipayquerydata,
-                'Wechat': wechatquerydata,
             }
             return Response(res, status=status.HTTP_204_NO_CONTENT)
 
