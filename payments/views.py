@@ -291,7 +291,7 @@ class UnifiedCallPaymentView(APIView):
         if serializer.is_valid():
             payment_record = serializer.save()
             # Get user info from database
-            wuser = Customer.objects.get(pk=payment_record.user_id)
+            wuser = payment_record.user_id
             # Get order info from database
             order = Order.objects.get(tradeNo=payment_record.trade_no)
             # calculate the pay money and determining the method of payments
