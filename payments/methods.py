@@ -54,15 +54,17 @@ def payment_qr_code_with_offline_order(trade_no, open_id):
     order = Order.objects.get(tradeNo=trade_no)
     fee = float('%.2f' % order.payPrice)
     # generate the QRcode for Alipay and Wechat pay
-    alipay_code_url = alipay_qr_code(out_trade_no=trade_no, total_amount=fee)
-    wechat_pay_code_url = wechat_pay_qr_code(order.payPrice, trade_no, open_id)
+    # alipay_code_url = alipay_qr_code(out_trade_no=trade_no, total_amount=fee)
+    # wechat_pay_code_url = wechat_pay_qr_code(order.payPrice, trade_no, open_id)
+    # res = {
+    #    'status': 'success',
+    #    'alipay_code_url': alipay_code_url,
+    #    'wechat_pay_code_url': wechat_pay_code_url,
+    # }
+
     # replace with QR code, but qfpayment is still test server
-    #res = qfpay_pay_qr_code(fee, trade_no)
-    res = {
-       'status': 'success',
-       'alipay_code_url': alipay_code_url,
-       'wechat_pay_code_url': wechat_pay_code_url,
-    }
+    res = qfpay_pay_qr_code(fee, trade_no)
+
 
     return res
 

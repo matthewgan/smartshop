@@ -8,22 +8,22 @@ from orders.models import Order
 
 
 def get_qf_pay_api_url():
-    return 'https://openapi-test.qfpay.com/trade/v1/payment'
+    return 'https://openapi.qfpay.com/trade/v1/payment'
 
 def get_qf_quary_api_url():
-    return 'https://openapi-test.qfpay.com/trade/v1/query'
+    return 'https://openapi.qfpay.com/trade/v1/query'
 
 def get_qf_cancel_api_url():
-    return 'https://openapi-test.qfpay.com/trade/v1/close'
+    return 'https://openapi.qfpay.com/trade/v1/close'
 
 def get_qf_key():
-    return '12EBB96FE0C24B4DA987424812685922'
+    return '5A6D36A3E04E4E31A3A9A9F06BE130FB'
 
 def get_qf_code():
-    return '2DAB13A0AF4D4031820149BCD58188D0'
+    return '7851CBBA4F094F2EA5B8299A9D422DD8'
 
 def get_qf_mchid():
-    return '8w5pdhDJkm'
+    return '292vlt2rx1'
 
 def qfpay_pay_qr_code(bill, trace_no):
     """
@@ -47,8 +47,8 @@ def qfpay_pay_qr_code(bill, trace_no):
         if alipay_res['status'] == 'success':
             res = {
                 'status': 'success',
-                'wechat_qrcode_url': wechat_res['qrcode_url'],
-                'alipay_qrcode_url': alipay_res['qrcode_url']
+                'wechat_pay_code_url': wechat_res['qrcode_url'],
+                'alipay_code_url': alipay_res['qrcode_url']
             }
             return res
         else:
@@ -189,12 +189,14 @@ def qfpay_pay_cancel(trace_no, pay_method):
     data = {'out_trade_no': trace_no+pay_type, 'mchid': get_qf_mchid(), 'txamt': txamt, 'txdtm':txdtm}
     string = 'mchid='+get_qf_mchid()+'&out_trade_no='+trace_no+pay_type+'&txamt='+txamt+'&txdtm='+txdtm+get_qf_key()
     md5_string = hashlib.md5(string.encode('utf-8')).hexdigest().upper()
+    print(data)
 
     response_msg = requests.post(url=get_qf_cancel_api_url(),
                                  data=data,
                                  headers={'X-QF-APPCODE': get_qf_code(),
                                           'X-QF-SIGN': md5_string})
 
+    print(response_msg.json())
     if response_msg.json()['respcd'] == '0000' or response_msg.json()['respcd'] == '1297':
         res = {
             'status': 'success'
@@ -202,6 +204,6 @@ def qfpay_pay_cancel(trace_no, pay_method):
         return res
     else:
         res = {
-            'status':'fail'
+            'status': 'fail'
         }
         return res

@@ -20,7 +20,7 @@ class OrderListShowSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = fields = ('id', 'userID', 'shopID', 'status', 'paymentMethod', 'paymentSN', 'discount', 'delivery', 'payTime',
+        fields = ('id', 'userID', 'shopID', 'status', 'paymentMethod', 'paymentSN', 'discount', 'delivery', 'payTime',
                            'totalPrice', 'balanceUse', 'payPrice', 'name', 'totalNum', 'comment', 'addressID', 'createTime', 'cancelTime', 'tradeNo', 'picture')
 
 

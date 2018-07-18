@@ -202,11 +202,8 @@ class OfflinePayQueryView(APIView):
         wuser = Customer.objects.get(id=request.data.get('user_id'))
 
         # query data from alipay and wechat server
-        wechatquerydata = wechat_pay_query(out_trade_no)
-        alipayquerydata = alipay_trade_query(out_trade_no)
-
-        print(wechatquerydata)
-        print(alipayquerydata)
+        # wechatquerydata = wechat_pay_query(out_trade_no)
+        # alipayquerydata = alipay_trade_query(out_trade_no)
 
         is_alipay_order_paid = False
         is_wechatpay_order_paid = False
@@ -267,10 +264,10 @@ class OfflinePayCancelView(APIView):
         order = Order.objects.get(tradeNo=out_trade_no)
         wuser = Customer.objects.get(id=request.data.get('user_id'))
 
-        wechat_res = wechat_pay_cancel(out_trade_no)
-        alipay_res = alipay_trade_cancel(out_trade_no)
+        alipay_res = qfpay_pay_cancel(out_trade_no, 'Alipay')
+        wechat_res = qfpay_pay_cancel(out_trade_no, 'Wechat')
 
-        if wechat_res.get('status') == 200 & alipay_res.get('status') == 200:
+        if wechat_res.get('status') == 'success' and alipay_res.get('status') == 'success':
             order.status = 6
             order.cancelTime = timezone.now()
             order.paymentMethod = 'Cancel'
@@ -304,6 +301,7 @@ class UnifiedCallPaymentView(APIView):
                     return Response(res, status=status.HTTP_200_OK)
                 if payment_record.order_method == 1:  # offline order
                     res = payment_qr_code_with_offline_order(order.tradeNo, wuser.openid)
+                    print(res)
                     payment_record.alipay_code_url = res.get('alipay_code_url')
                     payment_record.wechat_pay_code_url = res.get('wechat_pay_code_url')
                     if res.get('status') == 'success':
