@@ -15,6 +15,7 @@ from partnervoucher.models import PartnerVoucher
 from .serializers import CreateVoucherSerializer, ShowVoucherSerializer
 # Create your views here.
 
+
 class CreateVoucherView(APIView):
     """
     当线上或者线下完成符合条件的订单时（成功），访问此API获取目前存在的促销信息，并且判断用户及付款金额是否符合获取条件，如有符合条件的选项，创建一个新voucher
@@ -202,4 +203,4 @@ class VerifyVoucherView(APIView):
         voucher.status = 0
         voucher.save()
 
-        return Response('Verify Success', status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
