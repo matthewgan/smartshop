@@ -15,13 +15,14 @@ from partnervoucher.models import PartnerVoucher
 from .serializers import CreateVoucherSerializer, ShowVoucherSerializer
 # Create your views here.
 
+
 class CreateVoucherView(APIView):
     """
     当线上或者线下完成符合条件的订单时（成功），访问此API获取目前存在的促销信息，并且判断用户及付款金额是否符合获取条件，如有符合条件的选项，创建一个新voucher
 
     Parameters:
-        id - user uuid
-        tradeNo - the tradeNo of selected order
+        user_id - user uuid
+        trade_no - the tradeNo of selected order
 
     Returns:
       new_voucher: 创建成功优惠券的数量
@@ -115,6 +116,7 @@ class ShowVoucherView(APIView):
             'partner_name':
             'end_time':
             'content':
+            'area':
         },
         {
             'code':
@@ -122,6 +124,7 @@ class ShowVoucherView(APIView):
             'partner_name':
             'end_time':
             'content':
+            'area':
         },
         ...
       ]
@@ -131,7 +134,6 @@ class ShowVoucherView(APIView):
     def post(self, request):
 
         voucher_list = PartnerVoucher.objects.filter(customer_id=request.data.get('user_id'))
-        print(voucher_list)
         valid_voucher = voucher_list.filter(status=1)
         voucher_num = len(valid_voucher)
         res = []
@@ -173,7 +175,6 @@ class ShowVoucherView(APIView):
     def post(self, request):
 
         voucher_list = PartnerVoucher.objects.filter(customer_id=request.data.get('user_id'))
-        print(voucher_list)
         valid_voucher = voucher_list.filter(status=1)
         voucher_num = len(valid_voucher)
         res = []
@@ -201,5 +202,9 @@ class VerifyVoucherView(APIView):
         voucher = PartnerVoucher.objects.get(code=request.data.get('code'))
         voucher.status = 0
         voucher.save()
+        res = {
+            'err_code': '0000',
+            'err_message': 'SUCCESS',
+        }
 
-        return Response('Verify Success', status=status.HTTP_200_OK)
+        return Response(res, status=status.HTTP_200_OK)

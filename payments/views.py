@@ -293,8 +293,8 @@ class UnifiedCallPaymentView(APIView):
             order = Order.objects.get(tradeNo=payment_record.trade_no)
             # calculate the pay money and determining the method of payments
             if order.payPrice > 0:  # user Alipay or WechatPay
-                #wuser.balance = 0
-                #wuser.save()
+                wuser.balance = 0
+                wuser.save()
                 if payment_record.order_method == 0:  # user WechatPay within miniApp
                     res = payment_with_wechat_online_order(order.tradeNo, wuser.openid)
                     res['pay_method'] = 1
