@@ -25,6 +25,7 @@ class Merchandise(models.Model):
     priceChecker = models.CharField(max_length=10, blank=True)
     supervisionCode = models.CharField(max_length=30, blank=True)
     supervisor = models.CharField(max_length=20, blank=True)
+    supervisorTel = models.CharField(max_length=20, blank=True)
     createTime = models.DateTimeField(auto_now_add=True)
     updateTime = models.DateTimeField(auto_now=True)
 
