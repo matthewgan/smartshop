@@ -65,36 +65,36 @@ class CreateVoucherView(APIView):
                             if serializer.is_valid():
                                 serializer.save()
                                 pring_data = serializer.data
-                                pring_data['rescode'] = 1000
-                                pring_data['msg'] = '成功创建一张优惠券'
+                                pring_data['err_code'] = 1000
+                                pring_data['err_msg'] = '成功创建一张优惠券'
                                 print_res.append(pring_data)
                                 new_voucher = new_voucher+1
 
                         else:
                             pring_data = {
-                                'rescode': 1201,
+                                'err_code': 1201,
                                 'event': event.name,
-                                'msg': '消费没有达到获取条件'
+                                'err_msg': '消费没有达到获取条件'
                             }
                             print_res.append(pring_data)
                     else:
                         pring_data = {
-                            'rescode': 1202,
+                            'err_code': 1202,
                             'event': event.name,
-                            'msg': '用户等级不符合领券要求'
+                            'err_msg': '用户等级不符合领券要求'
                         }
                         print_res.append(pring_data)
                 else:
                     pring_data = {
-                        'rescode': 1203,
+                        'err_code': 1203,
                         'event': event.name,
-                        'msg': '该用户领券数达到上限'
+                        'err_msg': '该用户领券数达到上限'
                     }
                     print_res.append(pring_data)
         else:
             print_res = {
-                'rescode': 1000,
-                'msg': '没有进行中的送券活动'
+                'err_code': 1000,
+                'err_msg': '没有进行中的送券活动'
             }
         print(print_res)
 
@@ -205,7 +205,7 @@ class VerifyVoucherView(APIView):
         voucher.save()
         res = {
             'err_code': '0000',
-            'err_message': 'SUCCESS',
+            'err_msg': 'SUCCESS',
         }
 
         return Response(res, status=status.HTTP_200_OK)
