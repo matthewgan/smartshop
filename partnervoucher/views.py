@@ -134,6 +134,7 @@ class ShowVoucherView(APIView):
     def post(self, request):
 
         voucher_list = PartnerVoucher.objects.filter(customer_id=request.data.get('user_id'))
+        print(voucher_list)
         valid_voucher = voucher_list.filter(status=1)
         voucher_num = len(valid_voucher)
         res = []
