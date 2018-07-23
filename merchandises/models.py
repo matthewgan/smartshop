@@ -13,6 +13,7 @@ class Merchandise(models.Model):
     barcode = models.CharField(max_length=15, blank=True)
     name = models.CharField(max_length=30, blank=True)
     flavor = models.CharField(max_length=30, blank=True)
+    brand = models.CharField(max_length=30, blank=True)
     scale = models.CharField(max_length=10, blank=True)
     unit = models.CharField(max_length=10, blank=True)
     factory = models.CharField(max_length=30, blank=True)
