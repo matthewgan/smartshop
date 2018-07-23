@@ -18,7 +18,7 @@ class Merchandise(models.Model):
     unit = models.CharField(max_length=10, blank=True)
     factory = models.CharField(max_length=30, blank=True)
     producePlace = models.CharField(max_length=10, blank=True)
-    purchasePrice = models.DecimalField(max_digits=8, decimal_places=2)
+    instockPrice = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
     originPrice = models.DecimalField(max_digits=8, decimal_places=2)
     promotionPrice = models.DecimalField(max_digits=8, decimal_places=2, default=originPrice)
     clubPrice = models.DecimalField(max_digits=8, decimal_places=2, default=originPrice)
