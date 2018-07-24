@@ -10,7 +10,7 @@ class MerchandiseListShowInfoSerializer(serializers.ModelSerializer):
     picture = serializers.SerializerMethodField('render_picture_url')
 
     def render_picture_url(self, obj):
-        fullurl = 'https://www.wuzhanggui.shop/media/' + obj.code + '.jpg'
+        fullurl = 'https://www.wuzhanggui.shop/media/' + obj.code + '.JPG'
         return fullurl
 
     class Meta:
