@@ -152,6 +152,7 @@ class CreateOrderView(APIView):
         for order in order_list:
             merchandise = Merchandise.objects.get(id=order.get('id'))
             name = merchandise.name
+            code = merchandise.code
             price_on_sold = merchandise.originPrice
             # set price for VIP customer
             # if userLevel == 1:
@@ -192,6 +193,7 @@ class CreateOrderView(APIView):
                          'balanceUse': available_balance,
                          'payPrice': pay_price,
                          'name': name,
+                         'code': code,
                          'totalNum': total_num,
                          'comment': '',
                          'addressID': address_id,
@@ -210,6 +212,7 @@ class CreateOrderView(APIView):
                          'balanceUse': available_balance,
                          'payPrice': pay_price,
                          'name': name,
+                         'code': code,
                          'totalNum': total_num,
                          'comment': '',
                          'addressID': 1,
