@@ -10,6 +10,7 @@ from rest_framework import status
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAdminUser
 import requests
+import re
 
 # Imports from your apps
 from .models import Customer
@@ -17,6 +18,15 @@ from .serializers import SignupRequestSerializer, SignupResponseSerializer
 from .serializers import LoginRequestSerializer, LoginResponseSerializer
 from .serializers import CustomerListSerializer
 from .serializers import CustomerDetailSerializer, CustomerDetailGetInfoSerializer
+
+
+emoji_pattern = re.compile(
+    u"(\ud83d[\ude00-\ude4f])|"  # emoticons
+    u"(\ud83c[\udf00-\uffff])|"  # symbols & pictographs (1 of 2)
+    u"(\ud83d[\u0000-\uddff])|"  # symbols & pictographs (2 of 2)
+    u"(\ud83d[\ude80-\udeff])|"  # transport & map symbols
+    u"(\ud83c[\udde0-\uddff])"  # flags (iOS)
+    "+", flags=re.UNICODE)
 
 
 class CustomerSignupView(APIView):

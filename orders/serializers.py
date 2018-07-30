@@ -14,7 +14,7 @@ class OrderListShowSerializer(serializers.ModelSerializer):
     picture = serializers.SerializerMethodField('render_picture_url')
 
     def render_picture_url(self, obj):
-        merchandise = Merchandise.objects.get(name=obj.name)
+        merchandise = Merchandise.objects.get(code=obj.code)
         fullurl = 'https://www.wuzhanggui.shop/media/' + merchandise.code + '.png'
         return fullurl
 

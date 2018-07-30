@@ -8,10 +8,15 @@ from .models import Merchandise
 
 class MerchandiseListShowInfoSerializer(serializers.ModelSerializer):
     picture = serializers.SerializerMethodField('render_picture_url')
+    name = serializers.SerializerMethodField('get_full_name')
 
     def render_picture_url(self, obj):
         fullurl = 'https://www.wuzhanggui.shop/media/' + obj.code + '.png'
         return fullurl
+
+    def get_full_name(self, obj):
+        fullName = obj.name + "-" +obj.flavor
+        return fullName
 
     class Meta:
         model = Merchandise
