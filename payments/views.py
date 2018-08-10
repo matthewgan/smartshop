@@ -229,7 +229,7 @@ class OfflinePayQueryView(APIView):
             res = serializer.data
             res['msg'] = 'Pay Success: WechatPay'
             return Response(res, status=status.HTTP_200_OK)
-        if is_alipay_order_paid:
+        elif is_alipay_order_paid:
             serializer = CustomerPaymentResponseSerializer(wuser)
             qfpay_pay_cancel(out_trade_no, 'Wechat')
             res = serializer.data
