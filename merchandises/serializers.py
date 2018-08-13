@@ -10,13 +10,13 @@ class MerchandiseListShowInfoSerializer(serializers.ModelSerializer):
     picture = serializers.SerializerMethodField('render_picture_url')
 
     def render_picture_url(self, obj):
-        fullurl = 'https://www.wuzhanggui.shop/media/' + obj.code + '.png'
+        fullurl = 'https://www.wuzhanggui.shop/media/' + obj.barcode + '.JPG'
         return fullurl
 
     class Meta:
         model = Merchandise
         fields = ('id', 'name', 'brand', 'scale', 'unit', 'producePlace',
-                  'originPrice', 'promotionPrice', 'clubPrice', 'code', 'picture', )
+                  'originPrice', 'promotionPrice', 'clubPrice', 'code', 'picture', 'flavor')
 
 
 class MerchandiseListAllInfoSerializer(serializers.ModelSerializer):

@@ -4,6 +4,7 @@
 from rest_framework import serializers
 # Imports from your apps
 from .models import Payment
+from orders.models import Order
 
 
 class PaymentRequestSerializer(serializers.ModelSerializer):
@@ -13,6 +14,19 @@ class PaymentRequestSerializer(serializers.ModelSerializer):
 
 
 class PaymentResponseSerializer(serializers.ModelSerializer):
+    payPrice = serializers.SerializerMethodField('getPayPrice')
+    balanceUse = serializers.SerializerMethodField('getBalanceUse')
+
+    def getPayPrice(self, obj):
+        order = Order.objects.get(tradeNo=obj.trade_no)
+        payPrice = order.payPrice
+        return payPrice
+
+    def getBalanceUse(self, obj):
+        order = Order.objects.get(tradeNo=obj.trade_no)
+        balanceUse = order.balanceUse
+        return balanceUse
+
     class Meta:
         model = Payment
-        fields = ('status', 'balance', 'alipay_code_url', 'wechat_pay_code_url')
+        fields = ('status', 'balanceUse', 'alipay_code_url', 'wechat_pay_code_url', 'payPrice')

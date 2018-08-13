@@ -14,8 +14,8 @@ class OrderListShowSerializer(serializers.ModelSerializer):
     picture = serializers.SerializerMethodField('render_picture_url')
 
     def render_picture_url(self, obj):
-        merchandise = Merchandise.objects.get(name=obj.name)
-        fullurl = 'https://www.wuzhanggui.shop/media/' + merchandise.code + '.png'
+        merchandise = Merchandise.objects.get(code=obj.code)
+        fullurl = 'https://www.wuzhanggui.shop/media/' + obj.barcode + '.JPG'
         return fullurl
 
     class Meta:
@@ -29,7 +29,7 @@ class OrderDetailSerializer(serializers.ModelSerializer):
     picture = serializers.SerializerMethodField('render_picture_url')
 
     def render_picture_url(self, obj):
-        fullurl = 'https://www.wuzhanggui.shop/media/' + obj.merchandiseID.code + '.png'
+        fullurl = 'https://www.wuzhanggui.shop/media/' + obj.merchandiseID.barcode + '.JPG'
         return fullurl
 
     class Meta:
@@ -43,7 +43,7 @@ class CreateOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ('id', 'userID', 'shopID', 'status', 'paymentMethod', 'discount', 'delivery', 'totalPrice',
-                  'balanceUse', 'payPrice', 'name', 'totalNum', 'comment', 'addressID', 'details', 'createTime','tradeNo', )
+                  'balanceUse', 'payPrice', 'name', 'code', 'totalNum', 'comment', 'addressID', 'details', 'createTime','tradeNo', )
 
     def create(self, validated_data):
         details_data = validated_data.pop('details')

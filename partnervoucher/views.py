@@ -21,8 +21,8 @@ class CreateVoucherView(APIView):
     当线上或者线下完成符合条件的订单时（成功），访问此API获取目前存在的促销信息，并且判断用户及付款金额是否符合获取条件，如有符合条件的选项，创建一个新voucher
 
     Parameters:
-        id - user uuid
-        tradeNo - the tradeNo of selected order
+        user_id - user uuid
+        trade_no - the tradeNo of selected order
 
     Returns:
       new_voucher: 创建成功优惠券的数量
@@ -65,36 +65,36 @@ class CreateVoucherView(APIView):
                             if serializer.is_valid():
                                 serializer.save()
                                 pring_data = serializer.data
-                                pring_data['rescode'] = 1000
-                                pring_data['msg'] = '成功创建一张优惠券'
+                                pring_data['err_code'] = 1000
+                                pring_data['err_msg'] = '成功创建一张优惠券'
                                 print_res.append(pring_data)
                                 new_voucher = new_voucher+1
 
                         else:
                             pring_data = {
-                                'rescode': 1201,
+                                'err_code': 1201,
                                 'event': event.name,
-                                'msg': '消费没有达到获取条件'
+                                'err_msg': '消费没有达到获取条件'
                             }
                             print_res.append(pring_data)
                     else:
                         pring_data = {
-                            'rescode': 1202,
+                            'err_code': 1202,
                             'event': event.name,
-                            'msg': '用户等级不符合领券要求'
+                            'err_msg': '用户等级不符合领券要求'
                         }
                         print_res.append(pring_data)
                 else:
                     pring_data = {
-                        'rescode': 1203,
+                        'err_code': 1203,
                         'event': event.name,
-                        'msg': '该用户领券数达到上限'
+                        'err_msg': '该用户领券数达到上限'
                     }
                     print_res.append(pring_data)
         else:
             print_res = {
-                'rescode': 1000,
-                'msg': '没有进行中的送券活动'
+                'err_code': 1000,
+                'err_msg': '没有进行中的送券活动'
             }
         print(print_res)
 
@@ -116,6 +116,7 @@ class ShowVoucherView(APIView):
             'partner_name':
             'end_time':
             'content':
+            'area':
         },
         {
             'code':
@@ -123,6 +124,7 @@ class ShowVoucherView(APIView):
             'partner_name':
             'end_time':
             'content':
+            'area':
         },
         ...
       ]
@@ -174,7 +176,6 @@ class ShowVoucherView(APIView):
     def post(self, request):
 
         voucher_list = PartnerVoucher.objects.filter(customer_id=request.data.get('user_id'))
-        print(voucher_list)
         valid_voucher = voucher_list.filter(status=1)
         voucher_num = len(valid_voucher)
         res = []
@@ -202,5 +203,9 @@ class VerifyVoucherView(APIView):
         voucher = PartnerVoucher.objects.get(code=request.data.get('code'))
         voucher.status = 0
         voucher.save()
+        res = {
+            'err_code': '0000',
+            'err_msg': 'SUCCESS',
+        }
 
-        return Response(status=status.HTTP_200_OK)
+        return Response(res, status=status.HTTP_200_OK)

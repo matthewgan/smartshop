@@ -17,7 +17,8 @@ class ShowVoucherSerializer(serializers.ModelSerializer):
     event_name = serializers.CharField(source='event_id.name')
     partner_name = serializers.CharField(source='event_id.partner_id.name')
     content = serializers.CharField(source='event_id.content')
+    area = serializers.CharField(source='event_id.partner_id.area')
 
     class Meta:
         model = PartnerVoucher
-        fields = ('code', 'event_name', 'partner_name', 'end_time', 'content')
+        fields = ('code', 'event_name', 'partner_name', 'end_time', 'content', 'area', )
