@@ -12,7 +12,7 @@ from rest_framework import status
 from .models import Merchandise
 from .serializers import MerchandiseListShowInfoSerializer
 from .serializers import QueryMerchandiseDetailByBarcodeRequestSerializer, QueryMerchandiseDetailByBarcodeResponseSerializer
-from .serializers import AddMerchandiseDetailByBarcodeSerializer
+from .serializers import AddMerchandiseDetailByBarcodeSerializer, QueryMerchandiseDetailByBarcodeForCashierSerializer
 
 
 class MerchandisesShowByCategoryView(APIView):
@@ -58,5 +58,17 @@ class CreateMerchandiseView(APIView):
             merchandise = serializer.create(serializer.validated_data)
             merchandise.save()
             return Response(serializer.validated_data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class QueryMerchandiseDetailByBarcodeForCashierView(APIView):
+    def post(self, request):
+        serializer = QueryMerchandiseDetailByBarcodeRequestSerializer(data=request.data)
+        if serializer.is_valid():
+            barcode = serializer.validated_data['barcode']
+            merchandise = Merchandise.objects.get(barcode=barcode)
+            output_serializer = QueryMerchandiseDetailByBarcodeForCashierSerializer(merchandise)
+            return Response(output_serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

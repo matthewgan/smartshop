@@ -85,7 +85,7 @@ INSTALLED_APPS = [
     'qfpayment',
     'partner',
     'partnerevent',
-    'partnervoucher'
+    'partnervoucher',
 ]
 
 MIDDLEWARE = [
