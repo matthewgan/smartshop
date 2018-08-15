@@ -13,7 +13,7 @@ class Merchandise(models.Model):
     categoryName = models.CharField(max_length=30, blank=True)
     subCategoryName = models.CharField(max_length=30, blank=True)
     name = models.CharField(max_length=30, blank=True)
-    barcode = models.CharField(max_length=15, blank=True)
+    barcode = models.CharField(max_length=30, blank=True)
     name = models.CharField(max_length=30, blank=True)
     flavor = models.CharField(max_length=30, blank=True)
     brand = models.CharField(max_length=30, blank=True)
