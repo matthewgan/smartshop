@@ -3,9 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.py.bak
-media/*
+# media/*
 .DS_Store
-.jpg
+#.jpg
 */migrations/*
 
 # C extensions
