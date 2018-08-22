@@ -104,7 +104,6 @@ class checkTopUpView(APIView):
         wait_for_pay_list = topup_list.filter(status=0)
         checkNo = 0
         for topup in wait_for_pay_list:
-            topup = TopUp.objects.get(tradeNo=topup.tradeNo)
             querydata = wechat_pay_query(topup.tradeNo)
             if querydata.get('status') == 200:
                 topup.status = 1
@@ -114,7 +113,7 @@ class checkTopUpView(APIView):
                 topup.userID.save()
                 topup.save()
                 checkNo = checkNo + 1
-
+ 
         return Response(checkNo, status=status.HTTP_200_OK)
 
 
