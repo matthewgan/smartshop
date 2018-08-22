@@ -85,3 +85,24 @@ class OrderResponseSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Order
         fields = ('userID', 'shopID', 'discount', 'bill')
+
+
+class OrderDetailForConfirmSerializer(serializers.ModelSerializer):
+    merchandise_name = serializers.CharField(source='merchandiseID.name')
+    merchandise_code = serializers.CharField(source='merchandiseID.code')
+    merchandise_subCategoryName = serializers.CharField(source='merchandiseID.subCategoryName')
+
+    class Meta:
+        model = OrderDetail
+        fields = ('merchandiseNum', 'merchandise_name', 'merchandise_code', 'merchandise_subCategoryName')
+
+
+class OrderListForConfirmSerializer(serializers.ModelSerializer):
+    add_name = serializers.CharField(source='addressID.name')
+    add_tel = serializers.CharField(source='addressID.telephone')
+    add_detail = serializers.CharField(source='addressID.detail')
+    details = OrderDetailForConfirmSerializer(many=True)
+
+    class Meta:
+        model = Order
+        fields = ('add_name', 'add_tel', 'add_detail', 'payTime', 'details', 'totalPrice')
