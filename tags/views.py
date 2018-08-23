@@ -69,7 +69,7 @@ class TagStatusUpdateView(APIView):
     def post(self, request):
         taglist = request.data
         li = taglist.get('EPC')
-        tags = Tag.objects.filter(EPC__in=li, status__exact=0)
+        tags = Tag.objects.filter(EPC__in=li)
         for tag in tags:
             tag.status = 2
             tag.save()
