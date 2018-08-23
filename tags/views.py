@@ -67,7 +67,7 @@ class TagStatusUpdateView(APIView):
     2: sold
     """
     def post(self, request):
-        taglist = request.data.getlist('EPC')
+        taglist = request.data.get('EPC')
         st = request.data.get('status')
         tags = Tag.objects.filter(EPC__in=taglist)
         for tag in tags:
