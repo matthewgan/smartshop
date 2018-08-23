@@ -1,11 +1,8 @@
 # Stdlib imports
-
 # Core Django imports
 from django.conf.urls import url
-
 # Third-party app imports
 from rest_framework.authtoken import views
-
 # Imports from your apps
 
 urlpatterns = [

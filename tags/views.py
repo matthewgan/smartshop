@@ -52,7 +52,7 @@ class TagQueryView(APIView):
     def post(self, request):
         taglist = request.data
         li = taglist.get('EPC')
-        tags = Tag.objects.filter(EPC__in=li)
+        tags = Tag.objects.filter(EPC__in=li, status__exact=0)
         ids = tags.values_list('merchandiseID')
         merchandises = Merchandise.objects.filter(pk__in=ids)
         output_serializer = MerchandiseListShowInfoSerializer(merchandises, many=True)
