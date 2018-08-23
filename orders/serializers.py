@@ -105,4 +105,4 @@ class OrderListForConfirmSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ('add_name', 'add_tel', 'add_detail', 'payTime', 'details', 'totalPrice')
+        fields = ('add_name', 'add_tel', 'add_detail', 'payTime', 'details', 'totalPrice', 'tradeNo')
