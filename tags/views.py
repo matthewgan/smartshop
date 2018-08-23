@@ -67,11 +67,11 @@ class TagStatusUpdateView(APIView):
     2: sold
     """
     def post(self, request):
-        taglist = request.data.get('EPC')
-        st = request.data.get('status')
-        tags = Tag.objects.filter(EPC__in=taglist)
+        taglist = request.data
+        li = taglist.get('EPC')
+        tags = Tag.objects.filter(EPC__in=li, status__exact=0)
         for tag in tags:
-            tag.status = st
+            tag.status = 2
             tag.save()
         output_serializer = TagSerializer(tags, many=True)
         return Response(output_serializer.data, status=status.HTTP_200_OK)
