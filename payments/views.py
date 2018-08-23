@@ -282,6 +282,27 @@ class OfflinePayCancelView(APIView):
             return Response('Error', status=status.HTTP_409_CONFLICT)
 
 
+class CheckPaymentView(APIView):
+    def post(self, request):
+        wuser = Customer.objects.get(id=request.data.get('id'))
+        order_list = Order.objects.filter(userID=request.data['id'])
+        wait_for_pay_list = order_list.filter(status=0)
+        checkNo = 0
+        for order in wait_for_pay_list:
+            querydata = wechat_pay_query(order.tradeNo)
+            if querydata.get('status') == 200:
+                order.status = 1
+                wuser.point = wuser.point + order.payPrice * 100
+                order.paymentSN = querydata.get('transaction_id')
+                order.payTime = timezone.now()
+                order.paymentMethod = 'Wechat Pay'
+                order.save()
+                checkNo = checkNo + 1
+                wuser.save()
+
+        return Response(checkNo, status=status.HTTP_200_OK)
+
+
 class UnifiedCallPaymentView(APIView):
     def post(self, request):
         serializer = PaymentRequestSerializer(data=request.data)

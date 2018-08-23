@@ -97,6 +97,26 @@ class TopUpSuccessView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class checkTopUpView(APIView):
+
+    def post(self, request):
+        topup_list = TopUp.objects.filter(userID=request.data['id'])
+        wait_for_pay_list = topup_list.filter(status=0)
+        checkNo = 0
+        for topup in wait_for_pay_list:
+            querydata = wechat_pay_query(topup.tradeNo)
+            if querydata.get('status') == 200:
+                topup.status = 1
+                topup.paymentSN = querydata.get('transaction_id')
+                topup.userID.level = 1
+                topup.userID.balance += topup.amountPay + topup.amountAdd
+                topup.userID.save()
+                topup.save()
+                checkNo = checkNo + 1
+ 
+        return Response(checkNo, status=status.HTTP_200_OK)
+
+
 class PointToBalanceView(APIView):
         """
         Transfer point to balance

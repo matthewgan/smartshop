@@ -9,7 +9,7 @@ import time
 
 # Imports from your apps
 from .models import Order, OrderDetail
-from .serializers import OrderListShowSerializer, CreateOrderSerializer, GetOrderDetailSerializer
+from .serializers import OrderListShowSerializer, CreateOrderSerializer, GetOrderDetailSerializer, OrderListForConfirmSerializer
 from merchandises.models import Merchandise
 from customers.models import Customer
 
@@ -233,6 +233,30 @@ class CreateOrderView(APIView):
             print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class CheckForNewOrderView(APIView):
+    """
+        商家查询系统- 订单获取
+        获取所有状态为1（等待收货）的用户订单显示
+        *参数：
+    """
+    def post(self, request):
+        order_list = Order.objects.filter(status=1)
+        serializer = OrderListForConfirmSerializer(order_list, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ConfirmOrderView(APIView):
+    """
+        商家查询系统- 确认订单按钮
+        点击可以将订单状态从1（等待收货）更改为2（订单完成）
+        *参数： tradeNo
+    """
+    def post(self, request):
+        order = Order.objects.get(tradeNo=request.data.get('tradeNo'))
+        order.status = 2
+        order.save()
+        return Response(status=status.HTTP_202_ACCEPTED)
 
 
 
