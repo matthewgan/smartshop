@@ -44,7 +44,6 @@ DEBUG_PROPAGATE_EXCEPTIONS = False
 # People who get code error notifications.
 # In the format [('Full Name', 'email@example.com'), ('Full Name', 'anotheremail@example.com')]
 ADMINS = [('Matthew Gan', 'matthewgan@126.com'), ]
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '101.132.174.202', 'www.wuzhanggui.shop', 'wuzhanggui.shop', ]
 
 
 # Application definition
