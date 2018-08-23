@@ -6,7 +6,7 @@ from django.conf.urls import url
 # Third-party app imports
 
 # Imports from your apps
-from .views import GetOrderListView, GetOrderNumView, GetOderDetailView, CancelOrderView, CreateOrderView, CheckForNewOrderView
+from .views import GetOrderListView, GetOrderNumView, GetOderDetailView, CancelOrderView, CreateOrderView, CheckForNewOrderView, ConfirmOrderView
 
 
 urlpatterns = [
@@ -16,4 +16,5 @@ urlpatterns = [
     url(r'^create/$', CreateOrderView.as_view()),
     url(r'^cancel/$', CancelOrderView.as_view()),
     url(r'^checkOrder/$', CheckForNewOrderView.as_view()),
+    url(r'^confirm/$', ConfirmOrderView.as_view()),
 ]
