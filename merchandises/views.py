@@ -54,12 +54,12 @@ class QueryMerchandiseDetailByBarcodeView(APIView):
 
 class QueryMerchandiseDetailByEPCView(APIView):
     def post(self, request):
-        tag = Tag.objects.get(EPC=request.data['epc'])
         try:
-            merchandise = Merchandise.objects.get(code=tag.merchandiseID)
+            tag = Tag.objects.get(EPC=request.data['epc'])
         except:
             return Response(status=status.HTTP_204_NO_CONTENT)
-        serializer = QueryMerchandiseDetailByBarcodeResponseSerializer(merchandise)
+
+        serializer = QueryMerchandiseDetailByBarcodeResponseSerializer(tag.merchandiseID)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
