@@ -52,7 +52,7 @@ class TagQueryView(APIView):
     def post(self, request):
         taglist = request.data
         li = taglist.get('EPC')
-        tags = Tag.objects.filter(EPC__in=li)
+        tags = Tag.objects.filter(EPC__in=li, status__exact=0)
         ids = tags.values_list('merchandiseID')
         merchandises = Merchandise.objects.filter(pk__in=ids)
         output_serializer = MerchandiseListShowInfoSerializer(merchandises, many=True)
@@ -67,11 +67,11 @@ class TagStatusUpdateView(APIView):
     2: sold
     """
     def post(self, request):
-        taglist = request.data.getlist('EPC')
-        st = request.data.get('status')
-        tags = Tag.objects.filter(EPC__in=taglist)
+        taglist = request.data
+        li = taglist.get('EPC')
+        tags = Tag.objects.filter(EPC__in=li)
         for tag in tags:
-            tag.status = st
+            tag.status = 2
             tag.save()
         output_serializer = TagSerializer(tags, many=True)
         return Response(output_serializer.data, status=status.HTTP_200_OK)
