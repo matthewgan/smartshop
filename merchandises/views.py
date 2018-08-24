@@ -55,7 +55,7 @@ class QueryMerchandiseDetailByBarcodeView(APIView):
 class QueryMerchandiseDetailByEPCView(APIView):
     def post(self, request):
         try:
-            tag = Tag.objects.get(EPC=request.data['epc'])
+            tag = Tag.objects.get(EPC=request.data['EPC'])
         except:
             return Response(status=status.HTTP_204_NO_CONTENT)
 
