@@ -20,7 +20,7 @@ class Record(models.Model):
     body = models.CharField(max_length=200, default='物掌柜智慧便利')
     nonce_str = models.CharField(max_length=10, default=str(int(random.random()*1e10)))
     notify_url = models.CharField(max_length=200, default=get_notify_url())
-    out_trade_no = models.CharField(max_length=20)
+    out_trade_no = models.CharField(max_length=128)
     spbill_create_ip = models.CharField(max_length=20, default=get_host_ip())
     total_fee = models.CharField(max_length=20)
     trade_type = models.CharField(max_length=10)
