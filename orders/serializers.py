@@ -91,10 +91,12 @@ class OrderDetailForConfirmSerializer(serializers.ModelSerializer):
     merchandise_name = serializers.CharField(source='merchandiseID.name')
     merchandise_code = serializers.CharField(source='merchandiseID.code')
     merchandise_subCategoryName = serializers.CharField(source='merchandiseID.subCategoryName')
+    merchandise_flavor = serializers.CharField(source='merchandiseID.flavor')
+    merchandise_scale = serializers.CharField(source='merchandiseID.scale')
 
     class Meta:
         model = OrderDetail
-        fields = ('merchandiseNum', 'merchandise_name', 'merchandise_code', 'merchandise_subCategoryName')
+        fields = ('merchandiseNum', 'merchandise_name', 'merchandise_code', 'merchandise_subCategoryName', 'merchandise_flavor', 'merchandise_scale')
 
 
 class OrderListForConfirmSerializer(serializers.ModelSerializer):

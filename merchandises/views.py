@@ -13,6 +13,7 @@ from .models import Merchandise
 from .serializers import MerchandiseListShowInfoSerializer
 from .serializers import QueryMerchandiseDetailByBarcodeRequestSerializer, QueryMerchandiseDetailByBarcodeResponseSerializer
 from .serializers import AddMerchandiseDetailByBarcodeSerializer, QueryMerchandiseDetailByBarcodeForCashierSerializer
+from tags.models import Tag
 
 
 class MerchandisesShowByCategoryView(APIView):
@@ -49,6 +50,17 @@ class QueryMerchandiseDetailByBarcodeView(APIView):
             return Response(output_serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class QueryMerchandiseDetailByEPCView(APIView):
+    def post(self, request):
+        try:
+            tag = Tag.objects.get(EPC=request.data['EPC'])
+        except:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        serializer = QueryMerchandiseDetailByBarcodeResponseSerializer(tag.merchandiseID)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class CreateMerchandiseView(APIView):

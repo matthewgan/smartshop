@@ -4,6 +4,7 @@
 from rest_framework import serializers
 # Imports from your apps
 from .models import Merchandise
+from  tags.models import Tag
 
 
 class MerchandiseListShowInfoSerializer(serializers.ModelSerializer):
@@ -40,13 +41,14 @@ class QueryMerchandiseDetailByBarcodeRequestSerializer(serializers.ModelSerializ
 class QueryMerchandiseDetailByBarcodeResponseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Merchandise
-        fields = ('id', 'code', 'barcode', 'name', 'brand', 'scale', 'factory', 'unit',)
+        fields = ('id', 'code', 'barcode', 'name', 'brand', 'scale', 'factory', 'unit', 'flavor')
 
 
 class AddMerchandiseDetailByBarcodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Merchandise
         fields = ('code', 'barcode', 'name', 'brand', 'scale', 'factory', 'unit',)
+
 
 class QueryMerchandiseDetailByBarcodeForCashierSerializer(serializers.ModelSerializer):
     class Meta:
