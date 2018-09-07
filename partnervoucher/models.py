@@ -23,3 +23,7 @@ class PartnerVoucher(models.Model):
 
     def __str__(self):
         return self.code
+
+    class Meta:
+        verbose_name = "合作促销券"
+        verbose_name_plural = "合作促销券"

@@ -17,3 +17,8 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.EPC
+
+    class Meta:
+        verbose_name = "RFID标签"
+        verbose_name_plural = "RFID标签"
+

@@ -15,3 +15,7 @@ class Payment(models.Model):
     balance = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
     alipay_code_url = models.CharField(max_length=256, blank=True)
     wechat_pay_code_url = models.CharField(max_length=256, blank=True)
+
+    class Meta:
+        verbose_name = "统一支付记录"
+        verbose_name_plural = "统一支付记录"

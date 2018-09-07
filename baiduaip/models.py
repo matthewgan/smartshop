@@ -15,3 +15,7 @@ class FaceRecord(models.Model):
 
     def __str__(self):
         return "{}.{}".format(self.user_id, self.operation)
+
+    class Meta:
+        verbose_name = "人脸记录"
+        verbose_name_plural = "人脸记录"

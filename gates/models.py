@@ -14,3 +14,7 @@ class EntranceLog(models.Model):
 
     def __str__(self):
         return "{} visit {} @ {}".format(self.who, self.where, self.when)
+
+    class Meta:
+        verbose_name = "闸机记录"
+        verbose_name_plural = "闸机记录"

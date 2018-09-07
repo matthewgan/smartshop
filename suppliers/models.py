@@ -26,3 +26,5 @@ class Supplier(models.Model):
 
     class Meta:
         ordering = ('companyName',)
+        verbose_name = "供应商"
+        verbose_name_plural = "供应商"

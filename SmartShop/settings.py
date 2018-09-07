@@ -51,6 +51,7 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '101.132.174.202', 'www.wuzhanggui.sh
 # Application definition
 
 INSTALLED_APPS = [
+    # 'jet',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

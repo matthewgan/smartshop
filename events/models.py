@@ -27,3 +27,6 @@ class Event(models.Model):
 
     class Meta:
         ordering = ('createTime',)
+        verbose_name = "促销活动"
+        verbose_name_plural = "促销活动"
+

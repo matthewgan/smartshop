@@ -44,6 +44,8 @@ class Order(models.Model):
 
     class Meta:
         ordering = ('createTime',)
+        verbose_name = "订单记录"
+        verbose_name_plural = "订单记录"
 
 
 # Order details for customer order
@@ -56,3 +58,7 @@ class OrderDetail(models.Model):
 
     def __str__(self):
         return str(self.id)
+
+    class Meta:
+        verbose_name = "子订单详情"
+        verbose_name_plural = "子订单详情"

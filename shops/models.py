@@ -25,3 +25,5 @@ class Shop(models.Model):
 
     class Meta:
         ordering = ('createTime',)
+        verbose_name = "店铺信息"
+        verbose_name_plural = "店铺信息"

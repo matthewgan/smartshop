@@ -23,6 +23,10 @@ class TopUp(models.Model):
     def __str__(self):
         return self.tradeNo
 
+    class Meta:
+        verbose_name = "充值记录"
+        verbose_name_plural = "充值记录"
+
 
 class TopUpGift(models.Model):
     id = models.AutoField(primary_key=True)
@@ -42,3 +46,7 @@ class TopUpGift(models.Model):
 
     def __str__(self):
         return '%s %s' % (self.id, self.timestamp)
+
+    class Meta:
+        verbose_name = "充值送积分规则"
+        verbose_name_plural = "充值送积分规则"

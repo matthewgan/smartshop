@@ -18,3 +18,7 @@ class Label(models.Model):
 
     def __str__(self):
         return self.labelID
+
+    class Meta:
+        verbose_name = "墨水屏价格标签"
+        verbose_name_plural = "墨水屏价格标签"

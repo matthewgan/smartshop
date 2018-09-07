@@ -18,3 +18,6 @@ class Record(models.Model):
     def __str__(self):
         return self.out_trade_no
 
+    class Meta:
+        verbose_name = "钱方支付记录"
+        verbose_name_plural = "钱方支付记录"

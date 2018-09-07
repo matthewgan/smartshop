@@ -20,3 +20,7 @@ class Rack(models.Model):
 
     def __str__(self):
         return "Shop%s:%s" % (self.shopID, self.id)
+
+    class Meta:
+        verbose_name = "货架"
+        verbose_name_plural = "货架"

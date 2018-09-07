@@ -18,3 +18,7 @@ class Address(models.Model):
 
     def __str__(self):
         return self.detail[:10]
+
+    class Meta:
+        verbose_name = "收件地址"
+        verbose_name_plural = "收件地址"

@@ -1,5 +1,10 @@
 from django.contrib import admin
 from .models import Label
 
-# Register your models here.
-admin.site.register(Label)
+
+class LabelAdmin(admin.ModelAdmin):
+    list_display = ('id', 'labelID', 'merchandiseID', 'rackID')
+    search_fields = ('labelID', )
+
+
+admin.site.register(Label, LabelAdmin)

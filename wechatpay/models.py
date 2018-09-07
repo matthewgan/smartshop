@@ -127,3 +127,7 @@ class Record(models.Model):
 
     def __str__(self):
         return self.out_trade_no
+
+    class Meta:
+        verbose_name = "微信支付记录"
+        verbose_name_plural = "微信支付记录"

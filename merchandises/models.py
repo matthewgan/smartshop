@@ -39,3 +39,5 @@ class Merchandise(models.Model):
 
     class Meta:
         ordering = ('createTime',)
+        verbose_name = "商品信息"
+        verbose_name_plural = "商品信息"

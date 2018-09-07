@@ -35,3 +35,5 @@ class Customer(models.Model):
 
     class Meta:
         ordering = ('createTime',)
+        verbose_name = "顾客信息"
+        verbose_name_plural = "顾客信息"
