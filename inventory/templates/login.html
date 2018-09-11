@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <el-container>
+		<el-header style="text-align: center;">
+			<h2>物掌柜库存系统</h2>
+		</el-header>
+        <el-main style="text-align:center;">
+			<h3>欢迎登陆</h3>
+			
+            <form action="" method="POST">
+            {% csrf_token %}
+            <input type="text" name="username" />
+            <input type="password" name="password" />
+            <button type="submit">登录</button>
+            <p style="color: red">{{ login_error }}</p>
+        </el-main>
+    </el-container>
+
+
+
+</body>
+</html>

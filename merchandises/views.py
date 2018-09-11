@@ -11,7 +11,7 @@ from rest_framework import status
 # Imports from your apps
 from .models import Merchandise
 from .serializers import MerchandiseListShowInfoSerializer
-from .serializers import QueryMerchandiseDetailByBarcodeRequestSerializer, QueryMerchandiseDetailByBarcodeResponseSerializer
+from .serializers import QueryMerchandiseDetailByBarcodeRequestSerializer, QueryMerchandiseDetailByBarcodeResponseSerializer, MerchandiseListShowInfoForInventorySerializer
 from .serializers import AddMerchandiseDetailByBarcodeSerializer, QueryMerchandiseDetailByBarcodeForCashierSerializer
 from tags.models import Tag
 
@@ -45,7 +45,10 @@ class QueryMerchandiseDetailByBarcodeView(APIView):
         serializer = QueryMerchandiseDetailByBarcodeRequestSerializer(data=request.data)
         if serializer.is_valid():
             barcode = serializer.validated_data['barcode']
-            merchandise = Merchandise.objects.get(barcode=barcode)
+            try:
+                merchandise = Merchandise.objects.get(barcode=barcode)
+            except Merchandise.DoesNotExist:
+                return Response(status=status.HTTP_204_NO_CONTENT)
             output_serializer = QueryMerchandiseDetailByBarcodeResponseSerializer(merchandise)
             return Response(output_serializer.data, status=status.HTTP_200_OK)
         else:
@@ -81,6 +84,21 @@ class QueryMerchandiseDetailByBarcodeForCashierView(APIView):
             barcode = serializer.validated_data['barcode']
             merchandise = Merchandise.objects.get(barcode=barcode)
             output_serializer = QueryMerchandiseDetailByBarcodeForCashierSerializer(merchandise)
+            return Response(output_serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class QueryMerchandiseDetailByBarcodeForInventoryView(APIView):
+    def post(self, request):
+        serializer = QueryMerchandiseDetailByBarcodeRequestSerializer(data=request.data)
+        if serializer.is_valid():
+            barcode = serializer.validated_data['barcode']
+            try:
+                merchandise = Merchandise.objects.get(barcode=barcode)
+            except Merchandise.DoesNotExist:
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            output_serializer = MerchandiseListShowInfoForInventorySerializer(merchandise)
             return Response(output_serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -25,6 +25,7 @@ from django.contrib.auth.views import login, logout
 # Imports from your apps
 import homepage.views
 import homepage.forms
+import inventory.views
 
 urlpatterns = [
     # url(r'^jet/', include('jet.urls', 'jet')),
@@ -32,9 +33,9 @@ urlpatterns = [
     url(r'^$', homepage.views.home, name='home'),
     url(r'^contact$', homepage.views.contact, name='contact'),
     url(r'^about', homepage.views.about, name='about'),
-    url(r'^login/$', login,
+    url(r'^accounts/login/$', login,
         {
-            'template_name': 'homepage/login.html',
+            'template_name': 'login.html',
             'authentication_form': homepage.forms.BootstrapAuthenticationForm,
             'extra_context':
             {
@@ -49,4 +50,7 @@ urlpatterns = [
         },
         name='logout'),
     url(r'^api/', include('api.urls')),
+    url(r'^inventory/add/$', inventory.views.add_inventory, name='库存'),
+    url(r'^inventory/register/$', inventory.views.regist, name='注册'),
+    url(r'^inventory/login/$', inventory.views.login, name='登录'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<!-- 引入样式 -->
+<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+<!-- 引入组件库 -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>物掌柜库存管理</title>
+</head>
+
+<body>
+    {% verbatim %}
+    <div id='app'>
+        <el-container style="height: 800px; border: 3px solid #eee">
+            <el-header style="background-color: beige;">
+                <h1>物掌柜库存管理系统-入库管理</h1>
+            </el-header>
+            <el-container>
+                <el-aside style="width: 300px; border: 3px solid #eee">
+                    <el-input placeholder="请输入商品条形码" prefix-icon="el-icon-search" type="number" v-model="barcode"></el-input>
+                    <ul v-if="show">
+                        <li>名称：{{merchandise.name}}</li>
+                        <li>商品码：{{merchandise.code}}</li>
+                        <li>规格：{{merchandise.scale}}</li>
+                        <li>口味：{{merchandise.flavor}}</li>
+                        <li>库存：{{merchandise.stock}}</li>
+                    </ul>
+                </el-aside>
+
+                <el-main style="border: 3px solid #eee">
+                    <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px">
+                        <el-form-item label="进货价" prop="instockPrice">
+                            <el-input type="number" step="0.01" v-model="ruleForm.instockPrice"></el-input>
+                        </el-form-item>
+                        <el-form-item label="零售价" prop="retailPrice">
+                        	<el-input type="number" step="0.01" v-model="ruleForm.retailPrice"></el-input>
+                        </el-form-item>
+                        <el-form-item label="生产日期" required>
+                            <el-form-item prop="productionDate">
+                                <el-date-picker type="date" placeholder="选择日期" v-model="ruleForm.productionDate" style="width: 100%;"></el-date-picker>
+                            </el-form-item>
+                        </el-form-item>
+						<el-form-item label="过期日期" required>
+							<el-form-item prop="expiryDate">
+								<el-date-picker type="date" placeholder="选择日期" v-model="ruleForm.expiryDate" style="width: 100%;"></el-date-picker>
+							</el-form-item>
+						</el-form-item>
+						<el-form-item label="数量" prop="quantity">
+							<el-input type="number" v-model="ruleForm.quantity"></el-input>
+						</el-form-item>
+						<el-form-item label="进货渠道" prop="supplier">
+							<el-input v-model="ruleForm.supplier"></el-input>
+						</el-form-item>
+
+                        <el-form-item>
+                            <el-button type="primary" @click="submitForm('ruleForm')">提交</el-button>
+                            <el-button @click="resetForm('ruleForm')">重置</el-button>
+                        </el-form-item>
+                    </el-form>
+                </el-main>
+            </el-container>
+
+        </el-container>
+    </div>
+    {% endverbatim %}
+
+
+</body>
+
+</html>
+
+<script>
+    var app = new Vue({
+        el: "#app",
+        data: {
+            barcode: '',
+            merchandise: {},
+            show: false,
+			ruleForm: {
+			  instockPrice: '',
+			  retailPrice: '',
+			  productionDate: '',
+			  expiryDate: '',
+			  quantity: '',
+			  supplier: '',
+			},
+			rules: {
+			  instockPrice: [
+				{ required: true, message: '请输入进货价', trigger: 'blur' },
+			  ],
+			  retailPrice: [
+				{ required: true, message: '请输入零售价', trigger: 'blur' },
+			  ],
+			  productionDate: [
+				{ type: 'date', required: true, message: '请选择日期', trigger: 'change' }
+			  ],
+			  expiryDate: [
+				{ type: 'date', required: true, message: '请选择时间', trigger: 'change' }
+			  ],
+			  quantity: [
+				{ required: true, message: '请输入数量', trigger: 'blur' }
+			  ],
+			  supplier: [
+				{ required: true, message: '请输入供应商', trigger: 'blur' }
+			  ]
+			}
+        },
+        watch: {
+            barcode: function (val) {
+                var that = this
+                axios.request({
+                        method: "POST",
+                        url: 'http://127.0.0.1:8000/api/merchandise/detailInventory/',
+                        data: {
+                            barcode: this.barcode,
+                        },
+                        headers: {
+                            'Authorization': 'Token 484f2efcfe058353b1e8fd69e4f73ddaf81c60cf',
+                            'content-type': 'application/json'
+                        },
+                    })
+                    .then(function (res) {
+                        if (res.status === 200) {
+                            console.log(res)
+                            that.show = true
+                            that.merchandise = res.data
+                        } else {
+                            that.show = false
+                            that.merchandise = {}
+                        }
+
+                    });
+            }
+        },
+		methods:{
+			submitForm(formName) {
+				this.$refs[formName].validate((valid) => {
+				  if (valid) {
+					var that = this
+					  axios.request({
+								method: "POST",
+								url: 'http://127.0.0.1:8000/api/inventory/add/',
+								data: {
+										barcode: that.barcode,
+										instockPrice: that.ruleForm.instockPrice,
+										retailPrice: that.ruleForm.retailPrice,
+										productionDate: that.ruleForm.productionDate,
+										expiryDate: that.ruleForm.expiryDate,
+										quantity: that.ruleForm.quantity,
+										supplier: that.ruleForm.supplier
+								},
+								headers: {
+										'Authorization': 'Token 484f2efcfe058353b1e8fd69e4f73ddaf81c60cf',
+										'content-type': 'application/json'
+								},
+						})
+					  .then(function (res) {
+								if (res.status === 201) {
+										console.log(res)
+										that.resetForm(formName)
+										that.show = false
+										that.$message({
+										message: '库存添加成功',
+										type: 'success'
+									});
+								} else {
+										this.$message.error('添加错误，请确认后重试');
+										that.show = false
+										that.merchandise = {}
+								}
+
+						});
+				  } else {
+					console.log('error submit!!');
+					return false;
+				  }
+				});
+			  },
+			  resetForm(formName) {
+					this.$refs[formName].resetFields();
+			  }
+		}
+    })
+</script>

@@ -31,4 +31,5 @@ urlpatterns = [
     url(r'^tag/', include('tags.urls')),
     url(r'^payment/', include('payments.urls')),
     url(r'^partnervoucher/', include('partnervoucher.urls')),
+    url(r'^inventory/', include('inventory.urls')),
 ]

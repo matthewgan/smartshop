@@ -5,6 +5,7 @@ from rest_framework import serializers
 # Imports from your apps
 from .models import Merchandise
 from  tags.models import Tag
+from inventory.models import Inventory
 
 
 class MerchandiseListShowInfoSerializer(serializers.ModelSerializer):
@@ -18,6 +19,23 @@ class MerchandiseListShowInfoSerializer(serializers.ModelSerializer):
         model = Merchandise
         fields = ('id', 'name', 'brand', 'scale', 'unit', 'producePlace',
                   'originPrice', 'promotionPrice', 'clubPrice', 'code', 'picture', 'flavor')
+
+
+class MerchandiseListShowInfoForInventorySerializer(serializers.ModelSerializer):
+    stock = serializers.SerializerMethodField('get_inventory')
+
+    def get_inventory(self, obj):
+        try:
+            inventory = Inventory.objects.get(merchandiseID=obj)
+            result = inventory.stock
+        except:
+            result = '没有录入商品库存'
+        return result
+
+    class Meta:
+        model = Merchandise
+        fields = ('id', 'name', 'brand', 'scale', 'unit', 'producePlace',
+                  'originPrice', 'promotionPrice', 'clubPrice', 'code', 'flavor', 'stock','barcode')
 
 
 class MerchandiseListAllInfoSerializer(serializers.ModelSerializer):
