@@ -116,12 +116,12 @@
                 var that = this
                 axios.request({
                         method: "POST",
-                        url: 'http://127.0.0.1:8000/api/merchandise/detailInventory/',
+                        url: 'https://www.wuzhanggui.shop/api/merchandise/detailInventory/',
                         data: {
                             barcode: this.barcode,
                         },
                         headers: {
-                            'Authorization': 'Token 484f2efcfe058353b1e8fd69e4f73ddaf81c60cf',
+                            'Authorization': 'Token d823a019b66581cf574c72cc43d77b2131de7f2b',
                             'content-type': 'application/json'
                         },
                     })
@@ -145,7 +145,7 @@
 					var that = this
 					  axios.request({
 								method: "POST",
-								url: 'http://127.0.0.1:8000/api/inventory/add/',
+								url: 'https://www.wuzhanggui.shop/api/inventory/add/',
 								data: {
 										barcode: that.barcode,
 										instockPrice: that.ruleForm.instockPrice,
@@ -156,7 +156,7 @@
 										supplier: that.ruleForm.supplier
 								},
 								headers: {
-										'Authorization': 'Token 484f2efcfe058353b1e8fd69e4f73ddaf81c60cf',
+										'Authorization': 'Token d823a019b66581cf574c72cc43d77b2131de7f2b',
 										'content-type': 'application/json'
 								},
 						})
