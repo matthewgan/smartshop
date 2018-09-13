@@ -23,6 +23,7 @@ class MerchandiseListShowInfoSerializer(serializers.ModelSerializer):
 
 class MerchandiseListShowInfoForInventorySerializer(serializers.ModelSerializer):
     stock = serializers.SerializerMethodField('get_inventory')
+    stockWithTag = serializers.SerializerMethodField('get_tagStock')
 
     def get_inventory(self, obj):
         try:
@@ -32,10 +33,18 @@ class MerchandiseListShowInfoForInventorySerializer(serializers.ModelSerializer)
             result = '没有录入商品库存'
         return result
 
+    def get_tagStock(self, obj):
+        try:
+            inventory = Inventory.objects.get(merchandiseID=obj)
+            result = inventory.stockWithTag
+        except:
+            result = '没有录入商品库存'
+        return result
+
     class Meta:
         model = Merchandise
         fields = ('id', 'name', 'brand', 'scale', 'unit', 'producePlace',
-                  'originPrice', 'promotionPrice', 'clubPrice', 'code', 'flavor', 'stock','barcode')
+                  'originPrice', 'promotionPrice', 'clubPrice', 'code', 'flavor', 'stock','barcode', 'stockWithTag')
 
 
 class MerchandiseListAllInfoSerializer(serializers.ModelSerializer):
