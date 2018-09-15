@@ -25,7 +25,7 @@ def home(request):
            'shop_count': Shop.objects.count(),
            'merchandise_count': Merchandise.objects.count(),
            'area_count': 4800,
-           'customer_count': Customer.objects.count(),
+           'customer_count': (Customer.objects.count() * 2.5),
            'stuffs': Stuff.objects.all(),
        }
     )
