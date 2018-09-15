@@ -11,6 +11,7 @@ from .models import Tag
 from .serializers import TagSerializer, TagQueryResponseSerializer
 from merchandises.models import Merchandise
 from merchandises.serializers import MerchandiseListShowInfoSerializer
+from inventory.models import Inventory
 
 
 class TagCreateView(APIView):
@@ -20,6 +21,13 @@ class TagCreateView(APIView):
     def post(self, request):
         serializer = TagSerializer(data=request.data)
         if serializer.is_valid():
+            try:
+                inventory = Inventory.objects.get(merchandiseID=serializer.data['merchandiseID'])
+                inventory.stock = inventory.stock - 1
+                inventory.stockWithTag = inventory.stockWithTag + 1
+                inventory.save()
+            except:
+                todo = 1
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
