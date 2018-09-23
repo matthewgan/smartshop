@@ -12,7 +12,7 @@ from partner.models import Partner
 class PartnerEvent(models.Model):
     id = models.AutoField(primary_key=True)
     partner_id = models.ForeignKey(Partner, on_delete=models.DO_NOTHING)
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=128)
     status = models.IntegerField(default=1) # 0无效 1有效
     type = models.IntegerField(default=1)  # 类别 1.合作商户促销券(手动核销) 2.自营平台抵扣券（手/自核销）
     start_time = models.DateField()
