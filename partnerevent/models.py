@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Stdlib imports
 
 # Core Django imports
