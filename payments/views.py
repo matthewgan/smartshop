@@ -322,7 +322,6 @@ class UnifiedCallPaymentView(APIView):
                     return Response(res, status=status.HTTP_200_OK)
                 if payment_record.order_method == 1:  # offline order
                     res = payment_qr_code_with_offline_order(order.tradeNo, wuser.openid)
-                    print(res)
                     payment_record.alipay_code_url = res.get('alipay_code_url')
                     payment_record.wechat_pay_code_url = res.get('wechat_pay_code_url')
                     if res.get('status') == 'success':

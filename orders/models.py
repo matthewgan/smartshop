@@ -11,6 +11,7 @@ from shops.models import Shop
 from customers.models import Customer
 from addresses.models import Address
 from merchandises.models import Merchandise
+from partnervoucher.models import PartnerVoucher
 
 
 class Order(models.Model):
@@ -43,7 +44,7 @@ class Order(models.Model):
         return self.tradeNo
 
     class Meta:
-        ordering = ('createTime',)
+        ordering = ('-createTime',)
         verbose_name = "订单记录"
         verbose_name_plural = "订单记录"
 

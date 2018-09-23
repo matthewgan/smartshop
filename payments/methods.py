@@ -91,7 +91,7 @@ def payment_with_balance(trade_no, order_method):
         order.status = 3
     order.payTime = timezone.now()
     order.paymentMethod = 'Balance'
-    wuser.balance = wuser.balance - order.totalPrice
+    wuser.balance = wuser.balance - order.totalPrice - order.discount
 
     # save database
     order.save()

@@ -12,6 +12,8 @@ from .models import Order, OrderDetail
 from .serializers import OrderListShowSerializer, CreateOrderSerializer, GetOrderDetailSerializer, OrderListForConfirmSerializer
 from merchandises.models import Merchandise
 from customers.models import Customer
+from partnervoucher.models import PartnerVoucher
+from partnerevent.models import PartnerEvent
 
 
 class GetOrderNumView(APIView):
@@ -167,18 +169,37 @@ class CreateOrderView(APIView):
         # prepare data for wechatPay
         timestamp = str(time.time())
         trade_no = timestamp.replace('.', '0') + str(user_id)
-        print(trade_no)
-
         total_price = float('%.2f' % total_price)
+
+        # 判断优惠券使用条件
+        voucher_list = PartnerVoucher.objects.filter(customer_id=request.data.get('user_id'))
+        valid_voucher = voucher_list.filter(status=1)
+        voucher_num = len(valid_voucher)
+        discount = 0;
+        maxAmount = 0;
+        if voucher_num > 0:
+            for voucher in valid_voucher:
+                #voucher为自营券
+                if voucher.event_id.type == 2:
+                    #订单满足使用条件
+                    if total_price >= voucher.event_id.order_min:
+                        # 查找最大数额的可使用券
+                        if voucher.event_id.discount_num > maxAmount:
+                            maxAmount = voucher.event_id.discount_num;
+                            voucher.status = 0;
+                            voucher.save()
+                            discount = maxAmount;
+
+        discount = float('%.2f' % discount)
         # calculate the pay money
-        if total_price > wuser.balance:
-            pay_price = total_price - float('%.2f' % wuser.balance)
+        if total_price-discount > wuser.balance:
+            pay_price = total_price - float('%.2f' % wuser.balance) - discount
             pay_price = float('%.2f' % pay_price)
-            available_balance = wuser.balance
+            balanceUse = wuser.balance
 
         else:
             pay_price = 0
-            available_balance = total_price
+            balanceUse = total_price - discount
 
         # prepare data for serializer to create order
         if order_method == 0:
@@ -187,10 +208,10 @@ class CreateOrderView(APIView):
                          'status': 0,
                          'paymentMethod': 'WaitForPay',
                          'tradeNo': trade_no,
-                         'discount': 0,
+                         'discount': discount,
                          'delivery': delivery_fee,
                          'totalPrice': total_price,
-                         'balanceUse': available_balance,
+                         'balanceUse': balanceUse,
                          'payPrice': pay_price,
                          'name': name,
                          'code': code,
@@ -206,10 +227,10 @@ class CreateOrderView(APIView):
                          'status': 5,
                          'paymentMethod': 'WaitForPay',
                          'tradeNo': trade_no,
-                         'discount': 0,
+                         'discount': discount,
                          'delivery': 0.00,
                          'totalPrice': total_price,
-                         'balanceUse': available_balance,
+                         'balanceUse': balanceUse,
                          'payPrice': pay_price,
                          'name': name,
                          'code': code,
@@ -223,6 +244,7 @@ class CreateOrderView(APIView):
 
         if serializer.is_valid():
             serializer.save()
+
             res = {
                 'code': 200,
                 'msg': 'Create Order Success',

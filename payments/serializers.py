@@ -16,6 +16,7 @@ class PaymentRequestSerializer(serializers.ModelSerializer):
 class PaymentResponseSerializer(serializers.ModelSerializer):
     payPrice = serializers.SerializerMethodField('getPayPrice')
     balanceUse = serializers.SerializerMethodField('getBalanceUse')
+    discount = serializers.SerializerMethodField('getDiscount')
 
     def getPayPrice(self, obj):
         order = Order.objects.get(tradeNo=obj.trade_no)
@@ -27,6 +28,11 @@ class PaymentResponseSerializer(serializers.ModelSerializer):
         balanceUse = order.balanceUse
         return balanceUse
 
+    def getDiscount(self, obj):
+        order = Order.objects.get(tradeNo=obj.trade_no)
+        discount = order.discount
+        return discount
+
     class Meta:
         model = Payment
-        fields = ('status', 'balanceUse', 'alipay_code_url', 'wechat_pay_code_url', 'payPrice')
+        fields = ('status', 'balanceUse', 'discount', 'alipay_code_url', 'wechat_pay_code_url', 'payPrice')

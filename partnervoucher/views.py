@@ -18,11 +18,14 @@ from .serializers import CreateVoucherSerializer, ShowVoucherSerializer
 
 class CreateVoucherView(APIView):
     """
-    当线上或者线下完成符合条件的订单时（成功），访问此API获取目前存在的促销信息，并且判断用户及付款金额是否符合获取条件，如有符合条件的选项，创建一个新voucher
+    创建优惠券/红包接口
+
+    1. 当线上或者线下完成符合条件的订单时（成功），访问此API获取目前存在的促销信息，并且判断用户及付款金额是否符合获取条件，如有符合条件的选项，创建一个新voucher
+    2. 无需消费时可调用此接口，判断用户是否符合发放优惠券的条件，如符合要求 创建一个新voucher
 
     Parameters:
-        user_id - user uuid
-        trade_no - the tradeNo of selected order
+        *user_id - user uuid
+        trade_no - the tradeNo of selected order（无需消费条件时可以为空）
 
     Returns:
       new_voucher: 创建成功优惠券的数量
@@ -31,25 +34,40 @@ class CreateVoucherView(APIView):
     """
     def post(self, request):
 
-        order = Order.objects.get(tradeNo=request.data.get('trade_no'))
         wuser = Customer.objects.get(id=request.data.get('user_id'))
 
+        # 用户当前优惠券(包括使用和过期)
         voucher_list = PartnerVoucher.objects.filter(customer_id=request.data.get('user_id'))
+
+        # 当前可用活动
         event_list = PartnerEvent.objects.filter(status=1)
 
-        print_res = []
+
         new_voucher = 0
 
         if len(event_list) > 0:
+
+            # 对每一个活动进行条件判断
             for event in event_list:
+                # 计算当前活动用户拥有券数量
                 try:
                     voucherNum = len(voucher_list.filter(event_id=event.id))
                 except:
                     voucherNum = 0
 
+                # 判断是否需要订单消费
+                try:
+                    order = Order.objects.get(tradeNo=request.data.get('trade_no'))
+                    totalPrice = order.totalPrice
+                except:
+                    totalPrice = 0;
+
+                # 判断用户是否达到领券上限
                 if event.limit > voucherNum:
+                    # 判断用户是否达到领取等级
                     if wuser.level >= event.customer_level:
-                        if order.totalPrice >= event.payment_min:
+                        # 判断用户消费是否达标 && 事件为无需消费事件
+                        if totalPrice >= event.payment_min:
                             code = str(event.partner_id.code) + str(random.randint(0, 99999)).zfill(5) + str(
                                 int(time.time()))
                             valid_days = datetime.timedelta(days=event.voucher_valid_time)
@@ -67,36 +85,8 @@ class CreateVoucherView(APIView):
                                 pring_data = serializer.data
                                 pring_data['err_code'] = 1000
                                 pring_data['err_msg'] = '成功创建一张优惠券'
-                                print_res.append(pring_data)
                                 new_voucher = new_voucher+1
 
-                        else:
-                            pring_data = {
-                                'err_code': 1201,
-                                'event': event.name,
-                                'err_msg': '消费没有达到获取条件'
-                            }
-                            print_res.append(pring_data)
-                    else:
-                        pring_data = {
-                            'err_code': 1202,
-                            'event': event.name,
-                            'err_msg': '用户等级不符合领券要求'
-                        }
-                        print_res.append(pring_data)
-                else:
-                    pring_data = {
-                        'err_code': 1203,
-                        'event': event.name,
-                        'err_msg': '该用户领券数达到上限'
-                    }
-                    print_res.append(pring_data)
-        else:
-            print_res = {
-                'err_code': 1000,
-                'err_msg': '没有进行中的送券活动'
-            }
-        print(print_res)
 
         return Response(new_voucher, status=status.HTTP_201_CREATED)
 
@@ -104,9 +94,11 @@ class CreateVoucherView(APIView):
 class ShowVoucherView(APIView):
     """
     用户在小程序"我的"页面"优惠券"选项卡中查看当前有效优惠券
+    或者在我的红包中显示有效折扣券
 
     Parameters:
         id - user uuid
+        type - event type
 
     Returns:
       res = [
@@ -134,53 +126,17 @@ class ShowVoucherView(APIView):
     def post(self, request):
 
         voucher_list = PartnerVoucher.objects.filter(customer_id=request.data.get('user_id'))
-        print(voucher_list)
+        type = request.data.get('type')
+
         valid_voucher = voucher_list.filter(status=1)
         voucher_num = len(valid_voucher)
         res = []
+        display_voucher = []
         if voucher_num > 0:
-            serializer = ShowVoucherSerializer(valid_voucher, many=True)
-            res = serializer.data
-
-        return Response(res, status=status.HTTP_200_OK)
-
-
-class ShowVoucherView(APIView):
-    """
-    用户在小程序"我的"页面"优惠券"选项卡中查看当前有效优惠券
-
-    Parameters:
-        id - user uuid
-
-    Returns:
-      res = [
-        {
-            'code':
-            'event_name':
-            'partner_name':
-            'end_time':
-            'content':
-        },
-        {
-            'code':
-            'event_name':
-            'partner_name':
-            'end_time':
-            'content':
-        },
-        ...
-      ]
-
-    Raises:
-    """
-    def post(self, request):
-
-        voucher_list = PartnerVoucher.objects.filter(customer_id=request.data.get('user_id'))
-        valid_voucher = voucher_list.filter(status=1)
-        voucher_num = len(valid_voucher)
-        res = []
-        if voucher_num > 0:
-            serializer = ShowVoucherSerializer(valid_voucher, many=True)
+            for voucher in valid_voucher:
+                if voucher.event_id.type == type:
+                    display_voucher.append(voucher)
+            serializer = ShowVoucherSerializer(display_voucher, many=True)
             res = serializer.data
 
         return Response(res, status=status.HTTP_200_OK)
@@ -189,6 +145,7 @@ class ShowVoucherView(APIView):
 class VerifyVoucherView(APIView):
     """
     用户在小程序"我的"页面"优惠券"选项卡中可以点击核销按钮完成优惠券核销
+    或者在我的红包页面中完成核销（店面线下支付没有通过收银仓结算时使用）
 
     Parameters:
         code - 优惠券code
@@ -209,3 +166,42 @@ class VerifyVoucherView(APIView):
         }
 
         return Response(res, status=status.HTTP_200_OK)
+
+
+class VerifyVoucherWithMiniAppPaymentView(APIView):
+    """
+    用户在小程序下单时，调用此接口查看可用的红包抵扣
+
+    Parameters:
+        id - user uuid
+
+    Returns:
+      res = [
+        {
+            order_min:(使用支付条件)
+            discount:(抵扣金额)
+        },
+        {
+            order_min:(使用支付条件)
+            discount:(抵扣金额)
+        }
+      ]
+
+    Raises:
+    """
+    def post(self, request):
+
+        voucher_list = PartnerVoucher.objects.filter(customer_id=request.data.get('user_id'))
+        valid_voucher = voucher_list.filter(status=1)
+        voucher_num = len(valid_voucher)
+        res_list = [];
+        if voucher_num > 0:
+            for voucher in valid_voucher:
+                if voucher.event_id.type != 1:
+                        res = {
+                            'order_min': voucher.event_id.order_min,
+                            'discount': voucher.event_id.discount_num,
+                        }
+                        res_list.append(res);
+
+        return Response(res_list, status=status.HTTP_200_OK)
