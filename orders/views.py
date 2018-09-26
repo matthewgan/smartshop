@@ -150,7 +150,7 @@ class CreateOrderView(APIView):
         details = []
         total_num = 0
         total_price = 0
-        delivery_fee = 0
+        delivery_fee = float('%.2f' % request.data.get('delivery'))
         for order in order_list:
             merchandise = Merchandise.objects.get(id=order.get('id'))
             name = merchandise.name
@@ -169,7 +169,7 @@ class CreateOrderView(APIView):
         # prepare data for wechatPay
         timestamp = str(time.time())
         trade_no = timestamp.replace('.', '0') + str(user_id)
-        total_price = float('%.2f' % total_price)
+        total_price = float('%.2f' % total_price) + delivery_fee
 
         # 判断优惠券使用条件
         voucher_list = PartnerVoucher.objects.filter(customer_id=request.data.get('user_id'))
