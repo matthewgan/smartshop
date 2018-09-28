@@ -51,6 +51,8 @@ urlpatterns = [
         name='logout'),
     url(r'^api/', include('api.urls')),
     url(r'^inventory/add/$', inventory.views.add_inventory, name='库存'),
+    url(r'^inventory/edit/$', inventory.views.edit_price, name='价格'),
     url(r'^inventory/register/$', inventory.views.regist, name='注册'),
     url(r'^inventory/login/$', inventory.views.login, name='登录'),
+    url(r'^inventory/logout/$', inventory.views.logout, name='登出'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -28,6 +28,10 @@ class UserForm(forms.Form):
 def add_inventory(request):
     return render(request, 'add.html')
 
+@login_required
+def edit_price(request):
+    return render(request, 'price.html')
+
 @csrf_exempt
 def regist(request):
     if request.method == 'POST':
@@ -68,27 +72,45 @@ def logout(request):
 
 class SubmitView(APIView):
     def post(self,request):
-        merchandise = Merchandise.objects.get(barcode=request.data['barcode'])
-        try:
-            inventory = Inventory.objects.get(merchandiseID=merchandise.code)
-        except:
-            inventory = Inventory(merchandiseID=merchandise, stock=0, stockWithTag=0)
-        inventory.stock += int(request.data['quantity'])
-        inventory.save()
-        inventory_record_data = {
-            'merchandiseID': merchandise.code,
-            'instockPrice': float(request.data['instockPrice']),
-            'retailPrice': float(request.data['retailPrice']),
-            'productionDate': request.data['productionDate'],
-            'expiryDate': request.data['expiryDate'],
-            'quantity': int(request.data['quantity']),
-            'supplier': request.data['supplier'],
-        }
-        serializer = AddRecordSerializers(data=inventory_record_data)
+        password = request.data['password']
+        if password == '8SMs6OZ83oSQ':
+            merchandise = Merchandise.objects.get(barcode=request.data['barcode'])
+            try:
+                inventory = Inventory.objects.get(merchandiseID=merchandise.code)
+            except:
+                inventory = Inventory(merchandiseID=merchandise, stock=0, stockWithTag=0)
+            inventory.stock += int(request.data['quantity'])
+            inventory.save()
+            inventory_record_data = {
+                'merchandiseID': merchandise.code,
+                'instockPrice': 0,
+                'retailPrice': 0,
+                'productionDate': request.data['productionDate'],
+                'expiryDate': request.data['expiryDate'],
+                'quantity': int(request.data['quantity']),
+                'supplier': request.data['supplier'],
+            }
+            serializer = AddRecordSerializers(data=inventory_record_data)
 
-        if serializer.is_valid():
-            serializer.save()
+            if serializer.is_valid():
+                serializer.save()
+                return Response(status=status.HTTP_201_CREATED)
+            else:
+                print(serializer.errors)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class PriceEditView(APIView):
+    def post(self,request):
+        password = request.data['password']
+        if password == 't86V2ZbNFX5P':
+            merchandise = Merchandise.objects.get(barcode=request.data['barcode'])
+            merchandise.instockPrice = float(request.data['instockPrice'])
+            merchandise.originPrice = float(request.data['retailPrice'])
+            merchandise.save()
+
             return Response(status=status.HTTP_201_CREATED)
         else:
-            print(serializer.errors)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_204_NO_CONTENT)

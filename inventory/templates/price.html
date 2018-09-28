@@ -23,7 +23,7 @@
             </el-header>
             <el-container>
                 <el-aside style="width: 300px; border: 3px solid #eee">
-									<el-button type="danger" round icon="el-icon-error" @click="logout">登出</el-button>
+					<el-button type="danger" round icon="el-icon-error" @click="logout">登出</el-button>
                     <el-input placeholder="请输入商品条形码" prefix-icon="el-icon-search" type="number" v-model="barcode"></el-input>
                     <ul v-if="show">
                         <li>名称：{{merchandise.name}}</li>
@@ -37,26 +37,15 @@
 
                 <el-main style="border: 3px solid #eee">
                     <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px">
-                        <el-form-item label="生产日期" required>
-                            <el-form-item prop="productionDate">
-                                <el-date-picker type="date" placeholder="选择日期" v-model="ruleForm.productionDate" style="width: 100%;"></el-date-picker>
-                            </el-form-item>
+                        <el-form-item label="进货价" prop="instockPrice">
+                            <el-input type="number" step="0.01" v-model="ruleForm.instockPrice"></el-input>
                         </el-form-item>
-						<el-form-item label="过期日期" required>
-							<el-form-item prop="expiryDate">
-								<el-date-picker type="date" placeholder="选择日期" v-model="ruleForm.expiryDate" style="width: 100%;"></el-date-picker>
-							</el-form-item>
-						</el-form-item>
-						<el-form-item label="数量" prop="quantity">
-							<el-input type="number" v-model="ruleForm.quantity"></el-input>
-						</el-form-item>
-						<el-form-item label="进货渠道" prop="supplier">
-							<el-input v-model="ruleForm.supplier"></el-input>
-						</el-form-item>
+                        <el-form-item label="零售价" prop="retailPrice">
+                        	<el-input type="number" step="0.01" v-model="ruleForm.retailPrice"></el-input>
+                        </el-form-item>
 						<el-form-item label="身份验证码" prop="password">
 							<el-input v-model="ruleForm.password"></el-input>
 						</el-form-item>
-
                         <el-form-item>
                             <el-button type="primary" @click="submitForm('ruleForm')">提交</el-button>
                             <el-button @click="resetForm('ruleForm')">重置</el-button>
@@ -86,28 +75,20 @@
             merchandise: {},
             show: false,
 			ruleForm: {
-			  productionDate: '',
-			  expiryDate: '',
-			  quantity: '',
-			  supplier: '',
-				password: '',
+			  instockPrice: '',
+			  retailPrice: '',
+			  password: '',
 			},
 			rules: {
-			  productionDate: [
-				{ type: 'date', required: true, message: '请选择日期', trigger: 'change' }
+			  instockPrice: [
+				{ required: true, message: '请输入进货价', trigger: 'blur' },
 			  ],
-			  expiryDate: [
-				{ type: 'date', required: true, message: '请选择时间', trigger: 'change' }
+			  retailPrice: [
+				{ required: true, message: '请输入零售价', trigger: 'blur' },
 			  ],
-			  quantity: [
-				{ required: true, message: '请输入数量', trigger: 'blur' }
+			  password: [
+				{ required: true, message: '请输入授权码', trigger: 'blur' }
 			  ],
-			  supplier: [
-				{ required: true, message: '请输入供应商', trigger: 'blur' }
-			  ],
-				password: [
-				{ required: true, message: '请输入验证密码', trigger: 'blur' }
-				]
 			}
         },
         watch: {
@@ -146,13 +127,11 @@
 					var that = this
 					  axios.request({
 								method: "POST",
-								url: url_online + 'api/inventory/add/',
+								url: url_online + 'api/inventory/edit/',
 								data: {
 										barcode: that.barcode,
-										productionDate: that.ruleForm.productionDate,
-										expiryDate: that.ruleForm.expiryDate,
-										quantity: that.ruleForm.quantity,
-										supplier: that.ruleForm.supplier,
+										instockPrice: that.ruleForm.instockPrice,
+										retailPrice: that.ruleForm.retailPrice,
 										password: that.ruleForm.password,
 								},
 								headers: {
@@ -166,22 +145,14 @@
 										that.resetForm(formName)
 										that.show = false
 										that.$message({
-											message: '库存添加成功',
-											type: 'success'
-										});
-								} 
-								else if (res.status == 204){
-									that.$message({
-										message: '没有添加权限',
-										type: 'error'
+										message: '价格更新成功',
+										type: 'success'
 									});
-								}
-								else {
+								} else if (res.status === 204){
 											that.$message({
-											message: '添加失败，请确认信息后重试',
+											message: '没有操作权限',
 											type: 'error'
 										});
-										that.show = false
 										that.merchandise = {}
 								}
 
@@ -195,9 +166,9 @@
 			  resetForm(formName) {
 					this.$refs[formName].resetFields();
 			  },
-				logout(){
-					window.location.href = '../logout/'
-				}
+			  logout(){
+			  	window.location.href = '../logout/'
+			  }
 		}
     })
 </script>
