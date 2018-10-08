@@ -109,6 +109,9 @@ class PriceEditView(APIView):
             merchandise = Merchandise.objects.get(barcode=request.data['barcode'])
             merchandise.instockPrice = float(request.data['instockPrice'])
             merchandise.originPrice = float(request.data['retailPrice'])
+            merchandise.name = request.data['name']
+            merchandise.scale = request.data['scale']
+            merchandise.flavor = request.data['flavor']
             merchandise.save()
 
             return Response(status=status.HTTP_201_CREATED)

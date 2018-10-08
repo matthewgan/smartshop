@@ -43,7 +43,7 @@ class MerchandiseListShowInfoForInventorySerializer(serializers.ModelSerializer)
 
     class Meta:
         model = Merchandise
-        fields = ('id', 'name', 'brand', 'scale', 'unit', 'producePlace',
+        fields = ('id', 'name', 'brand', 'scale', 'unit', 'producePlace', 'instockPrice',
                   'originPrice', 'promotionPrice', 'clubPrice', 'code', 'flavor', 'stock','barcode', 'stockWithTag')
 
 
