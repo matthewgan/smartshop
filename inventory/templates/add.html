@@ -36,6 +36,7 @@
                 </el-aside>
 
                 <el-main style="border: 3px solid #eee">
+										<el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px">
                         <el-form-item label="生产日期" required>
                             <el-form-item prop="productionDate">
                                 <el-date-picker type="date" placeholder="选择日期" v-model="ruleForm.productionDate" style="width: 100%;"></el-date-picker>
