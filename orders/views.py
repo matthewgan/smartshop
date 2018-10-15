@@ -166,6 +166,7 @@ class CreateOrderView(APIView):
                             'priceOnSold': float('%.2f' % price_on_sold),
                             })
             total_price = total_price + order.get('num')*float('%.2f' % price_on_sold)
+            total_price = float('%.2f' % total_price)
             total_num = total_num + order.get('num')
 
         # prepare data for wechatPay
