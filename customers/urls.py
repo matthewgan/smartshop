@@ -14,4 +14,7 @@ urlpatterns = [
     url(r'^list/$', CustomerListView.as_view()),
     url(r'^detail/$', CustomerDetailView.as_view()),
     url(r'^info/$', CustomerInfoView.as_view()),
+
+    # Add extra signup for zixiaoguan new wechat mini app
+    url(r'^signup_zxg/$', CustomerSignupViewZxg.as_view()),
 ]
