@@ -13,3 +13,9 @@ class ShopSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shop
         fields = ('name', 'city', 'openingTime')
+
+
+class CreateShopSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Shop
+        fields = ('name', 'city', 'locationDetail', 'size', 'capacity', 'openingTime')

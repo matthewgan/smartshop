@@ -15,7 +15,7 @@ class Shop(models.Model):
     latitude = models.CharField(max_length=10, blank=True)
     city = models.CharField(max_length=15)
     locationDetail = models.CharField(max_length=200, blank=True)
-    size = models.DecimalField(max_digits=6, decimal_places=2)
+    size = models.DecimalField(max_digits=6, decimal_places=2, default=30.00)
     capacity = models.IntegerField(blank=True)
     createTime = models.DateTimeField(auto_now_add=True)
     openingTime = models.DateTimeField(blank=True)
