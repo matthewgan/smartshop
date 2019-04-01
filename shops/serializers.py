@@ -12,7 +12,7 @@ from .models import Shop
 class ShopSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shop
-        fields = ('name', 'city', 'openingTime')
+        fields = ('id', 'name', 'city', 'openingTime')
 
 
 class CreateShopSerializer(serializers.ModelSerializer):
