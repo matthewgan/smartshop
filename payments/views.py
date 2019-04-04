@@ -13,6 +13,7 @@ from customers.models import Customer
 from customers.serializers import CustomerPaymentResponseSerializer
 from orders.models import Order
 from .methods import payment_qr_code_with_offline_order, payment_with_balance, payment_with_wechat_online_order
+from .methods import payment_with_wechat_online_order_zxg
 from wechatpay.methods import trans_xml_to_dict, trans_dict_to_xml
 from wechatpay.methods import wechat_pay_query, wechat_pay_cancel
 from alipayment.methods import alipay_trade_query, alipay_trade_cancel
@@ -320,7 +321,7 @@ class UnifiedCallPaymentView(APIView):
                     res = payment_with_wechat_online_order(order.tradeNo, wuser.openid)
                     res['pay_method'] = 1
                     return Response(res, status=status.HTTP_200_OK)
-                if payment_record.order_method == 1:  # offline order
+                elif payment_record.order_method == 1:  # offline order
                     res = payment_qr_code_with_offline_order(order.tradeNo, wuser.openid)
                     payment_record.alipay_code_url = res.get('alipay_code_url')
                     payment_record.wechat_pay_code_url = res.get('wechat_pay_code_url')
@@ -332,6 +333,12 @@ class UnifiedCallPaymentView(APIView):
                     payment_record.save()
                     output_serializer = PaymentResponseSerializer(payment_record)
                     return Response(output_serializer.data, status=status.HTTP_200_OK)
+                elif payment_record.order_method == 2:  # wrapper for zxg miniApp wechatpay
+                    res = payment_with_wechat_online_order_zxg(order.tradeNo, wuser.openid)
+                    res['pay_method'] = 1
+                    return Response(res, status=status.HTTP_200_OK)
+                else:
+                    return Response(status=status.HTTP_400_BAD_REQUEST)
             else:
                 # complete pay if balance is enough to pay
                 res = payment_with_balance(order.tradeNo, payment_record.order_method)

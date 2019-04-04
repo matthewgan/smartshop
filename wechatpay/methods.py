@@ -7,6 +7,7 @@ from .models import Record
 from retry.methods import retry_on_500, retry_on_auth_failure, retry_on_server_error
 from .variables import trans_xml_to_dict, trans_dict_to_xml
 from .variables import get_tencent_unified_order_api
+from .variables import get_wechat_sub_app_id_by_shop_id, get_wechat_sub_app_id_zxg
 
 
 @retry_on_500
@@ -159,3 +160,39 @@ def wechat_pay_cancel(trace_no):
             'return_msg': resp_xml.get('return_msg'),
         }
     return resp_data
+
+
+def wechat_pay_zxg(bill, trace_no, open_id):
+    """
+    Online wechat pay, with default trade type JSAPI
+    :param bill: total_fee
+    :param trace_no: out_trade_no
+    :param open_id: user_wechat_id
+    :return: return message from wechat
+    """
+    try:
+        record = Record.objects.get(out_trade_no=trace_no)
+    except:
+        total_amount = str(int(bill * 100))
+        record = Record(total_fee=total_amount, out_trade_no=trace_no, sub_open_id=open_id, trade_type='JSAPI')
+    record.sub_app_id = get_wechat_sub_app_id_zxg()
+    record.save()
+    model_dict = record.model_to_dict()
+    model_xml = trans_dict_to_xml(model_dict)
+    # send to wechat with retry
+    response_msg = requests.post(url=get_tencent_unified_order_api(),
+                                           data=model_xml.encode('utf-8'),
+                                           headers={'Content-Type': 'text/xml'})
+    # get the data for wx.payment
+    response_msg = response_msg.text.encode('ISO-8859-1').decode('utf-8')
+    res = trans_xml_to_dict(response_msg)
+    if res.get('return_code') == 'SUCCESS':
+        record.prepay_sign = res.get('sign')
+        record.prepay_id = res.get('prepay_id')
+        record.save_pay_sign()
+        return record.prepay_response_to_dict()
+    else:
+        return {
+            'status': 'fail',
+            'error_msg': res.get('return_msg'),
+        }

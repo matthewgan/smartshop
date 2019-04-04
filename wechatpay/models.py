@@ -18,7 +18,8 @@ class Record(models.Model):
     sub_app_id = models.CharField(max_length=20, default=get_wechat_sub_app_id())
     sub_open_id = models.CharField(max_length=30)
     body = models.CharField(max_length=200, default='物掌柜智慧便利')
-    nonce_str = models.CharField(max_length=10, default=str(int(random.random()*1e10)))
+    #nonce_str = models.CharField(max_length=10, default=str(int(random.random()*1e10)))
+    nonce_str = models.CharField(max_length=10, blank=True)
     notify_url = models.CharField(max_length=200, default=get_notify_url())
     out_trade_no = models.CharField(max_length=128)
     spbill_create_ip = models.CharField(max_length=20, default=get_host_ip())
@@ -33,7 +34,7 @@ class Record(models.Model):
     # information for query this payment in wechat pay system
     query_sign = models.CharField(max_length=100, blank=True)
 
-    def get_str_for_sign(self):
+    def get_str_for_sign(self):		
         sign_string = "appid=" + str(self.app_id) \
                       + "&body=" + str(self.body) \
                       + "&mch_id=" + str(self.mch_id) \
@@ -51,6 +52,7 @@ class Record(models.Model):
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
+        self.nonce_str = str(int(random.random()*1e10))
         sign_str = self.get_str_for_sign()
         self.sign = hashlib.md5(sign_str.encode('utf-8')).hexdigest().upper()
         query_str = self.get_str_for_query()

@@ -5,7 +5,7 @@ from django.utils import timezone
 # Imports from your apps
 from orders.models import Order
 from customers.serializers import CustomerPaymentResponseSerializer
-from wechatpay.methods import wechat_pay, wechat_pay_qr_code
+from wechatpay.methods import wechat_pay, wechat_pay_qr_code, wechat_pay_zxg
 from alipayment.methods import alipay_qr_code
 from qfpayment.methods import qfpay_pay_qr_code
 
@@ -35,7 +35,6 @@ def payment_with_wechat_online_order(trade_no, open_id):
     order = Order.objects.get(tradeNo=trade_no)
     result = wechat_pay(order.payPrice, order.tradeNo, open_id)
     result['msg'] = 'Pay Success: MiniApp WechatPay'
-
     return result
 
 
@@ -101,3 +100,31 @@ def payment_with_balance(trade_no, order_method):
     res['msg'] = 'Pay Success: Balance'
 
     return res
+
+
+def payment_with_wechat_online_order_zxg(trade_no, open_id):
+    """
+    :param trade_no:
+    :param open_id:
+    :return:
+    SUCCESS
+    {
+        'status': success,
+        'timeStamp': timestamp,
+        'nonceStr': nonce_str,
+        'package': package,
+        'signType': 'MD5',
+        'paySign': paysign,
+        'tradeNo': out_trade_no,
+    }
+
+    FAILED
+    {
+        'status': fail,
+        'error_msg' : error_msg
+    }
+    """
+    order = Order.objects.get(tradeNo=trade_no)
+    result = wechat_pay_zxg(order.payPrice, order.tradeNo, open_id)
+    result['msg'] = 'Pay Success: MiniApp WechatPay'
+    return result

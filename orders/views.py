@@ -179,8 +179,8 @@ class CreateOrderView(APIView):
         voucher_list = PartnerVoucher.objects.filter(customer_id=request.data.get('user_id'))
         valid_voucher = voucher_list.filter(status=1)
         voucher_num = len(valid_voucher)
-        discount = 0;
-        maxAmount = 0;
+        discount = 0
+        maxAmount = 0
         if voucher_num > 0:
             for voucher in valid_voucher:
                 #voucher为自营券
@@ -189,10 +189,10 @@ class CreateOrderView(APIView):
                     if total_price >= voucher.event_id.order_min:
                         # 查找最大数额的可使用券
                         if voucher.event_id.discount_num > maxAmount:
-                            maxAmount = voucher.event_id.discount_num;
-                            voucher.status = 0;
+                            maxAmount = voucher.event_id.discount_num
+                            voucher.status = 0
                             voucher.save()
-                            discount = maxAmount;
+                            discount = maxAmount
 
         discount = float('%.2f' % discount)
         # calculate the pay money

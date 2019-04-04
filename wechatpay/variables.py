@@ -11,7 +11,21 @@ def get_wechat_app_id():
 
 
 def get_wechat_sub_app_id():
+    # wzg_app_id = 'wx18902f96ec8fb847'
+    # zxg_app_id = 'wxdca704a98aebef26'
     return 'wx18902f96ec8fb847'
+
+def get_wechat_sub_app_id_zxg():
+    return 'wxdca704a98aebef26'
+
+
+def get_wechat_sub_app_id_by_shop_id(shop_id):
+    if shop_id == 2:
+        return 'wx18902f96ec8fb847'
+    elif shop_id == 3:
+        return 'wxdca704a98aebef26'
+    else:
+        return 'wx18902f96ec8fb847'
 
 
 def get_wechat_mch_id():
