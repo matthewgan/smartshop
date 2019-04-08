@@ -25,7 +25,7 @@ from django.contrib.auth.views import login, logout
 # Imports from your apps
 import homepage.views
 import homepage.forms
-import inventory.views
+# import inventory.views
 
 urlpatterns = [
     # url(r'^jet/', include('jet.urls', 'jet')),
@@ -50,9 +50,12 @@ urlpatterns = [
         },
         name='logout'),
     url(r'^api/', include('api.urls')),
-    url(r'^inventory/add/$', inventory.views.add_inventory, name='库存'),
-    url(r'^inventory/edit/$', inventory.views.edit_price, name='价格'),
-    url(r'^inventory/register/$', inventory.views.regist, name='注册'),
-    url(r'^inventory/login/$', inventory.views.login, name='登录'),
-    url(r'^inventory/logout/$', inventory.views.logout, name='登出'),
+    # url(r'^inventory/add/$', inventory.views.add_inventory, name='库存'),
+    # url(r'^inventory/edit/$', inventory.views.edit_price, name='价格'),
+    # url(r'^inventory/register/$', inventory.views.regist, name='注册'),
+    # url(r'^inventory/login/$', inventory.views.login, name='登录'),
+    # url(r'^inventory/logout/$', inventory.views.logout, name='登出'),
+
+    url(r'^rest_auth/', include('rest_auth.urls')),
+    # url(r'^rest_auth/registration/', include('rest_auth.registration.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

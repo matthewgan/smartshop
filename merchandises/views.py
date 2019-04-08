@@ -11,9 +11,10 @@ from rest_framework import status
 # Imports from your apps
 from .models import Merchandise
 from .serializers import MerchandiseListShowInfoSerializer
-from .serializers import QueryMerchandiseDetailByBarcodeRequestSerializer, QueryMerchandiseDetailByBarcodeResponseSerializer, MerchandiseListShowInfoForInventorySerializer
+from .serializers import QueryMerchandiseDetailByBarcodeRequestSerializer, QueryMerchandiseDetailByBarcodeResponseSerializer
+# from .serializers import MerchandiseListShowInfoForInventorySerializer
 from .serializers import AddMerchandiseDetailByBarcodeSerializer, QueryMerchandiseDetailByBarcodeForCashierSerializer
-from tags.models import Tag
+#from tags.models import Tag
 
 
 class MerchandisesShowByCategoryView(APIView):

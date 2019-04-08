@@ -11,7 +11,7 @@ from .models import Tag
 from .serializers import TagSerializer, TagQueryResponseSerializer
 from merchandises.models import Merchandise
 from merchandises.serializers import MerchandiseListShowInfoSerializer
-from inventory.models import Inventory
+# from inventory.models import Inventory
 
 
 class TagCreateView(APIView):
