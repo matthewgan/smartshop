@@ -12,6 +12,4 @@ urlpatterns = [
     url(r'^query/$', QueryMerchandiseDetailByBarcodeForCashierView.as_view()),
     url(r'^tag/$', QueryMerchandiseDetailByEPCView.as_view()),
     url(r'^detailInventory/$', QueryMerchandiseDetailByBarcodeForInventoryView.as_view()),
-
-
 ]
