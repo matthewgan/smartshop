@@ -25,8 +25,7 @@ class CreateInStockView(APIView):
                     stock_serializer.save()
             else:
                 stock = stock.first()
-                stock.number += in_stock_number
-                stock.save(force_update=True)
+                stock.instock(in_stock_number)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -48,11 +47,7 @@ class CreateOutStockView(APIView):
                 stock_serializer.save()
             else:
                 stock = stock.first()
-                if (stock.number - out_stock_number) > 0:
-                    stock.number -= out_stock_number
-                else:
-                    stock.number = 0
-                stock.save(force_update=True)
+                stock.outstock(out_stock_number)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

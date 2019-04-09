@@ -93,6 +93,7 @@ INSTALLED_APPS = [
     'partnervoucher',
     # 'inventory',
     'corsheaders',
+    'sales',
 ]
 
 

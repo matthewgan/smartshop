@@ -19,6 +19,7 @@ from wechatpay.methods import wechat_pay_query, wechat_pay_cancel
 from alipayment.methods import alipay_trade_query, alipay_trade_cancel
 from .serializers import PaymentRequestSerializer, PaymentResponseSerializer
 from qfpayment.methods import qfpay_pay_quary, qfpay_pay_cancel
+from sales.functions import CountOrderIntoSaleRecord, RemoveOrderItemsFromStock
 
 
 @permission_classes((AllowAny, ))
@@ -171,6 +172,11 @@ class PaySuccessView(APIView):
             order.paymentMethod = 'Wechat Pay'
             order.save()
 
+            # Count into sale statistic
+            # Add by matthew 20190409
+            CountOrderIntoSaleRecord(order.tradeNo)
+            RemoveOrderItemsFromStock(order.tradeNo)
+
         if querydata.get('status') == 400:
             return Response(400, status=status.HTTP_200_OK)
 
@@ -222,8 +228,13 @@ class OfflinePayQueryView(APIView):
                 order.paymentMethod = 'Alipay Pay'
                 is_alipay_order_paid = True
             order.save()
+            wuser.save()
 
-        wuser.save()
+            # Count into sale statistic
+            # Add by matthew 20190409
+            CountOrderIntoSaleRecord(order.tradeNo)
+            RemoveOrderItemsFromStock(order.tradeNo)
+
         if is_wechatpay_order_paid:
             serializer = CustomerPaymentResponseSerializer(wuser)
             qfpay_pay_cancel(out_trade_no, 'Alipay')

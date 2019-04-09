@@ -3,7 +3,7 @@ from .models import Order, OrderDetail
 
 
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'tradeNo', 'userID', 'status', 'totalPrice', 'createTime', 'payTime', 'cancelTime', )
+    list_display = ('id', 'tradeNo', 'userID', 'status', 'totalNum', 'totalPrice', 'createTime', 'payTime', 'cancelTime', )
     search_fields = ('tradeNo', 'userID', 'totalPrice', 'createTime')
 
 

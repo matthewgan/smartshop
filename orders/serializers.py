@@ -48,8 +48,8 @@ class CreateOrderSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         details_data = validated_data.pop('details')
         order = Order.objects.create(**validated_data)
-        for details_data in details_data:
-            OrderDetail.objects.create(orderID=order, **details_data)
+        for detail in details_data:
+            OrderDetail.objects.create(orderID=order, **detail)
         return order
 
 
@@ -108,3 +108,9 @@ class OrderListForConfirmSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ('add_name', 'add_tel', 'add_detail', 'payTime', 'details', 'totalPrice', 'tradeNo')
+
+
+class OrderTradeNoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ("tradeNo", )

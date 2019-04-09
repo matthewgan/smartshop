@@ -16,12 +16,23 @@ class Stock(models.Model):
     shopID = models.ForeignKey(Shop, on_delete=models.DO_NOTHING)
     merchandiseID = models.ForeignKey(Merchandise, on_delete=models.DO_NOTHING)
     number = models.IntegerField(default=1)
-    supplierID = models.ForeignKey(Supplier, on_delete=models.DO_NOTHING)
+    supplierID = models.ForeignKey(Supplier, on_delete=models.DO_NOTHING, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return str(self.id)
+
+    def instock(self, instock_number):
+        self.number += instock_number
+        self.save()
+
+    def outstock(self, outstock_number):
+        if (self.number - outstock_number) >= 0:
+            self.number -= outstock_number
+        else:
+            self.number = 0
+        self.save()
 
     class Meta:
         ordering = ('created',)

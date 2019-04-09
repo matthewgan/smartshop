@@ -3,13 +3,16 @@
 from django.utils import timezone
 # Third-party app imports
 from rest_framework.views import APIView
+from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.pagination import PageNumberPagination
 import time
 
 # Imports from your apps
 from .models import Order, OrderDetail
 from .serializers import OrderListShowSerializer, CreateOrderSerializer, GetOrderDetailSerializer, OrderListForConfirmSerializer
+from .serializers import OrderSerializer
 from merchandises.models import Merchandise
 from customers.models import Customer
 from partnervoucher.models import PartnerVoucher
@@ -47,8 +50,6 @@ class GetOrderListView(APIView):
     miniApp-order.js
 
     Parameters:
-        userID = user uuid
-        status = type of order
 
     Returns:
       'id', 'userID', 'shopID', 'status', 'paymentMethod', 'paymentSN', 'discount', 'delivery',
@@ -71,8 +72,6 @@ class GetOderDetailView(APIView):
     miniApp-detail.js
 
     Parameters:
-        uuid = user uuid
-        imgFile = user face file
 
     Returns:
       'id', 'userID', 'shopID', 'status', 'paymentMethod', 'paymentSN', 'discount', 'delivery', 'totalPrice',
@@ -285,4 +284,6 @@ class ConfirmOrderView(APIView):
         return Response(status=status.HTTP_202_ACCEPTED)
 
 
-
+class OrderListViewSet(RetrieveAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
