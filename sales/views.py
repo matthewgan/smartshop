@@ -2,6 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import Http404
+from rest_framework.generics import ListAPIView
+from rest_framework.pagination import PageNumberPagination
 
 # Imports from your apps
 from .models import SaleRecord
@@ -55,3 +57,9 @@ class SaleQueryByMerchandiseView(APIView):
         sale_records = self.get_object(pk)
         serializer = SaleRecordSerializer(sale_records, many=True)
         return Response(serializer.data)
+
+
+class SaleRecordListView(ListAPIView):
+    queryset = SaleRecord.objects.all()
+    serializer_class = SaleRecordSerializer
+    pagination_class = PageNumberPagination
