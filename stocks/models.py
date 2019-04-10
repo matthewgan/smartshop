@@ -2,6 +2,7 @@
 
 # Core Django imports
 from django.db import models
+from django.contrib.auth.models import User
 
 # Third-party app imports
 
@@ -47,6 +48,7 @@ class InStockRecord(models.Model):
     number = models.IntegerField(default=1)
     supplierID = models.ForeignKey(Supplier, on_delete=models.DO_NOTHING)
     created = models.DateTimeField(auto_now_add=True)
+    operator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return self.id
@@ -63,6 +65,7 @@ class OutStockRecord(models.Model):
     merchandiseID = models.ForeignKey(Merchandise, on_delete=models.DO_NOTHING)
     number = models.IntegerField(default=1)
     created = models.DateTimeField(auto_now_add=True)
+    operator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return self.id

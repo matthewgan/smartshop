@@ -24,11 +24,11 @@ class ListStockSerializer(serializers.ModelSerializer):
 class InStockRecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = InStockRecord
-        fields = ("shopID", "merchandiseID", "number", "supplierID", )
+        fields = ("shopID", "merchandiseID", "number", "supplierID", "operator")
 
 
 class OutStockRecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = OutStockRecord
-        fields = ("shopID", "merchandiseID", "number", )
+        fields = ("shopID", "merchandiseID", "number", "operator")
 
