@@ -43,7 +43,7 @@ class SaleQueryByShopView(APIView):
     def get(self, request, pk, format=None):
         sale_records = self.get_object(pk)
         serializer = SaleRecordSerializer(sale_records, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class SaleQueryByMerchandiseView(APIView):
@@ -56,7 +56,7 @@ class SaleQueryByMerchandiseView(APIView):
     def get(self, request, pk, format=None):
         sale_records = self.get_object(pk)
         serializer = SaleRecordSerializer(sale_records, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class SaleRecordListView(ListAPIView):

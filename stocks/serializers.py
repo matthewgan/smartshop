@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Stock, InStockRecord, OutStockRecord
+from .models import Stock, InStockRecord, OutStockRecord, TransferStockRecord
 
 
 class StockSerializer(serializers.ModelSerializer):
@@ -32,3 +32,8 @@ class OutStockRecordSerializer(serializers.ModelSerializer):
         model = OutStockRecord
         fields = ("shopID", "merchandiseID", "number", "operator")
 
+
+class TransferStockRecordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TransferStockRecord
+        fields = ("fromShop", "toShop", "merchandiseID", "number", "operator")

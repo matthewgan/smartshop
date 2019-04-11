@@ -74,3 +74,22 @@ class OutStockRecord(models.Model):
         ordering = ('created',)
         verbose_name = "出库记录"
         verbose_name_plural = "出库记录"
+
+
+class TransferStockRecord(models.Model):
+    id = models.AutoField(primary_key=True)
+    merchandiseID = models.ForeignKey(Merchandise, on_delete=models.DO_NOTHING)
+    number = models.IntegerField(default=1)
+    fromShop = models.ForeignKey(Shop, on_delete=models.DO_NOTHING, related_name="transfer_from_shop")
+    toShop = models.ForeignKey(Shop, on_delete=models.DO_NOTHING, related_name="transfer_to_shop")
+    created = models.DateTimeField(auto_now_add=True)
+    operator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    result = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        ordering = ('created',)
+        verbose_name = "转仓记录"
+        verbose_name_plural = "转仓记录"

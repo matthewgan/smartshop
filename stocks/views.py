@@ -1,11 +1,13 @@
+from django.db.models import Q
+from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
 from .models import Stock, InStockRecord, OutStockRecord
 from .serializers import StockSerializer, InStockRecordSerializer, OutStockRecordSerializer
-from .serializers import ListStockSerializer, QueryStockSerializer
-from django.db.models import Q
+from .serializers import ListStockSerializer, QueryStockSerializer, TransferStockRecordSerializer
+from suppliers.models import Supplier
 
 
 class CreateInStockView(APIView):
@@ -70,3 +72,74 @@ class QueryStockView(APIView):
         else:
             return Response(input_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class TransferStockView(APIView):
+    def post(self, request):
+        input_serializer = TransferStockRecordSerializer(data=request.data)
+        if input_serializer.is_valid():
+            transfer_record = input_serializer.save()
+            from_shop_id = input_serializer.validated_data["fromShop"]
+            to_shop_id = input_serializer.validated_data["toShop"]
+            merchandise_id = input_serializer.validated_data['merchandiseID']
+            transfer_number = input_serializer.validated_data['number']
+            from_shop_stock = Stock.objects.filter(Q(shopID=from_shop_id) & Q(merchandiseID=merchandise_id))
+            default_supplier = Supplier.objects.all().first()
+            if not from_shop_stock.exists():
+                # create a empty stock for merchandise
+                stock = Stock.objects.create(shopID=from_shop_id, merchandiseID=merchandise_id,
+                                             number=0, supplierID=default_supplier)
+                output_serializer = StockSerializer(stock)
+                return Response(output_serializer.data, status=status.HTTP_204_NO_CONTENT)
+            else:
+                from_stock = from_shop_stock.first()
+                if from_stock.number < transfer_number:
+                    # stock number is less than request transfer number
+                    output_serializer = StockSerializer(from_stock)
+                    return Response(output_serializer.data, status=status.HTTP_204_NO_CONTENT)
+                else:
+                    # enough stock, can transfer to other shop
+                    to_shop_stock = Stock.objects.filter(Q(shopID=to_shop_id) & Q(merchandiseID=merchandise_id))
+                    if not to_shop_stock.exists():
+                        # create a empty stock in to-shop for merchandise
+                        to_stock = Stock.objects.create(shopID=to_shop_id, merchandiseID=merchandise_id,
+                                                        number=0, supplierID=default_supplier)
+                    else:
+                        to_stock = to_shop_stock.first()
+                    # do the transfer
+                    to_stock.instock(transfer_number)
+                    from_stock.outstock(transfer_number)
+                    # set transfer result
+                    transfer_record.result = True
+                    transfer_record.save()
+
+                    # return the new stock info of to-shop to front end
+                    output_serializer = StockSerializer(to_stock)
+                    return Response(output_serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(input_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class QueryStockByShopView(APIView):
+    def get_object(self, pk):
+        try:
+            return Stock.objects.filter(shopID=pk).order_by('-number')
+        except Stock.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        stocks = self.get_object(pk)
+        serializer = StockSerializer(stocks, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class QueryStockByMerchandiseView(APIView):
+    def get_object(self, pk):
+        try:
+            return Stock.objects.filter(merchandiseID=pk).order_by('-number')
+        except Stock.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        stocks = self.get_object(pk)
+        serializer = StockSerializer(stocks, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

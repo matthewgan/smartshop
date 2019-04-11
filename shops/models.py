@@ -18,7 +18,7 @@ class Shop(models.Model):
     size = models.DecimalField(max_digits=6, decimal_places=2, default=30.00)
     capacity = models.IntegerField(blank=True)
     createTime = models.DateTimeField(auto_now_add=True)
-    openingTime = models.DateTimeField(blank=True)
+    openingTime = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return self.name
