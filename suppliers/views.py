@@ -7,4 +7,4 @@ from rest_framework.pagination import PageNumberPagination
 class SupplierViewSet(ModelViewSet):
     queryset = Supplier.objects.all()
     serializer_class = SupplierSerializer
-    pagination_class = PageNumberPagination
+    pagination_class = None

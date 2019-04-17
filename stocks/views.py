@@ -88,13 +88,13 @@ class TransferStockView(APIView):
                 # create a empty stock for merchandise
                 stock = Stock.objects.create(shopID=from_shop_id, merchandiseID=merchandise_id,
                                              number=0, supplierID=default_supplier)
-                output_serializer = StockSerializer(stock)
+                output_serializer = ListStockSerializer(stock)
                 return Response(output_serializer.data, status=status.HTTP_204_NO_CONTENT)
             else:
                 from_stock = from_shop_stock.first()
                 if from_stock.number < transfer_number:
                     # stock number is less than request transfer number
-                    output_serializer = StockSerializer(from_stock)
+                    output_serializer = ListStockSerializer(from_stock)
                     return Response(output_serializer.data, status=status.HTTP_204_NO_CONTENT)
                 else:
                     # enough stock, can transfer to other shop
@@ -113,7 +113,7 @@ class TransferStockView(APIView):
                     transfer_record.save()
 
                     # return the new stock info of to-shop to front end
-                    output_serializer = StockSerializer(to_stock)
+                    output_serializer = ListStockSerializer(to_stock)
                     return Response(output_serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(input_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -128,7 +128,7 @@ class QueryStockByShopView(APIView):
 
     def get(self, request, pk, format=None):
         stocks = self.get_object(pk)
-        serializer = StockSerializer(stocks, many=True)
+        serializer = ListStockSerializer(stocks, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -141,5 +141,5 @@ class QueryStockByMerchandiseView(APIView):
 
     def get(self, request, pk, format=None):
         stocks = self.get_object(pk)
-        serializer = StockSerializer(stocks, many=True)
+        serializer = ListStockSerializer(stocks, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
