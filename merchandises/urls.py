@@ -6,6 +6,7 @@ from django.conf.urls import url
 from .views import QueryMerchandiseDetailByBarcodeView, CreateMerchandiseView
 from .views import QueryMerchandiseDetailByBarcodeForCashierView, QueryMerchandiseDetailByEPCView
 from .views import QueryMerchandiseDetailByBarcodeForInventoryView
+from .views import MerchandiseDetailView
 
 
 urlpatterns = [
@@ -15,4 +16,5 @@ urlpatterns = [
     url(r'^tag/$', QueryMerchandiseDetailByEPCView.as_view()),
     # url(r'^detailInventory/$', QueryMerchandiseDetailByBarcodeForInventoryView.as_view()),
     url(r'^fast_query/$', QueryMerchandiseDetailByBarcodeForInventoryView.as_view()),
+    url(r'(?P<pk>[0-9]+)/$', MerchandiseDetailView.as_view()),
 ]
