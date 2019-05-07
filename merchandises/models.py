@@ -9,8 +9,8 @@ from categories.models import Category
 class Merchandise(models.Model):
     id = models.AutoField(primary_key=True)
     code = models.CharField(max_length=15, blank=True)
-    categoryID = models.ForeignKey(Category, on_delete=models.DO_NOTHING)
-    # categoryID = models.IntegerField(default=1)
+    # categoryID = models.ForeignKey(Category, on_delete=models.DO_NOTHING)
+    categoryID = models.IntegerField()
     categoryName = models.CharField(max_length=30, blank=True)
     subCategoryName = models.CharField(max_length=30, blank=True)
     name = models.CharField(max_length=30, blank=True)
