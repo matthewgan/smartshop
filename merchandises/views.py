@@ -95,12 +95,14 @@ class QueryMerchandiseDetailByBarcodeForCashierView(APIView):
         serializer = QueryMerchandiseDetailByBarcodeRequestSerializer(data=request.data)
         if serializer.is_valid():
             barcode = serializer.validated_data['barcode']
-            merchandise = Merchandise.objects.get(barcode=barcode)
-            if not merchandise.exists():
-                return Response(status=status.HTTP_204_NO_CONTENT)
-            else:
-                output_serializer = QueryMerchandiseDetailByBarcodeForCashierSerializer(merchandise)
-                return Response(output_serializer.data, status=status.HTTP_200_OK)
+            merchandise = Merchandise.objects.filter(barcode=barcode).first()
+            output_serializer = QueryMerchandiseDetailByBarcodeForCashierSerializer(merchandise)
+            return Response(output_serializer.data, status=status.HTTP_200_OK)
+            # if not merchandise.exists():
+            #     return Response(status=status.HTTP_204_NO_CONTENT)
+            # else:
+            #     output_serializer = QueryMerchandiseDetailByBarcodeForCashierSerializer(merchandise)
+            #     return Response(output_serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -110,12 +112,6 @@ class QueryMerchandiseDetailByBarcodeForInventoryView(APIView):
         serializer = QueryMerchandiseDetailByBarcodeRequestSerializer(data=request.data)
         if serializer.is_valid():
             barcode = serializer.validated_data['barcode']
-            # try:
-            #     merchandise = Merchandise.objects.get(barcode=barcode)
-            # except Merchandise.DoesNotExist:
-            #     return Response(status=status.HTTP_204_NO_CONTENT)
-            # output_serializer = MerchandiseListShowInfoForInventorySerializer(merchandise)
-            # return Response(output_serializer.data, status=status.HTTP_200_OK)
             merchandise = Merchandise.objects.filter(barcode=barcode)
             if not merchandise.exists():
                 return Response(status=status.HTTP_204_NO_CONTENT)
