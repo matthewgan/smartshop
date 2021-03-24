@@ -20,7 +20,7 @@ pycryptodomex==3.6.1
 python-alipay-sdk==1.7.1
 pytz==2018.4
 requests==2.18.4
-rsa==3.4.2
+rsa==4.1
 six==1.11.0
 sqlparse==0.2.4
 uritemplate==3.0.0
