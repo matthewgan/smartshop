@@ -91,8 +91,8 @@ INSTALLED_APPS = [
     'partner',
     'partnerevent',
     'partnervoucher',
-    # 'inventory',
-    'corsheaders',
+    #'inventory',
+    #'corsheaders',
     'sales',
 ]
 
@@ -104,7 +104,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
+    #'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -141,14 +141,14 @@ WSGI_APPLICATION = 'SmartShop.wsgi.application'
 #
 DATABASES = {
     'default': {
-        # 'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'masterwudb',
-        'USER': 'masterwu',
-        'PASSWORD': '@GGx9&JY6Qj$',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        #'ENGINE': 'django.db.backends.mysql',
+        #'NAME': 'masterwudb',
+        #'USER': 'masterwu',
+        #'PASSWORD': '@GGx9&JY6Qj$',
+        #'HOST': 'localhost',
+        #'PORT': '3306',
     }
 }
 

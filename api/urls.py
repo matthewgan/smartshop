@@ -34,5 +34,5 @@ urlpatterns = [
     # url(r'^inventory/', include('inventory.urls')),
     url(r'^stock/', include('stocks.urls')),
     url(r'^supplier/', include('suppliers.urls')),
-    url(r'^sale/', include('sales.urls')),
+    #url(r'^sale/', include('sales.urls')),
 ]
